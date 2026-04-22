@@ -1,0 +1,207 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String          @id @default(cuid())
+  email         String          @unique
+  passwordHash  String
+  displayName   String
+  avatarUrl     String?
+  bio           String?
+  linkX         String?
+  linkInstagram String?
+  linkWebsite   String?
+  area          String?
+  customLinks   String?
+  isPublic      Boolean         @default(true)
+  visibility    String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  readings             ReadingStatus[]
+  messages             ChatMessage[]
+  readingEvents        ReadingEvent[]       @relation
+  passwordResetTokens  PasswordResetToken[]
+  friendshipsRequested Friendship[]         @relation("FriendshipsRequested")
+  friendshipsReceived  Friendship[]         @relation("FriendshipsReceived")
+  dmsSent              DirectMessage[]      @relation("DMsSent")
+  dmsReceived          DirectMessage[]      @relation("DMsReceived")
+  blockedUsers         Block[]              @relation("Blocker")
+  blockedByUsers       Block[]              @relation("Blocked")
+}
+
+model Book {
+  id               String   @id @default(cuid())
+  isbn             String?  @unique
+  title            String
+  titleNormalized  String   @default("")
+  titleKana        String?
+  subtitle         String?
+  seriesName       String?
+  volume           String?
+  author           String
+  authorKana       String?
+  publisher        String?
+  publisherNormalized String?
+  label            String?
+  labelNormalized  String?
+  publishedDate    String?
+  totalPages       Int      @default(0)
+  coverImageUrl    String?
+  coverSource      String?
+  description      String?
+  sourceData       String?  // JSON: {"openbd": {...}, "ndl": {...}}
+
+  // ランキング用フィールド（事前計算）
+  publisherTier     String  @default("C") // S, A, B, C, D
+  publisherScore    Int     @default(0)
+  popularityScore   Int     @default(0)
+  completenessScore Int     @default(0)
+  freshnessScore    Int     @default(0)
+  customRank        Int     @default(0)   // 全スコア合計、検索ソート用
+
+  // フラグ
+  isCanonical       Boolean @default(true)
+  isElectronic      Boolean @default(false)
+  isKarilRecommended Boolean @default(false)
+  isLongseller      Boolean @default(false)
+  registrationCount Int     @default(0)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
+
+  readings      ReadingStatus[]
+  messages      ChatMessage[]
+  readingEvents ReadingEvent[]   @relation("PrimaryBook")
+  events        ReadingEvent[]   @relation("EventBooks")
+
+  @@index([title])
+  @@index([titleNormalized])
+  @@index([author])
+  @@index([publisherNormalized])
+  @@index([labelNormalized])
+  @@index([customRank])
+  @@index([seriesName])
+}
+
+enum ReadingStatusType {
+  WANT_TO_READ
+  READING
+  COMPLETED
+}
+
+model ReadingStatus {
+  id          String            @id @default(cuid())
+  userId      String
+  bookId      String
+  status      ReadingStatusType
+  currentPage Int               @default(0)
+  startedAt   DateTime?
+  completedAt DateTime?
+  updatedAt   DateTime          @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+  book Book @relation(fields: [bookId], references: [id])
+
+  @@unique([userId, bookId])
+  @@index([bookId, status])
+  @@index([bookId, completedAt])
+}
+
+model ReadingEvent {
+  id          String   @id @default(cuid())
+  bookId      String
+  organizerId String
+  title       String
+  eventDate   DateTime
+  prefecture  String   @default("東京都")
+  location    String
+  url         String?
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  book      Book   @relation("PrimaryBook", fields: [bookId], references: [id])
+  books     Book[] @relation("EventBooks")
+  organizer User   @relation(fields: [organizerId], references: [id])
+
+  @@index([bookId, eventDate])
+  @@index([eventDate])
+  @@index([prefecture])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([token])
+  @@index([expiresAt])
+}
+
+model Friendship {
+  id          String   @id @default(cuid())
+  requesterId String
+  addresseeId String
+  status      String   @default("PENDING")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  requester User @relation("FriendshipsRequested", fields: [requesterId], references: [id])
+  addressee User @relation("FriendshipsReceived", fields: [addresseeId], references: [id])
+
+  @@unique([requesterId, addresseeId])
+  @@index([addresseeId, status])
+  @@index([requesterId, status])
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  bookId    String
+  userId    String
+  content   String
+  window    String   @default("1w")
+  createdAt DateTime @default(now())
+
+  book Book @relation(fields: [bookId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([bookId, window, createdAt])
+}
+
+model DirectMessage {
+  id          String   @id @default(cuid())
+  senderId    String
+  recipientId String
+  content     String
+  createdAt   DateTime @default(now())
+
+  sender    User @relation("DMsSent", fields: [senderId], references: [id])
+  recipient User @relation("DMsReceived", fields: [recipientId], references: [id])
+
+  @@index([senderId, recipientId, createdAt])
+  @@index([recipientId, senderId, createdAt])
+}
+
+model Block {
+  id        String   @id @default(cuid())
+  blockerId String
+  blockedId String
+  createdAt DateTime @default(now())
+
+  blocker User @relation("Blocker", fields: [blockerId], references: [id])
+  blocked User @relation("Blocked", fields: [blockedId], references: [id])
+
+  @@unique([blockerId, blockedId])
+  @@index([blockedId])
+}

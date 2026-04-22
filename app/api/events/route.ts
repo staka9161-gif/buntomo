@@ -1,0 +1,76 @@
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
+
+export async function GET(request: NextRequest) {
+  const sp = request.nextUrl.searchParams;
+  const q = sp.get("q")?.trim() || "";
+  const prefecture = sp.get("prefecture") || "";
+  const month = sp.get("month") || ""; // "2026-05" 形式
+
+  // 未来のイベントのみ
+  const where: Record<string, unknown> = {
+    eventDate: { gte: new Date() },
+  };
+
+  // 都道府県フィルタ
+  if (prefecture) {
+    where.prefecture = prefecture;
+  }
+
+  // 月フィルタ
+  if (month && /^\d{4}-\d{2}$/.test(month)) {
+    const start = new Date(`${month}-01T00:00:00`);
+    const end = new Date(start);
+    end.setMonth(end.getMonth() + 1);
+    where.eventDate = {
+      ...(where.eventDate as object),
+      gte: start > new Date() ? start : new Date(),
+      lt: end,
+    };
+  }
+
+  // フリーワード: タイトル or 本のタイトル or 場所
+  if (q) {
+    where.OR = [
+      { title: { contains: q } },
+      { location: { contains: q } },
+      { book: { title: { contains: q } } },
+      { book: { author: { contains: q } } },
+    ];
+  }
+
+  const events = await prisma.readingEvent.findMany({
+    where,
+    include: {
+      book: { select: { id: true, title: true, author: true, coverImageUrl: true } },
+      books: { select: { id: true, title: true, author: true, coverImageUrl: true } },
+      organizer: { select: { id: true, displayName: true, avatarUrl: true } },
+    },
+    orderBy: { eventDate: "asc" },
+    take: 50,
+  });
+
+  return NextResponse.json({
+    events: events.map((e) => ({
+      id: e.id,
+      title: e.title,
+      eventDate: e.eventDate.toISOString(),
+      prefecture: e.prefecture,
+      location: e.location,
+      url: e.url,
+      description: e.description,
+      book: e.book,
+      books: e.books.map((b) => ({
+        id: b.id,
+        title: b.title,
+        author: b.author,
+        coverImageUrl: b.coverImageUrl,
+      })),
+      organizer: {
+        id: e.organizer.id,
+        displayName: e.organizer.displayName,
+        avatarUrl: e.organizer.avatarUrl,
+      },
+    })),
+  });
+}
