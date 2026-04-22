@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { apiUrl } from "@/lib/api";
 import WindowSelector from "./WindowSelector";
 import type { WindowType } from "@/types";
 
@@ -29,7 +30,7 @@ export default function ChatRoom({ bookId }: { bookId: string }) {
   const fetchMessages = useCallback(async (isInitial = false) => {
     if (isInitial) setLoading(true);
     try {
-      const res = await fetch(`/api/books/${bookId}/chat?window=${window}`);
+      const res = await fetch(apiUrl(`/api/books/${bookId}/chat?window=${window}`));
       if (!res.ok) return;
       const data = await res.json();
       const newMessages: Message[] = data.messages || [];
@@ -66,7 +67,7 @@ export default function ChatRoom({ bookId }: { bookId: string }) {
     if (!input.trim() || sending) return;
     setSending(true);
     try {
-      const res = await fetch(`/api/books/${bookId}/chat`, {
+      const res = await fetch(apiUrl(`/api/books/${bookId}/chat`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content: input.trim(), window }),

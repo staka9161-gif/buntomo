@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import { apiUrl } from "@/lib/api";
 import ChatRoom from "@/components/chat/ChatRoom";
 
 export default function BookChatPage() {
@@ -12,7 +13,7 @@ export default function BookChatPage() {
   const [eventCount, setEventCount] = useState(0);
 
   useEffect(() => {
-    fetch(`/api/books/${bookId}`)
+    fetch(apiUrl(`/api/books/${bookId}`))
       .then((r) => {
         if (!r.ok) throw new Error();
         return r.json();

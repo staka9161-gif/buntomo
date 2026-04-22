@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { apiUrl } from "@/lib/api";
 import ProgressBar from "@/components/book/ProgressBar";
 import CurrentlyReadingList from "@/components/book/CurrentlyReadingList";
 import ReadingEvents from "@/components/book/ReadingEvents";
@@ -40,7 +41,7 @@ export default function BookDetailPage() {
 
   const fetchBook = useCallback(async () => {
     try {
-      const res = await fetch(`/api/books/${bookId}`);
+      const res = await fetch(apiUrl(`/api/books/${bookId}`));
       if (!res.ok) return;
       const data = await res.json();
       setBook(data.book);
@@ -53,7 +54,7 @@ export default function BookDetailPage() {
   }, [bookId]);
 
   const fetchMyReading = useCallback(async () => {
-    const res = await fetch("/api/me/readings?status=");
+    const res = await fetch(apiUrl("/api/me/readings?status="));
     if (!res.ok) return;
     const data = await res.json();
     const found = (data.readings || []).find(
@@ -93,7 +94,7 @@ export default function BookDetailPage() {
       router.push("/login");
       return;
     }
-    await fetch("/api/me/readings", {
+    await fetch(apiUrl("/api/me/readings"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ bookId, status: "READING" }),
@@ -103,7 +104,7 @@ export default function BookDetailPage() {
 
   const handleMarkCompleted = async () => {
     if (!myReading) return;
-    await fetch(`/api/me/readings/${myReading.id}`, {
+    await fetch(apiUrl(`/api/me/readings/${myReading.id}`), {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: "COMPLETED" }),
@@ -113,7 +114,7 @@ export default function BookDetailPage() {
 
   const handleUpdatePage = async () => {
     if (!myReading) return;
-    await fetch(`/api/me/readings/${myReading.id}`, {
+    await fetch(apiUrl(`/api/me/readings/${myReading.id}`), {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ currentPage: pageInput }),
@@ -123,7 +124,7 @@ export default function BookDetailPage() {
 
   const handleRevertToReading = async () => {
     if (!myReading) return;
-    await fetch(`/api/me/readings/${myReading.id}`, {
+    await fetch(apiUrl(`/api/me/readings/${myReading.id}`), {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: "READING" }),

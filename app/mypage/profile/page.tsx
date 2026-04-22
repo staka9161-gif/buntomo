@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { apiUrl } from "@/lib/api";
 
 interface CustomLink {
   label: string;
@@ -71,7 +72,7 @@ export default function ProfileEditPage() {
 
   useEffect(() => {
     if (status !== "authenticated") return;
-    fetch("/api/me/profile")
+    fetch(apiUrl("/api/me/profile"))
       .then((r) => {
         if (!r.ok) throw new Error();
         return r.json();
@@ -111,7 +112,7 @@ export default function ProfileEditPage() {
     try {
       const formData = new FormData();
       formData.append("avatar", file);
-      const res = await fetch("/api/me/profile/avatar", {
+      const res = await fetch(apiUrl("/api/me/profile/avatar"), {
         method: "POST",
         body: formData,
       });
@@ -149,7 +150,7 @@ export default function ProfileEditPage() {
     setSaving(true);
     try {
       const validCustomLinks = customLinks.filter((l) => l.label.trim() && l.url.trim());
-      const res = await fetch("/api/me/profile", {
+      const res = await fetch(apiUrl("/api/me/profile"), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -192,7 +193,7 @@ export default function ProfileEditPage() {
 
     setSavingAccount(true);
     try {
-      const res = await fetch("/api/me/account", {
+      const res = await fetch(apiUrl("/api/me/account"), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { apiUrl } from "@/lib/api";
 
 type FriendshipStatus = "none" | "pending-sent" | "pending-received" | "friends";
 
@@ -19,7 +20,7 @@ export default function FriendRequestButton({ userId, initialStatus, friendshipI
   const handleRequest = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/me/friends/requests", {
+      const res = await fetch(apiUrl("/api/me/friends/requests"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId }),
@@ -42,7 +43,7 @@ export default function FriendRequestButton({ userId, initialStatus, friendshipI
     if (!fId) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/me/friends/requests/${fId}`, { method: "DELETE" });
+      const res = await fetch(apiUrl(`/api/me/friends/requests/${fId}`), { method: "DELETE" });
       if (res.ok) {
         setStatus("none");
         setFId(null);
@@ -57,7 +58,7 @@ export default function FriendRequestButton({ userId, initialStatus, friendshipI
     if (!fId) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/me/friends/requests/${fId}`, {
+      const res = await fetch(apiUrl(`/api/me/friends/requests/${fId}`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "accept" }),
@@ -75,7 +76,7 @@ export default function FriendRequestButton({ userId, initialStatus, friendshipI
     if (!fId) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/me/friends/requests/${fId}`, {
+      const res = await fetch(apiUrl(`/api/me/friends/requests/${fId}`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "reject" }),
@@ -94,7 +95,7 @@ export default function FriendRequestButton({ userId, initialStatus, friendshipI
     if (!confirm("友だちを解除しますか？")) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/me/friends/${userId}`, { method: "DELETE" });
+      const res = await fetch(apiUrl(`/api/me/friends/${userId}`), { method: "DELETE" });
       if (res.ok) {
         setStatus("none");
         setFId(null);

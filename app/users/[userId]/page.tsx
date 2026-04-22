@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { apiUrl } from "@/lib/api";
 import FriendRequestButton from "@/components/friends/FriendRequestButton";
 
 interface UserProfile {
@@ -50,7 +51,7 @@ export default function UserProfilePage() {
 
   const handleBlock = async () => {
     if (!confirm(`${user?.displayName || "このユーザー"} をブロックしますか？\n友だち関係も解除されます。`)) return;
-    const res = await fetch(`/api/me/blocks/${userId}`, { method: "POST" });
+    const res = await fetch(apiUrl(`/api/me/blocks/${userId}`), { method: "POST" });
     if (res.ok) {
       router.push("/mypage");
     } else {
@@ -61,7 +62,7 @@ export default function UserProfilePage() {
 
   const fetchData = async () => {
     try {
-      const res = await fetch(`/api/users/${userId}`);
+      const res = await fetch(apiUrl(`/api/users/${userId}`));
       if (!res.ok) return;
       const data = await res.json();
       setUser(data.user);

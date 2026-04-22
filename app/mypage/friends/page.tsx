@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { apiUrl } from "@/lib/api";
 
 interface UserInfo {
   id: string;
@@ -39,8 +40,8 @@ export default function FriendsPage() {
   const fetchAll = async () => {
     try {
       const [reqRes, friendRes] = await Promise.all([
-        fetch("/api/me/friends/requests").then((r) => r.json()).catch(() => ({ received: [], sent: [] })),
-        fetch("/api/me/friends").then((r) => r.json()).catch(() => ({ friends: [] })),
+        fetch(apiUrl("/api/me/friends/requests")).then((r) => r.json()).catch(() => ({ received: [], sent: [] })),
+        fetch(apiUrl("/api/me/friends")).then((r) => r.json()).catch(() => ({ friends: [] })),
       ]);
       setReceived(reqRes.received || []);
       setSent(reqRes.sent || []);
@@ -55,7 +56,7 @@ export default function FriendsPage() {
   }, [status]);
 
   const handleAccept = async (id: string) => {
-    const res = await fetch(`/api/me/friends/requests/${id}`, {
+    const res = await fetch(apiUrl(`/api/me/friends/requests/${id}`), {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "accept" }),
@@ -64,7 +65,7 @@ export default function FriendsPage() {
   };
 
   const handleReject = async (id: string) => {
-    const res = await fetch(`/api/me/friends/requests/${id}`, {
+    const res = await fetch(apiUrl(`/api/me/friends/requests/${id}`), {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action: "reject" }),
@@ -73,13 +74,13 @@ export default function FriendsPage() {
   };
 
   const handleCancel = async (id: string) => {
-    const res = await fetch(`/api/me/friends/requests/${id}`, { method: "DELETE" });
+    const res = await fetch(apiUrl(`/api/me/friends/requests/${id}`), { method: "DELETE" });
     if (res.ok) fetchAll();
   };
 
   const handleUnfriend = async (userId: string) => {
     if (!confirm("友だちを解除しますか？")) return;
-    const res = await fetch(`/api/me/friends/${userId}`, { method: "DELETE" });
+    const res = await fetch(apiUrl(`/api/me/friends/${userId}`), { method: "DELETE" });
     if (res.ok) fetchAll();
   };
 

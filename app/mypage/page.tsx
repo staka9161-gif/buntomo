@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { apiUrl } from "@/lib/api";
 import BookCard from "@/components/book/BookCard";
 
 interface Reading {
@@ -72,12 +73,12 @@ export default function MyPage() {
 
   const fetchAll = () => {
     Promise.all([
-      fetch("/api/me/readings?status=reading").then((r) => r.json()).catch(() => ({ readings: [] })),
-      fetch("/api/me/readings?status=completed").then((r) => r.json()).catch(() => ({ readings: [] })),
-      fetch("/api/me/chat-history").then((r) => r.json()).catch(() => ({ chatHistory: [] })),
-      fetch("/api/me/friends").then((r) => r.json()).catch(() => ({ friends: [] })),
-      fetch("/api/me/friends/requests").then((r) => r.json()).catch(() => ({ received: [] })),
-      fetch("/api/me/profile").then((r) => r.json()).catch(() => ({ profile: null })),
+      fetch(apiUrl("/api/me/readings?status=reading")).then((r) => r.json()).catch(() => ({ readings: [] })),
+      fetch(apiUrl("/api/me/readings?status=completed")).then((r) => r.json()).catch(() => ({ readings: [] })),
+      fetch(apiUrl("/api/me/chat-history")).then((r) => r.json()).catch(() => ({ chatHistory: [] })),
+      fetch(apiUrl("/api/me/friends")).then((r) => r.json()).catch(() => ({ friends: [] })),
+      fetch(apiUrl("/api/me/friends/requests")).then((r) => r.json()).catch(() => ({ received: [] })),
+      fetch(apiUrl("/api/me/profile")).then((r) => r.json()).catch(() => ({ profile: null })),
     ]).then(([readingData, completedData, chatData, friendData, requestData, profileData]) => {
       setReadingBooks(readingData.readings || []);
       setCompletedBooks(completedData.readings || []);
@@ -95,7 +96,7 @@ export default function MyPage() {
   }, [status]);
 
   const handleStatusChange = async (readingId: string, newStatus: string) => {
-    await fetch(`/api/me/readings/${readingId}`, {
+    await fetch(apiUrl(`/api/me/readings/${readingId}`), {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: newStatus }),
@@ -104,7 +105,7 @@ export default function MyPage() {
   };
 
   const handleUpdatePage = async (readingId: string, page: number) => {
-    await fetch(`/api/me/readings/${readingId}`, {
+    await fetch(apiUrl(`/api/me/readings/${readingId}`), {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ currentPage: page }),
@@ -113,7 +114,7 @@ export default function MyPage() {
   };
 
   const handleDelete = async (readingId: string) => {
-    const res = await fetch(`/api/me/readings/${readingId}`, { method: "DELETE" });
+    const res = await fetch(apiUrl(`/api/me/readings/${readingId}`), { method: "DELETE" });
     if (res.ok) fetchAll();
   };
 

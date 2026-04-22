@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { apiUrl } from "@/lib/api";
 
 interface Message {
   id: string;
@@ -35,7 +36,7 @@ export default function DMChatPage() {
   const fetchMessages = useCallback(async (isInitial = false) => {
     if (isInitial) setLoading(true);
     try {
-      const res = await fetch(`/api/me/dms/${userId}`);
+      const res = await fetch(apiUrl(`/api/me/dms/${userId}`));
       if (!res.ok) {
         if (res.status === 403) setError("友だちではないためメッセージを表示できません");
         return;
@@ -73,7 +74,7 @@ export default function DMChatPage() {
     if (!input.trim() || sending) return;
     setSending(true);
     try {
-      const res = await fetch(`/api/me/dms/${userId}`, {
+      const res = await fetch(apiUrl(`/api/me/dms/${userId}`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content: input.trim() }),

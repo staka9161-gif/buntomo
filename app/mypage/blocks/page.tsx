@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { apiUrl } from "@/lib/api";
 
 interface BlockedUser {
   id: string;
@@ -23,7 +24,7 @@ export default function BlockListPage() {
 
   const fetchBlocks = async () => {
     try {
-      const res = await fetch("/api/me/blocks");
+      const res = await fetch(apiUrl("/api/me/blocks"));
       const data = await res.json();
       setBlocks(data.blocks || []);
     } catch {} finally {
@@ -37,7 +38,7 @@ export default function BlockListPage() {
 
   const handleUnblock = async (userId: string) => {
     if (!confirm("ブロックを解除しますか？")) return;
-    const res = await fetch(`/api/me/blocks/${userId}`, { method: "DELETE" });
+    const res = await fetch(apiUrl(`/api/me/blocks/${userId}`), { method: "DELETE" });
     if (res.ok) fetchBlocks();
   };
 

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { PREFECTURES } from "@/lib/prefectures";
+import { apiUrl } from "@/lib/api";
 
 interface BookInfo {
   id: string;
@@ -58,7 +59,7 @@ export default function ReadingEvents({ bookId, compact = false }: { bookId: str
 
   const fetchEvents = async () => {
     try {
-      const res = await fetch(`/api/books/${bookId}/events`);
+      const res = await fetch(apiUrl(`/api/books/${bookId}/events`));
       const data = await res.json();
       setEvents(data.events || []);
     } finally {
@@ -68,7 +69,7 @@ export default function ReadingEvents({ bookId, compact = false }: { bookId: str
 
   const fetchEditions = async () => {
     try {
-      const res = await fetch(`/api/books/${bookId}/editions`);
+      const res = await fetch(apiUrl(`/api/books/${bookId}/editions`));
       const data = await res.json();
       setEditions(data.editions || []);
     } catch {
@@ -104,7 +105,7 @@ export default function ReadingEvents({ bookId, compact = false }: { bookId: str
     setSubmitting(true);
     try {
       if (editingId) {
-        const res = await fetch(`/api/events/${editingId}`, {
+        const res = await fetch(apiUrl(`/api/events/${editingId}`), {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -122,7 +123,7 @@ export default function ReadingEvents({ bookId, compact = false }: { bookId: str
           alert(err.error || "更新に失敗しました");
         }
       } else {
-        const res = await fetch(`/api/books/${bookId}/events`, {
+        const res = await fetch(apiUrl(`/api/books/${bookId}/events`), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -165,7 +166,7 @@ export default function ReadingEvents({ bookId, compact = false }: { bookId: str
 
   const handleDelete = async (eventId: string) => {
     if (!confirm("この読書会を削除しますか？")) return;
-    const res = await fetch(`/api/events/${eventId}`, { method: "DELETE" });
+    const res = await fetch(apiUrl(`/api/events/${eventId}`), { method: "DELETE" });
     if (res.ok) {
       fetchEvents();
     } else {

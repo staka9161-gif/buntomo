@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { apiUrl } from "@/lib/api";
 import ProgressBar from "./ProgressBar";
 
 const BASE_COUNT = 8;
@@ -21,7 +22,7 @@ export default function CurrentlyReadingList({ bookId }: { bookId: string }) {
   const [visibleCount, setVisibleCount] = useState(BASE_COUNT);
 
   useEffect(() => {
-    fetch(`/api/books/${bookId}/currently-reading`)
+    fetch(apiUrl(`/api/books/${bookId}/currently-reading`))
       .then((r) => {
         if (!r.ok) throw new Error();
         return r.json();

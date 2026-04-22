@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import BookCard from "@/components/book/BookCard";
+import { apiUrl } from "@/lib/api";
 
 interface Reading {
   id: string;
@@ -33,7 +34,7 @@ export default function CompletedPage() {
   }, [status, router]);
 
   const fetchReadings = () => {
-    fetch("/api/me/readings?status=completed")
+    fetch(apiUrl("/api/me/readings?status=completed"))
       .then((r) => r.json())
       .then((data) => {
         setReadings(data.readings || []);
@@ -46,7 +47,7 @@ export default function CompletedPage() {
   }, [status]);
 
   const handleStatusChange = async (readingId: string, newStatus: string) => {
-    await fetch(`/api/me/readings/${readingId}`, {
+    await fetch(apiUrl(`/api/me/readings/${readingId}`), {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: newStatus }),
@@ -55,7 +56,7 @@ export default function CompletedPage() {
   };
 
   const handleDelete = async (readingId: string) => {
-    const res = await fetch(`/api/me/readings/${readingId}`, { method: "DELETE" });
+    const res = await fetch(apiUrl(`/api/me/readings/${readingId}`), { method: "DELETE" });
     if (res.ok) {
       fetchReadings();
     }

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import { apiUrl } from "@/lib/api";
 import { PREFECTURES } from "@/lib/prefectures";
 
 interface BookInfo {
@@ -56,7 +57,7 @@ export default function EventsPage() {
     if (month) params.set("month", month);
 
     try {
-      const res = await fetch(`/api/events?${params.toString()}`);
+      const res = await fetch(apiUrl(`/api/events?${params.toString()}`));
       const data = await res.json();
       setEvents(data.events || []);
     } finally {

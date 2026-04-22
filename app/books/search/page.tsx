@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { apiUrl } from "@/lib/api";
 
 interface SearchResult {
   isbn: string | null;
@@ -43,7 +44,7 @@ export default function BookSearchPage() {
     if (!query.trim()) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/books/search?q=${encodeURIComponent(query)}`);
+      const res = await fetch(apiUrl(`/api/books/search?q=${encodeURIComponent(query)}`));
       if (!res.ok) throw new Error();
       const data = await res.json();
       setResults(data.books || []);
@@ -63,14 +64,14 @@ export default function BookSearchPage() {
     }
     setAddingIndex(index);
     try {
-      const registerRes = await fetch("/api/books", {
+      const registerRes = await fetch(apiUrl("/api/books"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(book),
       });
       const { book: registeredBook } = await registerRes.json();
 
-      const statusRes = await fetch("/api/me/readings", {
+      const statusRes = await fetch(apiUrl("/api/me/readings"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ bookId: registeredBook.id, status }),
@@ -102,7 +103,7 @@ export default function BookSearchPage() {
     }
     setManualSubmitting(true);
     try {
-      const registerRes = await fetch("/api/books", {
+      const registerRes = await fetch(apiUrl("/api/books"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -118,7 +119,7 @@ export default function BookSearchPage() {
       });
       const { book: registeredBook } = await registerRes.json();
 
-      const statusRes = await fetch("/api/me/readings", {
+      const statusRes = await fetch(apiUrl("/api/me/readings"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ bookId: registeredBook.id, status }),

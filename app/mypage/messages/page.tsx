@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { apiUrl } from "@/lib/api";
 
 interface Conversation {
   user: { id: string; displayName: string; avatarUrl: string | null };
@@ -36,7 +37,7 @@ export default function MessagesPage() {
 
   useEffect(() => {
     if (status !== "authenticated") return;
-    fetch("/api/me/dms")
+    fetch(apiUrl("/api/me/dms"))
       .then((r) => r.json())
       .then((data) => setConversations(data.conversations || []))
       .catch(() => {})
