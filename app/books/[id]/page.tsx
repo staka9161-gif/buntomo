@@ -223,8 +223,9 @@ export default function BookDetailPage() {
                     />
                     <span className="text-xs text-gray-400">/ {book.totalPages || "?"}</span>
                     <button
+                      type="button"
                       onClick={handleUpdatePage}
-                      className="rounded bg-amber-100 px-3 py-1 text-xs text-amber-700 hover:bg-amber-200"
+                      className="rounded bg-amber-600 px-3 py-1 text-sm font-semibold text-white hover:bg-amber-700"
                     >
                       更新
                     </button>
