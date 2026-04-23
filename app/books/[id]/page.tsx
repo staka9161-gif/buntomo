@@ -128,7 +128,6 @@ export default function BookDetailPage() {
       alert(data?.error || `更新に失敗しました (${res.status})`);
       return;
     }
-    alert("更新しました");
     await refreshAll();
   };
 
@@ -218,7 +217,11 @@ export default function BookDetailPage() {
                   <div className="inline-block rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
                     読書中
                   </div>
-                  <ProgressBar percent={progress} />
+                  {book.totalPages > 0 ? (
+                    <ProgressBar percent={progress} />
+                  ) : (
+                    <p className="text-sm text-gray-500">{myReading.currentPage}ページ読了</p>
+                  )}
                   <div className="flex items-center gap-2">
                     <input
                       type="number"
@@ -230,6 +233,7 @@ export default function BookDetailPage() {
                         if (e.key === "Enter") handleUpdatePage();
                       }}
                       className="w-24 rounded border px-2 py-1 text-sm"
+                      placeholder="ページ数"
                     />
                     {book.totalPages > 0 && <span className="text-xs text-gray-400">/ {book.totalPages}</span>}
                     <button
