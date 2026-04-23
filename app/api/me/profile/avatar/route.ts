@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth";
 
 const MAX_SIZE = 2 * 1024 * 1024; // 2MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
-const MAX_STORED_SIZE = 100 * 1024; // DB保存は100KB以下に圧縮
+// クライアント側で128x128にリサイズ済みなのでサイズ制限は緩め
 
 export async function POST(request: NextRequest) {
   try {
@@ -30,18 +30,6 @@ export async function POST(request: NextRequest) {
 
     let buffer = Buffer.from(await file.arrayBuffer());
     let mimeType = file.type;
-
-    // 画像が大きい場合はCanvasで縮小（サーバーサイドではCanvasが使えないので、
-    // 単純にサイズが大きすぎる場合は品質を下げてJPEGに変換）
-    // Node.jsではsharpなどの画像処理ライブラリが必要だが、
-    // Vercelではインストールが面倒なので、クライアント側で縮小するのが現実的。
-    // ここではサイズチェックのみ行い、大きすぎる場合はエラーを返す。
-    if (buffer.length > MAX_STORED_SIZE) {
-      return NextResponse.json(
-        { error: "画像を小さくしてください（100KB以下推奨）。スマホの場合は画像を編集してサイズを縮小してからアップロードしてください。" },
-        { status: 400 }
-      );
-    }
 
     // Base64 data URL として DB に保存
     const base64 = buffer.toString("base64");
