@@ -34,6 +34,7 @@ export default function BookSearchPage() {
   const [manualForm, setManualForm] = useState({
     title: "",
     author: "",
+    publisher: "",
     totalPages: "",
     isbn: "",
   });
@@ -121,6 +122,7 @@ export default function BookSearchPage() {
         body: JSON.stringify({
           title: manualForm.title.trim(),
           author: manualForm.author.trim(),
+          publisher: manualForm.publisher.trim() || null,
           totalPages: parseInt(manualForm.totalPages) || 0,
           isbn: manualForm.isbn.trim() || null,
           coverImageUrl: manualForm.isbn.trim()
@@ -211,6 +213,18 @@ export default function BookSearchPage() {
                 onChange={(e) => setManualForm({ ...manualForm, author: e.target.value })}
                 className="w-full rounded-lg border bg-white px-3 py-2 focus:border-amber-400 focus:outline-none"
                 placeholder="例: 太宰治"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                出版社
+              </label>
+              <input
+                type="text"
+                value={manualForm.publisher}
+                onChange={(e) => setManualForm({ ...manualForm, publisher: e.target.value })}
+                className="w-full rounded-lg border bg-white px-3 py-2 focus:border-amber-400 focus:outline-none"
+                placeholder="例: 新潮社"
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
