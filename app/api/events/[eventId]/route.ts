@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
+import { parseEventDate } from "@/lib/date-utils";
 
 export async function PATCH(
   request: NextRequest,
@@ -34,7 +35,7 @@ export async function PATCH(
       updateData.title = body.title.trim();
     }
     if (body.eventDate !== undefined) {
-      const date = new Date(body.eventDate);
+      const date = parseEventDate(body.eventDate);
       if (date <= new Date()) {
         return NextResponse.json({ error: "開催日時は未来の日時を指定してください" }, { status: 400 });
       }

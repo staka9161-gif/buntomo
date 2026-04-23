@@ -329,30 +329,23 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
           required
         />
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="mb-1 block text-xs font-medium text-gray-700">
-            日付 <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="date"
-            value={formDate}
-            onChange={(e) => setFormDate(e.target.value)}
-            className="w-full rounded border bg-white px-3 py-1.5 text-sm focus:border-amber-400 focus:outline-none"
-            required
-          />
-        </div>
-        <div>
-          <label className="mb-1 block text-xs font-medium text-gray-700">
-            時刻
-          </label>
-          <input
-            type="time"
-            value={formTime}
-            onChange={(e) => setFormTime(e.target.value)}
-            className="w-full rounded border bg-white px-3 py-1.5 text-sm focus:border-amber-400 focus:outline-none"
-          />
-        </div>
+      <div>
+        <label className="mb-1 block text-xs font-medium text-gray-700">
+          日時 <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="datetime-local"
+          value={formDate && formTime ? `${formDate}T${formTime}` : ""}
+          onChange={(e) => {
+            const v = e.target.value;
+            if (v) {
+              setFormDate(v.slice(0, 10));
+              setFormTime(v.slice(11, 16));
+            }
+          }}
+          className="w-full rounded border bg-white px-3 py-1.5 text-sm focus:border-amber-400 focus:outline-none"
+          required
+        />
       </div>
       <div>
         <label className="mb-1 block text-xs font-medium text-gray-700">

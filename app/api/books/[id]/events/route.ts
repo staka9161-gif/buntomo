@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { normalizeText, katakanaToHiragana, removeSymbols } from "@/lib/normalize";
+import { parseEventDate } from "@/lib/date-utils";
 
 // タイトルから巻数・版表記を除去して基本タイトルを抽出
 function extractBaseTitle(title: string): string {
@@ -124,7 +125,7 @@ export async function POST(
       return NextResponse.json({ error: "備考は40文字以内にしてください" }, { status: 400 });
     }
 
-    const date = new Date(eventDate);
+    const date = parseEventDate(eventDate);
     if (date <= new Date()) {
       return NextResponse.json(
         { error: "開催日時は未来の日時を指定してください" },
