@@ -50,6 +50,6 @@ export async function POST(request: NextRequest) {
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     console.error("Avatar upload error:", msg);
-    return NextResponse.json({ error: `アイコンの保存に失敗しました: ${msg.slice(0, 100)}` }, { status: 500 });
+    return NextResponse.json({ error: `アイコンの保存に失敗しました: ${msg.slice(0, 500)}` }, { status: 500 });
   }
 }

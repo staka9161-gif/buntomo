@@ -101,8 +101,10 @@ export default function ProfileEditPage() {
 
   const toDataUrl = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
-      const img = new Image();
+      const img = document.createElement("img");
+      const blobUrl = URL.createObjectURL(file);
       img.onload = () => {
+        URL.revokeObjectURL(blobUrl);
         const canvas = document.createElement("canvas");
         const size = 64;
         canvas.width = size;
@@ -115,14 +117,19 @@ export default function ProfileEditPage() {
         ctx.drawImage(img, sx, sy, min, min, 0, 0, size, size);
         resolve(canvas.toDataURL("image/jpeg", 0.7));
       };
-      img.onerror = reject;
-      img.src = URL.createObjectURL(file);
+      img.onerror = () => {
+        URL.revokeObjectURL(blobUrl);
+        reject(new Error("画像の読み込みに失敗しました"));
+      };
+      img.src = blobUrl;
     });
   };
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    // 同じファイルを再選択できるようにリセット
+    e.target.value = "";
 
     if (file.size > 2 * 1024 * 1024) {
       alert("ファイルサイズは2MB以内にしてください");
@@ -140,11 +147,14 @@ export default function ProfileEditPage() {
       if (res.ok) {
         const data = await res.json();
         setAvatarUrl(data.avatarUrl);
-        await updateSession();
+        await updateSession().catch(() => {});
       } else {
-        const err = await res.json();
-        alert(err.error || "アップロードに失敗しました");
+        const err = await res.json().catch(() => null);
+        alert(err?.error || "アップロードに失敗しました");
       }
+    } catch (err) {
+      console.error("Avatar upload error:", err);
+      alert("アイコンのアップロードに失敗しました。もう一度お試しください。");
     } finally {
       setUploading(false);
     }
