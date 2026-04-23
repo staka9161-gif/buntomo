@@ -99,6 +99,31 @@ export default function ProfileEditPage() {
       .finally(() => setLoading(false));
   }, [status]);
 
+  const resizeImage = (file: File, maxSize: number): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let w = img.width;
+        let h = img.height;
+        if (w > maxSize || h > maxSize) {
+          if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+          else { w = Math.round(w * maxSize / h); h = maxSize; }
+        }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d")!;
+        ctx.drawImage(img, 0, 0, w, h);
+        canvas.toBlob((blob) => {
+          if (blob) resolve(blob);
+          else reject(new Error("Resize failed"));
+        }, "image/jpeg", 0.85);
+      };
+      img.onerror = reject;
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -110,8 +135,10 @@ export default function ProfileEditPage() {
 
     setUploading(true);
     try {
+      // 128x128にリサイズしてJPEG圧縮
+      const resized = await resizeImage(file, 128);
       const formData = new FormData();
-      formData.append("avatar", file);
+      formData.append("avatar", resized, "avatar.jpg");
       const res = await fetch(apiUrl("/api/me/profile/avatar"), {
         method: "POST",
         body: formData,
