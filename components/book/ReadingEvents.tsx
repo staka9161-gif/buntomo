@@ -323,17 +323,39 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
           required
         />
       </div>
-      <div>
-        <label className="mb-1 block text-xs font-medium text-gray-700">
-          日時 <span className="text-red-500">*</span>
-        </label>
-        <input
-          type="datetime-local"
-          value={form.eventDate}
-          onChange={(e) => setForm({ ...form, eventDate: e.target.value })}
-          className="w-full rounded border bg-white px-3 py-1.5 text-sm focus:border-amber-400 focus:outline-none"
-          required
-        />
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="mb-1 block text-xs font-medium text-gray-700">
+            日付 <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="date"
+            value={form.eventDate ? form.eventDate.slice(0, 10) : ""}
+            onChange={(e) => {
+              const currentTime = form.eventDate.length >= 16 ? form.eventDate.slice(11, 16) : "13:00";
+              setForm({ ...form, eventDate: e.target.value + "T" + currentTime });
+            }}
+            className="w-full rounded border bg-white px-3 py-1.5 text-sm focus:border-amber-400 focus:outline-none"
+            required
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs font-medium text-gray-700">
+            時刻 <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="time"
+            value={form.eventDate.length >= 16 ? form.eventDate.slice(11, 16) : ""}
+            onChange={(e) => {
+              const currentDate = form.eventDate.length >= 10 ? form.eventDate.slice(0, 10) : "";
+              if (currentDate) {
+                setForm({ ...form, eventDate: currentDate + "T" + e.target.value });
+              }
+            }}
+            className="w-full rounded border bg-white px-3 py-1.5 text-sm focus:border-amber-400 focus:outline-none"
+            required
+          />
+        </div>
       </div>
       <div>
         <div>
