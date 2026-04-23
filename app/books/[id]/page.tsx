@@ -38,6 +38,7 @@ export default function BookDetailPage() {
   const [eventCount, setEventCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [pageInput, setPageInput] = useState(0);
+  const [totalPagesInput, setTotalPagesInput] = useState(0);
 
   const fetchBook = useCallback(async () => {
     try {
@@ -45,6 +46,7 @@ export default function BookDetailPage() {
       if (!res.ok) return;
       const data = await res.json();
       setBook(data.book);
+      setTotalPagesInput(data.book.totalPages || 0);
       setReadingCount(data.readingCount ?? 0);
       setCompletedCount(data.completedCount ?? 0);
       setEventCount(data.eventCount ?? 0);
@@ -113,20 +115,18 @@ export default function BookDetailPage() {
   };
 
   const handleUpdatePage = async () => {
-    if (!myReading) {
-      alert("ログイン状態を確認できません。ページをリロードしてください。");
-      return;
-    }
-    const url = apiUrl(`/api/me/readings/${myReading.id}`);
-    const res = await fetch(url, {
+    if (!myReading) return;
+    await fetch(apiUrl(`/api/me/readings/${myReading.id}`), {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ currentPage: pageInput }),
     });
-    if (!res.ok) {
-      const data = await res.json().catch(() => null);
-      alert(data?.error || `更新に失敗しました (${res.status})`);
-      return;
+    if (totalPagesInput > 0 && book && totalPagesInput !== book.totalPages) {
+      await fetch(apiUrl(`/api/books/${book.id}`), {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ totalPages: totalPagesInput }),
+      });
     }
     await refreshAll();
   };
@@ -217,11 +217,10 @@ export default function BookDetailPage() {
                   <div className="inline-block rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
                     読書中
                   </div>
-                  {book.totalPages > 0 ? (
-                    <ProgressBar percent={progress} />
-                  ) : (
-                    <p className="text-sm text-gray-500">{myReading.currentPage}ページ読了</p>
-                  )}
+                  <ProgressBar percent={progress} />
+                  <p className="text-xs text-gray-400">
+                    {myReading.currentPage} / {book.totalPages > 0 ? book.totalPages : "?"} ページ
+                  </p>
                   <div className="flex items-center gap-2">
                     <input
                       type="number"
@@ -232,10 +231,19 @@ export default function BookDetailPage() {
                       onKeyDown={(e) => {
                         if (e.key === "Enter") handleUpdatePage();
                       }}
-                      className="w-24 rounded border px-2 py-1 text-sm"
-                      placeholder="ページ数"
+                      className="w-20 rounded border px-2 py-1 text-sm"
+                      placeholder="現在"
                     />
-                    {book.totalPages > 0 && <span className="text-xs text-gray-400">/ {book.totalPages}</span>}
+                    <span className="text-xs text-gray-400">/</span>
+                    <input
+                      type="number"
+                      min={1}
+                      max={99999}
+                      value={totalPagesInput || ""}
+                      onChange={(e) => setTotalPagesInput(Number(e.target.value))}
+                      className="w-20 rounded border px-2 py-1 text-sm"
+                      placeholder="総ページ"
+                    />
                     <button
                       type="button"
                       onClick={handleUpdatePage}
