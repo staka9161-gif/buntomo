@@ -316,79 +316,39 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
         <input
           type="text"
           value={form.title}
-          onChange={(e) => setForm({ ...form, title: e.target.value })}
+          onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
           maxLength={20}
           placeholder="例: 『人間失格』を語る会"
           className="w-full rounded border bg-white px-3 py-1.5 text-sm focus:border-amber-400 focus:outline-none"
           required
         />
       </div>
-      {(() => {
-        const y = form.eventDate.slice(0, 4) || "";
-        const m = form.eventDate.slice(5, 7) || "";
-        const d = form.eventDate.slice(8, 10) || "";
-        const h = form.eventDate.slice(11, 13) || "";
-        const mi = form.eventDate.slice(14, 16) || "";
-        const rebuild = (ny: string, nm: string, nd: string, nh: string, nmi: string) => {
-          if (!ny || !nm || !nd) { setForm({ ...form, eventDate: "" }); return; }
-          setForm({ ...form, eventDate: `${ny}-${nm}-${nd}T${nh || "13"}:${nmi || "00"}` });
-        };
-        const now = new Date();
-        const years = Array.from({ length: 3 }, (_, i) => String(now.getFullYear() + i));
-        const months = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, "0"));
-        const days = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, "0"));
-        const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
-        const minutes = ["00", "15", "30", "45"];
-        const sel = "rounded border bg-white px-2 py-1.5 text-sm focus:border-amber-400 focus:outline-none";
-        return (
-          <div>
-            <label className="mb-1 block text-xs font-medium text-gray-700">
-              日時 <span className="text-red-500">*</span>
-            </label>
-            <div className="flex flex-wrap items-center gap-1">
-              <select value={y} onChange={(e) => rebuild(e.target.value, m || "01", d || "01", h, mi)} className={sel} required>
-                <option value="">年</option>
-                {years.map((v) => <option key={v} value={v}>{v}</option>)}
-              </select>
-              <span className="text-gray-400">/</span>
-              <select value={m} onChange={(e) => rebuild(y, e.target.value, d || "01", h, mi)} className={sel} required>
-                <option value="">月</option>
-                {months.map((v) => <option key={v} value={v}>{parseInt(v)}月</option>)}
-              </select>
-              <span className="text-gray-400">/</span>
-              <select value={d} onChange={(e) => rebuild(y, m, e.target.value, h, mi)} className={sel} required>
-                <option value="">日</option>
-                {days.map((v) => <option key={v} value={v}>{parseInt(v)}日</option>)}
-              </select>
-              <select value={h} onChange={(e) => rebuild(y, m, d, e.target.value, mi)} className={`ml-2 ${sel}`}>
-                <option value="">時</option>
-                {hours.map((v) => <option key={v} value={v}>{parseInt(v)}時</option>)}
-              </select>
-              <span className="text-gray-400">:</span>
-              <select value={mi} onChange={(e) => rebuild(y, m, d, h, e.target.value)} className={sel}>
-                <option value="">分</option>
-                {minutes.map((v) => <option key={v} value={v}>{v}分</option>)}
-              </select>
-            </div>
-          </div>
-        );
-      })()}
       <div>
-        <div>
-          <label className="mb-1 block text-xs font-medium text-gray-700">
-            都道府県 <span className="text-red-500">*</span>
-          </label>
-          <select
-            value={form.prefecture}
-            onChange={(e) => setForm({ ...form, prefecture: e.target.value })}
-            className="w-full rounded border bg-white px-3 py-1.5 text-sm focus:border-amber-400 focus:outline-none"
-            required
-          >
-            {PREFECTURES.map((p) => (
-              <option key={p} value={p}>{p}</option>
-            ))}
-          </select>
-        </div>
+        <label className="mb-1 block text-xs font-medium text-gray-700">
+          日時 <span className="text-red-500">*</span>
+        </label>
+        <input
+          type="datetime-local"
+          value={form.eventDate}
+          onChange={(e) => setForm((prev) => ({ ...prev, eventDate: e.target.value }))}
+          className="w-full rounded border bg-white px-3 py-1.5 text-sm focus:border-amber-400 focus:outline-none"
+          required
+        />
+      </div>
+      <div>
+        <label className="mb-1 block text-xs font-medium text-gray-700">
+          都道府県 <span className="text-red-500">*</span>
+        </label>
+        <select
+          value={form.prefecture}
+          onChange={(e) => setForm((prev) => ({ ...prev, prefecture: e.target.value }))}
+          className="w-full rounded border bg-white px-3 py-1.5 text-sm focus:border-amber-400 focus:outline-none"
+          required
+        >
+          {PREFECTURES.map((p) => (
+            <option key={p} value={p}>{p}</option>
+          ))}
+        </select>
       </div>
       <div>
         <label className="mb-1 flex items-center justify-between text-xs font-medium text-gray-700">
@@ -398,7 +358,7 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
         <input
           type="text"
           value={form.location}
-          onChange={(e) => setForm({ ...form, location: e.target.value })}
+          onChange={(e) => setForm((prev) => ({ ...prev, location: e.target.value }))}
           maxLength={25}
           placeholder="例: 渋谷 TSUTAYA カフェ"
           className="w-full rounded border bg-white px-3 py-1.5 text-sm focus:border-amber-400 focus:outline-none"
@@ -410,7 +370,7 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
         <input
           type="url"
           value={form.url}
-          onChange={(e) => setForm({ ...form, url: e.target.value })}
+          onChange={(e) => setForm((prev) => ({ ...prev, url: e.target.value }))}
           placeholder="https://..."
           className="w-full rounded border bg-white px-3 py-1.5 text-sm focus:border-amber-400 focus:outline-none"
           required
@@ -423,7 +383,7 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
         </label>
         <textarea
           value={form.description}
-          onChange={(e) => setForm({ ...form, description: e.target.value })}
+          onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
           maxLength={40}
           rows={1}
           className="w-full rounded border bg-white px-3 py-1.5 text-sm focus:border-amber-400 focus:outline-none"
