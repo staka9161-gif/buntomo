@@ -53,6 +53,8 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({ ...EMPTY_FORM });
+  const [formDate, setFormDate] = useState("");
+  const [formTime, setFormTime] = useState("13:00");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editions, setEditions] = useState<Edition[]>([]);
   const [selectedBookIds, setSelectedBookIds] = useState<Set<string>>(new Set([bookId]));
@@ -101,21 +103,22 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.title.trim() || !form.eventDate || !form.prefecture || !form.location.trim() || !form.url.trim()) return;
+    if (!form.title.trim() || !formDate || !form.prefecture || !form.location.trim() || !form.url.trim()) return;
+    const eventDate = `${formDate}T${formTime || "13:00"}`;
     setSubmitting(true);
     try {
+      const payload = { ...form, eventDate, bookIds: [...selectedBookIds] };
       if (editingId) {
         const res = await fetch(apiUrl(`/api/events/${editingId}`), {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...form,
-            bookIds: [...selectedBookIds],
-          }),
+          body: JSON.stringify(payload),
         });
         if (res.ok) {
           setEditingId(null);
           setForm({ ...EMPTY_FORM });
+          setFormDate("");
+          setFormTime("13:00");
           setShowForm(false);
           fetchEvents();
         } else {
@@ -126,13 +129,12 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
         const res = await fetch(apiUrl(`/api/books/${bookId}/events`), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...form,
-            bookIds: [...selectedBookIds],
-          }),
+          body: JSON.stringify(payload),
         });
         if (res.ok) {
           setForm({ ...EMPTY_FORM });
+          setFormDate("");
+          setFormTime("13:00");
           setSelectedBookIds(new Set([bookId]));
           setShowForm(false);
           fetchEvents();
@@ -149,6 +151,8 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
   const handleEdit = (event: ReadingEvent) => {
     const d = new Date(event.eventDate);
     const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    setFormDate(local.slice(0, 10));
+    setFormTime(local.slice(11, 16));
     setForm({
       title: event.title,
       eventDate: local,
@@ -157,7 +161,6 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
       url: event.url || "",
       description: event.description || "",
     });
-    // 編集時に既存の対象本を復元
     const ids = event.books?.map((b) => b.id) || [];
     setSelectedBookIds(new Set(ids.length > 0 ? ids : [bookId]));
     setEditingId(event.id);
@@ -178,6 +181,8 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
   const handleCancel = () => {
     setEditingId(null);
     setForm({ ...EMPTY_FORM });
+    setFormDate("");
+    setFormTime("13:00");
     setSelectedBookIds(new Set([bookId]));
     setShowForm(false);
   };
@@ -323,17 +328,30 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
           required
         />
       </div>
-      <div>
-        <label className="mb-1 block text-xs font-medium text-gray-700">
-          日時 <span className="text-red-500">*</span>
-        </label>
-        <input
-          type="datetime-local"
-          value={form.eventDate}
-          onChange={(e) => setForm((prev) => ({ ...prev, eventDate: e.target.value }))}
-          className="w-full rounded border bg-white px-3 py-1.5 text-sm focus:border-amber-400 focus:outline-none"
-          required
-        />
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="mb-1 block text-xs font-medium text-gray-700">
+            日付 <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="date"
+            value={formDate}
+            onChange={(e) => setFormDate(e.target.value)}
+            className="w-full rounded border bg-white px-3 py-1.5 text-sm focus:border-amber-400 focus:outline-none"
+            required
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-xs font-medium text-gray-700">
+            時刻
+          </label>
+          <input
+            type="time"
+            value={formTime}
+            onChange={(e) => setFormTime(e.target.value)}
+            className="w-full rounded border bg-white px-3 py-1.5 text-sm focus:border-amber-400 focus:outline-none"
+          />
+        </div>
       </div>
       <div>
         <label className="mb-1 block text-xs font-medium text-gray-700">
