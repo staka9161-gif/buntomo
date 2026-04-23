@@ -324,19 +324,39 @@ export async function searchBooks(query: string): Promise<BookSearchResult[]> {
   // 自社DBに十分な結果がある場合（5件以上かつ上位のmatchScoreが高い）
   const goodResults = localResults.filter((r) => r._matchScore >= 10);
   if (goodResults.length >= 5) {
-    // totalPages=0の本をバックグラウンドでNDLから補完
+    // totalPages=0の本をバックグラウンドでopenBD/NDLから補完
     const missingPages = localResults.filter((r) => r.totalPages === 0 && r.isbn);
     if (missingPages.length > 0) {
-      searchNdl(normalizedQuery).then((ndlResults) => {
-        for (const ndl of ndlResults) {
-          if (ndl.isbn && ndl.totalPages > 0) {
-            prisma.book.updateMany({
-              where: { isbn: ndl.isbn, totalPages: 0 },
-              data: { totalPages: ndl.totalPages },
-            }).catch(() => {});
+      (async () => {
+        const isbns = missingPages.map((r) => r.isbn).filter(Boolean) as string[];
+        try {
+          // openBD でまとめて取得
+          const res = await fetch("https://api.openbd.jp/v1/get", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: `isbn=${isbns.join(",")}`,
+            signal: AbortSignal.timeout(10000),
+          });
+          if (res.ok) {
+            const items = await res.json();
+            for (const item of items) {
+              if (!item) continue;
+              const isbn = item.summary?.isbn?.replace(/[-\s]/g, "");
+              const extents = item.onix?.DescriptiveDetail?.Extent || [];
+              for (const type of ["11", "10", "00"]) {
+                const ext = extents.find((e: { ExtentType?: string; ExtentValue?: string }) => e.ExtentType === type);
+                if (ext?.ExtentValue) {
+                  const n = parseInt(ext.ExtentValue, 10);
+                  if (n > 0 && n < 10000 && isbn) {
+                    prisma.book.updateMany({ where: { isbn, totalPages: 0 }, data: { totalPages: n } }).catch(() => {});
+                    break;
+                  }
+                }
+              }
+            }
           }
-        }
-      }).catch(() => {});
+        } catch {}
+      })();
     }
     localResults.sort((a, b) => b._finalScore - a._finalScore);
     return localResults.slice(0, 30);
@@ -392,6 +412,19 @@ export async function searchBooks(query: string): Promise<BookSearchResult[]> {
         _finalScore: matchScore * 3, // customRankなし、matchScoreのみ
       };
     });
+
+  // DB結果のtotalPages=0を外部結果で補完
+  const externalPageMap = new Map<string, number>();
+  for (const r of externalResults) {
+    if (r.isbn && r.totalPages > 0) externalPageMap.set(r.isbn, r.totalPages);
+  }
+  for (const r of localResults) {
+    if (r.totalPages === 0 && r.isbn && externalPageMap.has(r.isbn)) {
+      r.totalPages = externalPageMap.get(r.isbn)!;
+      // DBも更新（バックグラウンド）
+      prisma.book.update({ where: { isbn: r.isbn }, data: { totalPages: r.totalPages } }).catch(() => {});
+    }
+  }
 
   const allResults = [...localResults, ...externalMapped];
   allResults.sort((a, b) => b._finalScore - a._finalScore);
