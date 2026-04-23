@@ -99,25 +99,21 @@ export default function ProfileEditPage() {
       .finally(() => setLoading(false));
   }, [status]);
 
-  const resizeImage = (file: File, maxSize: number): Promise<Blob> => {
+  const toDataUrl = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement("canvas");
-        let w = img.width;
-        let h = img.height;
-        if (w > maxSize || h > maxSize) {
-          if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
-          else { w = Math.round(w * maxSize / h); h = maxSize; }
-        }
-        canvas.width = w;
-        canvas.height = h;
+        const size = 64;
+        canvas.width = size;
+        canvas.height = size;
         const ctx = canvas.getContext("2d")!;
-        ctx.drawImage(img, 0, 0, w, h);
-        canvas.toBlob((blob) => {
-          if (blob) resolve(blob);
-          else reject(new Error("Resize failed"));
-        }, "image/jpeg", 0.85);
+        // 正方形に切り抜き
+        const min = Math.min(img.width, img.height);
+        const sx = (img.width - min) / 2;
+        const sy = (img.height - min) / 2;
+        ctx.drawImage(img, sx, sy, min, min, 0, 0, size, size);
+        resolve(canvas.toDataURL("image/jpeg", 0.7));
       };
       img.onerror = reject;
       img.src = URL.createObjectURL(file);
@@ -135,13 +131,11 @@ export default function ProfileEditPage() {
 
     setUploading(true);
     try {
-      // 128x128にリサイズしてJPEG圧縮
-      const resized = await resizeImage(file, 128);
-      const formData = new FormData();
-      formData.append("avatar", resized, "avatar.jpg");
+      const avatarDataUrl = await toDataUrl(file);
       const res = await fetch(apiUrl("/api/me/profile/avatar"), {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ avatarDataUrl }),
       });
       if (res.ok) {
         const data = await res.json();
