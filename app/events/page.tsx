@@ -193,23 +193,13 @@ export default function EventsPage() {
                   </div>
 
                   {/* 対象書籍 */}
-                  {event.books && event.books.length > 1 ? (
-                    <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5">
-                      {event.books.map((b) => (
-                        <Link key={b.id} href={`/books/${b.id}`} className="text-sm text-amber-600 hover:underline">
-                          {b.title}
-                        </Link>
-                      ))}
-                    </div>
-                  ) : (
-                    <Link
-                      href={`/books/${event.book.id}`}
-                      className="mt-0.5 block text-sm text-amber-600 hover:underline"
-                    >
-                      {event.book.title}
-                      <span className="ml-1 text-gray-400">/ {event.book.author}</span>
-                    </Link>
-                  )}
+                  <Link
+                    href={`/books/${event.book.id}`}
+                    className="mt-0.5 block text-sm text-amber-600 hover:underline"
+                  >
+                    {event.book.title}
+                    <span className="ml-1 text-gray-400">/ {event.book.author}</span>
+                  </Link>
 
                   <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-600">
                     <span>📅 {formatDate(event.eventDate)}</span>
