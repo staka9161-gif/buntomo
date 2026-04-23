@@ -218,12 +218,12 @@ export default function ReadingEvents({ bookId, compact = false }: { bookId: str
           <div className="space-y-2">
             {events.map((event) => (
               <div key={event.id} className="rounded border border-blue-100 bg-blue-50 p-2.5">
-                <p className="text-xs font-semibold text-gray-800 leading-tight">{event.title}</p>
-                {event.books && event.books.length > 1 && (
-                  <p className="mt-0.5 text-[10px] text-purple-600">
-                    📚 {event.books.length}冊が対象
+                {event.books && event.books.length > 0 && (
+                  <p className="text-[10px] text-amber-700 mb-0.5 truncate">
+                    📖 {event.books.map((b) => b.title).join("、")}
                   </p>
                 )}
+                <p className="text-xs font-semibold text-gray-800 leading-tight">{event.title}</p>
                 <div className="mt-1.5 space-y-0.5 text-[11px] text-gray-500">
                   <p>📅 {formatDate(event.eventDate)}</p>
                   <p>📍 {event.prefecture} {event.location}</p>
@@ -450,6 +450,11 @@ export default function ReadingEvents({ bookId, compact = false }: { bookId: str
             >
               <div className="flex items-center justify-between gap-2">
                 <div className="flex-1 min-w-0">
+                  {event.books && event.books.length > 0 && (
+                    <p className="text-[11px] text-amber-700 truncate mb-0.5">
+                      📖 {event.books.map((b) => b.title).join("、")}
+                    </p>
+                  )}
                   <div className="flex items-center gap-1.5">
                     <h4 className="text-sm font-semibold text-gray-900 truncate">{event.title}</h4>
                     <span className="shrink-0 rounded-full bg-blue-200 px-1.5 py-0.5 text-[10px] font-medium text-blue-800">
