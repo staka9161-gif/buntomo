@@ -1,5 +1,6 @@
 // ============================================================
 // 検索アダプタ（ローカルDB + 外部API）
+// サーキットブレーカー付き
 // ============================================================
 
 import {
@@ -17,6 +18,42 @@ import { prisma } from "../db";
 import type { RRFBook, RRFInput } from "./rrf";
 
 export interface ExternalBookData extends RRFBook {}
+
+// ============================================================
+// サーキットブレーカー
+// 連続失敗時に一定時間そのソースをスキップ
+// ============================================================
+interface CircuitState {
+  failures: number;
+  openUntil: number; // Date.now() ベース
+}
+
+const circuits = new Map<string, CircuitState>();
+const CIRCUIT_THRESHOLD = 3;   // 連続N回失敗でオープン
+const CIRCUIT_COOLDOWN = 60000; // 1分間スキップ
+
+function isCircuitOpen(source: string): boolean {
+  const state = circuits.get(source);
+  if (!state) return false;
+  if (state.failures >= CIRCUIT_THRESHOLD && Date.now() < state.openUntil) return true;
+  if (Date.now() >= state.openUntil) {
+    circuits.delete(source);
+  }
+  return false;
+}
+
+function recordSuccess(source: string): void {
+  circuits.delete(source);
+}
+
+function recordFailure(source: string): void {
+  const state = circuits.get(source) || { failures: 0, openUntil: 0 };
+  state.failures++;
+  if (state.failures >= CIRCUIT_THRESHOLD) {
+    state.openUntil = Date.now() + CIRCUIT_COOLDOWN;
+  }
+  circuits.set(source, state);
+}
 
 // ============================================================
 // ローカルDB検索
@@ -97,11 +134,13 @@ function dbBookToRRF(book: {
 }
 
 // ============================================================
-// 楽天ブックス（複数パターン並列で精度向上）
+// 楽天ブックス（keyword / title / author 3パターン並列）
 // ============================================================
 async function searchRakutenSingle(
+  source: string,
   params: Record<string, string>,
 ): Promise<ExternalBookData[]> {
+  if (isCircuitOpen(source)) return [];
   const appId = process.env.RAKUTEN_APPLICATION_ID;
   if (!appId) return [];
   try {
@@ -114,8 +153,12 @@ async function searchRakutenSingle(
       url.searchParams.set(k, v);
     }
     const res = await fetch(url.toString(), { signal: AbortSignal.timeout(3000) });
-    if (!res.ok) return [];
+    if (!res.ok) {
+      recordFailure(source);
+      return [];
+    }
     const data = await res.json();
+    recordSuccess(source);
     if (!data.Items?.length) return [];
     return data.Items.map((wrapper: Record<string, unknown>) => {
       const item = (wrapper.Item || wrapper) as Record<string, unknown>;
@@ -135,24 +178,29 @@ async function searchRakutenSingle(
       } satisfies ExternalBookData;
     });
   } catch {
+    recordFailure(source);
     return [];
   }
 }
 
 /**
- * 楽天ブックスを複数パターンで並列検索し、各パターンの結果をRRF入力として返す
+ * 楽天ブックスを3パターンで並列検索し、各パターンの結果をRRF入力として返す
  */
 export async function searchRakutenEnhanced(query: string): Promise<RRFInput[]> {
   const appId = process.env.RAKUTEN_APPLICATION_ID;
   if (!appId) return [];
 
   const normalized = normalizeText(query);
-  const [byTitle, byAuthor] = await Promise.all([
-    searchRakutenSingle({ title: normalized }),
-    searchRakutenSingle({ author: normalized }),
+  const [byKeyword, byTitle, byAuthor] = await Promise.all([
+    searchRakutenSingle("rakuten_keyword", { keyword: normalized }),
+    searchRakutenSingle("rakuten_title", { title: normalized }),
+    searchRakutenSingle("rakuten_author", { author: normalized }),
   ]);
 
   const results: RRFInput[] = [];
+  if (byKeyword.length > 0) {
+    results.push({ source: "rakuten_keyword", books: byKeyword, weight: 1.2 });
+  }
   if (byTitle.length > 0) {
     results.push({ source: "rakuten_title", books: byTitle, weight: 1.4 });
   }
@@ -163,9 +211,10 @@ export async function searchRakutenEnhanced(query: string): Promise<RRFInput[]> 
 }
 
 // ============================================================
-// Google Books
+// Google Books（サーキットブレーカー付き）
 // ============================================================
 export async function searchGoogleBooks(query: string): Promise<ExternalBookData[]> {
+  if (isCircuitOpen("google")) return [];
   const apiKey = process.env.GOOGLE_BOOKS_API_KEY || "";
   const keyParam = apiKey ? `&key=${apiKey}` : "";
   try {
@@ -175,8 +224,12 @@ export async function searchGoogleBooks(query: string): Promise<ExternalBookData
       `q=${encodeURIComponent(normalized)}` +
       `&langRestrict=ja&maxResults=20&printType=books&orderBy=relevance${keyParam}`;
     const res = await fetch(url, { signal: AbortSignal.timeout(3000) });
-    if (!res.ok) return [];
+    if (!res.ok) {
+      recordFailure("google");
+      return [];
+    }
     const data = await res.json();
+    recordSuccess("google");
     if (!data.items?.length) return [];
     return data.items.map((item: Record<string, unknown>) => {
       const info = item.volumeInfo as Record<string, unknown>;
@@ -202,19 +255,25 @@ export async function searchGoogleBooks(query: string): Promise<ExternalBookData
       } satisfies ExternalBookData;
     });
   } catch {
+    recordFailure("google");
     return [];
   }
 }
 
 // ============================================================
-// NDL（国立国会図書館）
+// NDL（サーキットブレーカー付き）
 // ============================================================
 export async function searchNdl(query: string): Promise<ExternalBookData[]> {
+  if (isCircuitOpen("ndl")) return [];
   try {
     const normalized = normalizeText(query);
     const url = `https://ndlsearch.ndl.go.jp/api/opensearch?title=${encodeURIComponent(normalized)}&cnt=20`;
     const res = await fetch(url, { signal: AbortSignal.timeout(3000) });
-    if (!res.ok) return [];
+    if (!res.ok) {
+      recordFailure("ndl");
+      return [];
+    }
+    recordSuccess("ndl");
     const xml = await res.text();
     const results: ExternalBookData[] = [];
     const itemRegex = /<item>([\s\S]*?)<\/item>/g;
@@ -252,8 +311,46 @@ export async function searchNdl(query: string): Promise<ExternalBookData[]> {
     }
     return results;
   } catch {
+    recordFailure("ndl");
     return [];
   }
+}
+
+// ============================================================
+// openBDでページ数を補完（バックグラウンド）
+// ============================================================
+export function enrichPagesFromOpenBD(isbns: string[]): void {
+  if (isbns.length === 0) return;
+  (async () => {
+    try {
+      const res = await fetch("https://api.openbd.jp/v1/get", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `isbn=${isbns.join(",")}`,
+        signal: AbortSignal.timeout(10000),
+      });
+      if (!res.ok) return;
+      const items = await res.json();
+      for (const item of items) {
+        if (!item) continue;
+        const isbn = item.summary?.isbn?.replace(/[-\s]/g, "");
+        if (!isbn) continue;
+        const extents = item.onix?.DescriptiveDetail?.Extent || [];
+        for (const type of ["11", "10", "00"]) {
+          const ext = extents.find((e: { ExtentType?: string; ExtentValue?: string }) => e.ExtentType === type);
+          if (ext?.ExtentValue) {
+            const n = parseInt(ext.ExtentValue, 10);
+            if (n > 0 && n < 10000) {
+              prisma.book.updateMany({ where: { isbn, totalPages: 0 }, data: { totalPages: n } }).catch(() => {});
+              break;
+            }
+          }
+        }
+      }
+    } catch {
+      // 補完失敗は無視
+    }
+  })();
 }
 
 // ============================================================

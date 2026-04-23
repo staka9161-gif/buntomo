@@ -5,13 +5,14 @@
 
 import { prisma } from "../db";
 import { normalizeText, removeSymbols, katakanaToHiragana } from "../normalize";
-import { reciprocalRankFusion, type RRFInput, type RRFBook, type RankedBook } from "./rrf";
+import { reciprocalRankFusion, type RRFInput, type RankedBook } from "./rrf";
 import {
   searchLocalDb,
   searchRakutenEnhanced,
   searchGoogleBooks,
   searchNdl,
   upsertExternalResults,
+  enrichPagesFromOpenBD,
   type ExternalBookData,
 } from "./adapters";
 import crypto from "crypto";
@@ -45,14 +46,12 @@ async function getCachedResults(normalizedQuery: string): Promise<RankedBook[] |
       }
       return null;
     }
-    // ISBNリストからDB書籍を復元
     const isbns = cached.resultIsbns;
     const scores = cached.resultScores;
     if (isbns.length === 0) return null;
 
     const books = await prisma.book.findMany({
       where: { isbn: { in: isbns } },
-      include: { readings: { select: { status: true } } },
     });
 
     const bookMap = new Map(books.map((b) => [b.isbn, b]));
@@ -120,26 +119,38 @@ async function saveCacheResults(
 }
 
 // ============================================================
-// 学習シグナルによるブースト取得
+// 学習シグナルによるブースト取得（query_book_affinity相当）
+// click=1pt, registered=5pt で affinity_score を計算
 // ============================================================
 async function getLearnedBoosts(normalizedQuery: string): Promise<Map<string, number>> {
   try {
-    const signals = await prisma.learningSignal.groupBy({
-      by: ["isbn"],
+    const signals = await prisma.learningSignal.findMany({
       where: {
         queryNormalized: normalizedQuery,
         isbn: { not: null },
         createdAt: { gte: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000) },
       },
-      _count: { action: true },
-      _sum: {},
+      select: { isbn: true, action: true },
     });
 
-    const boosts = new Map<string, number>();
+    if (signals.length === 0) return new Map();
+
+    // isbn別に集計（クリック=1, 登録=5, 読了=5）
+    const agg = new Map<string, { clicks: number; registers: number; total: number }>();
     for (const s of signals) {
-      if (s.isbn) {
-        boosts.set(s.isbn, s._count.action * 2);
-      }
+      if (!s.isbn) continue;
+      const entry = agg.get(s.isbn) || { clicks: 0, registers: 0, total: 0 };
+      entry.total++;
+      if (s.action === "clicked") entry.clicks++;
+      else entry.registers++;
+      agg.set(s.isbn, entry);
+    }
+
+    // affinity_score = (clicks * 1.0 + registers * 5.0) / total
+    const boosts = new Map<string, number>();
+    for (const [isbn, { clicks, registers, total }] of agg) {
+      const affinity = (clicks * 1.0 + registers * 5.0) / Math.max(total, 1);
+      boosts.set(isbn, affinity);
     }
     return boosts;
   } catch {
@@ -162,7 +173,6 @@ export interface MetaSearchResult {
 export async function metaSearch(rawQuery: string): Promise<MetaSearchResult> {
   const start = Date.now();
   const normalizedQuery = removeSymbols(normalizeText(rawQuery)).toLowerCase();
-  const normalizedQueryH = katakanaToHiragana(normalizedQuery);
 
   // 1. キャッシュチェック
   const cached = await getCachedResults(normalizedQuery);
@@ -177,7 +187,7 @@ export async function metaSearch(rawQuery: string): Promise<MetaSearchResult> {
     };
   }
 
-  // 2. ローカルDB + 外部APIを並列実行
+  // 2. ローカルDB + 外部APIを並列実行（3秒タイムアウト）
   const [localResults, rakutenResults, googleResults, ndlResults] = await Promise.all([
     searchLocalDb(rawQuery),
     searchRakutenEnhanced(rawQuery),
@@ -190,7 +200,6 @@ export async function metaSearch(rawQuery: string): Promise<MetaSearchResult> {
   // 3. RRF入力を構築
   const rrfInputs: RRFInput[] = [];
 
-  // ローカルDB結果（既にスコア順）
   if (localResults.length > 0) {
     rrfInputs.push({
       source: "local",
@@ -199,7 +208,6 @@ export async function metaSearch(rawQuery: string): Promise<MetaSearchResult> {
     });
   }
 
-  // 楽天（複数パターン結果）
   for (const r of rakutenResults) {
     if (r.books.length > 0) {
       rrfInputs.push(r);
@@ -207,7 +215,6 @@ export async function metaSearch(rawQuery: string): Promise<MetaSearchResult> {
     }
   }
 
-  // Google Books
   if (googleResults.length > 0) {
     rrfInputs.push({
       source: "google",
@@ -217,7 +224,6 @@ export async function metaSearch(rawQuery: string): Promise<MetaSearchResult> {
     sourcesUsed.push("google");
   }
 
-  // NDL
   if (ndlResults.length > 0) {
     rrfInputs.push({
       source: "ndl",
@@ -235,10 +241,7 @@ export async function metaSearch(rawQuery: string): Promise<MetaSearchResult> {
   if (boosts.size > 0) {
     ranked = ranked.map((book) => {
       const boost = book.isbn ? (boosts.get(book.isbn) ?? 0) : 0;
-      return {
-        ...book,
-        _finalScore: book._finalScore + boost,
-      };
+      return { ...book, _finalScore: book._finalScore + boost * 0.5 };
     });
     ranked.sort((a, b) => b._finalScore - a._finalScore);
   }
@@ -253,9 +256,17 @@ export async function metaSearch(rawQuery: string): Promise<MetaSearchResult> {
     upsertExternalResults(allExternal);
   }
 
-  // 7. キャッシュ保存（バックグラウンド）
+  // 7. openBDでページ数補完（バックグラウンド）
+  const missingPageIsbns = ranked
+    .filter((r) => r.isbn && r.totalPages === 0)
+    .map((r) => r.isbn!);
+  if (missingPageIsbns.length > 0) {
+    enrichPagesFromOpenBD(missingPageIsbns);
+  }
+
+  // 8. キャッシュ保存（バックグラウンド）
   const top30 = ranked.slice(0, 30);
-  saveCacheResults(normalizedQuery, rawQuery, top30, sourcesUsed);
+  saveCacheResults(normalizedQuery, rawQuery, top30, [...new Set(sourcesUsed)]);
 
   return {
     books: top30,
