@@ -227,7 +227,7 @@ export default function ReadingEvents({ bookId, compact = false }: { bookId: str
                 <div className="mt-1.5 space-y-0.5 text-[11px] text-gray-500">
                   <p>📅 {formatDate(event.eventDate)}</p>
                   <p>📍 {event.prefecture} {event.location}</p>
-                  <p>👤 {event.organizer.displayName}</p>
+                  <p><a href={`/users/${event.organizer.id}`} className="text-amber-700 hover:underline">👤 {event.organizer.displayName}</a></p>
                 </div>
                 {event.url && (
                   <a
@@ -464,7 +464,7 @@ export default function ReadingEvents({ bookId, compact = false }: { bookId: str
                   <div className="mt-1 flex flex-wrap gap-x-3 text-xs text-gray-500">
                     <span>📅 {formatDate(event.eventDate)}</span>
                     <span>📍 {event.prefecture} {event.location}</span>
-                    <span>👤 {event.organizer.displayName}</span>
+                    <a href={`/users/${event.organizer.id}`} className="text-amber-700 hover:underline">👤 {event.organizer.displayName}</a>
                   </div>
                   {event.description && (
                     <p className="mt-1 text-xs text-gray-400">{event.description}</p>

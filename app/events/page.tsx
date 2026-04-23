@@ -214,7 +214,7 @@ export default function EventsPage() {
                   <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-600">
                     <span>📅 {formatDate(event.eventDate)}</span>
                     <span>📍 {event.prefecture} {event.location}</span>
-                    <span>👤 {event.organizer.displayName}</span>
+                    <a href={`/users/${event.organizer.id}`} className="text-amber-700 hover:underline">👤 {event.organizer.displayName}</a>
                   </div>
 
                   {event.description && (
