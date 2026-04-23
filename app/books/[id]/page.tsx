@@ -213,7 +213,7 @@ export default function BookDetailPage() {
                     <input
                       type="number"
                       min={0}
-                      max={book.totalPages}
+                      max={book.totalPages || 99999}
                       value={pageInput}
                       onChange={(e) => setPageInput(Number(e.target.value))}
                       onKeyDown={(e) => {
@@ -221,7 +221,7 @@ export default function BookDetailPage() {
                       }}
                       className="w-24 rounded border px-2 py-1 text-sm"
                     />
-                    <span className="text-xs text-gray-400">/ {book.totalPages}</span>
+                    <span className="text-xs text-gray-400">/ {book.totalPages || "?"}</span>
                     <button
                       onClick={handleUpdatePage}
                       className="rounded bg-amber-100 px-3 py-1 text-xs text-amber-700 hover:bg-amber-200"

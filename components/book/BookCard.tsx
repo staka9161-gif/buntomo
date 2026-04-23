@@ -94,7 +94,7 @@ export default function BookCard({
                   <input
                     type="number"
                     min={0}
-                    max={totalPages}
+                    max={totalPages || 99999}
                     value={localPage}
                     onChange={(e) => setLocalPage(Number(e.target.value))}
                     onKeyDown={(e) => {
