@@ -206,3 +206,30 @@ model Block {
   @@unique([blockerId, blockedId])
   @@index([blockedId])
 }
+
+model SearchCache {
+  queryHash       String   @id
+  queryRaw        String
+  queryNormalized String
+  resultIsbns     String[] // 順位通りに並んだISBN配列
+  resultScores    Float[]  // 対応するスコア
+  sourcesUsed     String[]
+  createdAt       DateTime @default(now())
+  expiresAt       DateTime
+
+  @@index([expiresAt])
+}
+
+model LearningSignal {
+  id              String   @id @default(cuid())
+  queryNormalized String
+  bookId          String?
+  isbn            String?
+  rankShown       Int
+  action          String   // clicked | registered | read
+  userId          String?
+  createdAt       DateTime @default(now())
+
+  @@index([queryNormalized])
+  @@index([isbn])
+}

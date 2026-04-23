@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
 
     const debug = request.nextUrl.searchParams.get("debug") === "1";
 
-    const results = await searchBooks(q);
+    const { books: results, meta } = await searchBooks(q);
 
     // イベント数を補完
     const bookDbIds = results.map((r) => r.bookDbId).filter(Boolean) as string[];
@@ -63,8 +63,8 @@ export async function GET(request: NextRequest) {
           _debug: {
             customRank: r.customRank,
             publisherTier: r.publisherTier,
-            matchScore: r._matchScore,
             finalScore: r._finalScore,
+            sources: r._sources,
             label: r.label,
           },
         };
@@ -72,15 +72,13 @@ export async function GET(request: NextRequest) {
       return base;
     });
 
-    // DB書籍件数も返す（クライアントで状態把握用）
-    const bookCount = await prisma.book.count();
-
     return NextResponse.json({
       books: booksOut,
       meta: {
         total: booksOut.length,
-        dbBookCount: bookCount,
-        source: bookCount > 1000 ? "local" : "external",
+        sourcesUsed: meta.sourcesUsed,
+        cacheHit: meta.cacheHit,
+        tookMs: meta.tookMs,
       },
     });
   } catch (e) {

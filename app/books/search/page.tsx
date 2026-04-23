@@ -57,12 +57,24 @@ export default function BookSearchPage() {
     }
   };
 
+  // 学習シグナル送信（バックグラウンド）
+  const sendFeedback = (isbn: string | null, rank: number, action: string) => {
+    if (!query.trim()) return;
+    fetch(apiUrl("/api/search/feedback"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: query.trim(), clickedIsbn: isbn, rankShown: rank, action }),
+    }).catch(() => {});
+  };
+
   const handleAddBook = async (book: SearchResult, index: number, status: string) => {
     if (!session) {
       router.push("/login");
       return;
     }
     setAddingIndex(index);
+    // 学習シグナル: 登録アクション
+    sendFeedback(book.isbn, index + 1, status === "COMPLETED" ? "read" : "registered");
     try {
       const registerRes = await fetch(apiUrl("/api/books"), {
         method: "POST",
