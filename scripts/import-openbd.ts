@@ -1,15 +1,10 @@
 /**
- * openBD 全件取り込みスクリプト
+ * openBD 全件取り込みスクリプト（PostgreSQL対応版）
  *
  * 使い方:
  *   npx tsx scripts/import-openbd.ts
  *   npx tsx scripts/import-openbd.ts --resume    # 中断から再開
  *   npx tsx scripts/import-openbd.ts --limit 1000  # テスト用（1000件のみ）
- *
- * 手順:
- *   1. GET https://api.openbd.jp/v1/coverage → 全ISBN一覧取得
- *   2. 100件ずつ POST https://api.openbd.jp/v1/get → 書誌データ取得
- *   3. SQLiteにUpsert
  */
 
 import { PrismaClient } from "@prisma/client";
@@ -26,13 +21,13 @@ function cuid(): string {
 }
 
 // ── 設定 ──
-const BATCH_SIZE = 100;       // openBD APIは100件/リクエストが上限
-const CONCURRENCY = 5;        // 同時リクエスト数（500件/バッチサイクル）
+const BATCH_SIZE = 100;
+const CONCURRENCY = 3;
 const PROGRESS_FILE = "scripts/.openbd-progress.json";
 const RETRY_MAX = 3;
 const RETRY_DELAY_MS = 2000;
 
-// ── 正規化関数（normalize.tsの簡易版、スクリプト単体実行用） ──
+// ── 正規化関数 ──
 function normalizeText(text: string): string {
   let s = text.normalize("NFKC");
   s = s.replace(/[−―‐─\u2010\u2011\u2012\u2013\u2014\u2015]/g, "ー");
@@ -129,47 +124,50 @@ function parseOpenBDItem(item: OpenBDItem) {
   const publishedDate = s.pubdate || null;
   const coverUrl = s.cover || null;
 
-  // ONIX由来の詳細データ
   const titleDetail = onix?.DescriptiveDetail?.TitleDetail?.TitleElement;
   const subtitle = titleDetail?.Subtitle?.content || null;
   const volume = titleDetail?.PartNumber || s.volume || null;
 
-  // レーベル/シリーズ (Collection)
   const collection = onix?.DescriptiveDetail?.Collection?.TitleDetail?.TitleElement;
   const seriesName = collection?.[0]?.TitleText?.content || s.series || null;
-
-  // 版元/インプリント（レーベル情報の宝庫）
   const imprint = onix?.PublishingDetail?.Imprint?.ImprintName || null;
 
-  // ページ数
+  // ページ数（ExtentType=11を優先、なければ10や00）
   const extents = onix?.DescriptiveDetail?.Extent || [];
-  const pageExtent = extents.find((e) => e.ExtentType === "11");
-  const totalPages = pageExtent?.ExtentValue ? parseInt(pageExtent.ExtentValue) : 0;
+  let totalPages = 0;
+  const mainPage = extents.find((e) => e.ExtentType === "11");
+  if (mainPage?.ExtentValue) {
+    const n = parseInt(mainPage.ExtentValue, 10);
+    if (n > 0 && n < 10000) totalPages = n;
+  }
+  if (totalPages === 0) {
+    const anyPage = extents.find((e) => e.ExtentType === "10" || e.ExtentType === "00");
+    if (anyPage?.ExtentValue) {
+      const n = parseInt(anyPage.ExtentValue, 10);
+      if (n > 0 && n < 10000) totalPages = n;
+    }
+  }
 
-  // 内容紹介
   const texts = onix?.CollateralDetail?.TextContent || [];
   const descText = texts.find((t) => t.TextType === "03" || t.TextType === "02");
   const description = descText?.Text || null;
 
-  // 著者カナ
   const contributors = onix?.DescriptiveDetail?.Contributor || [];
   const authorKana = contributors[0]?.PersonName?.content || null;
 
-  // 正規化
   const titleNormalized = removeSymbols(normalizeText(title)).toLowerCase();
   const publisherNormalized = publisher ? normalizePublisher(publisher) : null;
   const label = imprint || seriesName || null;
   const labelNormalized = label ? normalizePublisher(label) : null;
 
-  // 書誌完成度スコア
   let completenessScore = 0;
   if (coverUrl) completenessScore += 5;
   if (isbn) completenessScore += 3;
   if (author && author !== "不明") completenessScore += 2;
   if (publishedDate) completenessScore += 2;
   if (publisher) completenessScore += 3;
+  if (totalPages > 0) completenessScore += 3;
 
-  // 電子書籍判定
   const isElectronic = /kindle|電子書籍|電子版|e-book/i.test(title);
 
   return {
@@ -187,7 +185,7 @@ function parseOpenBDItem(item: OpenBDItem) {
     label,
     labelNormalized,
     publishedDate,
-    totalPages: totalPages || 0,
+    totalPages,
     coverImageUrl: coverUrl,
     coverSource: coverUrl ? "openbd" : null,
     description,
@@ -208,7 +206,6 @@ async function fetchWithRetry(url: string, options?: RequestInit): Promise<Respo
       });
       if (res.ok) return res;
       if (res.status === 429) {
-        // Rate limited
         const wait = RETRY_DELAY_MS * attempt * 2;
         console.log(`  Rate limited, waiting ${wait}ms...`);
         await sleep(wait);
@@ -250,6 +247,66 @@ function loadProgress(): { processed: number; failedIsbns: string[] } | null {
   }
 }
 
+// ── PostgreSQL用バルクupsert ──
+async function bulkUpsert(rows: NonNullable<ReturnType<typeof parseOpenBDItem>>[]) {
+  for (const r of rows) {
+    try {
+      await prisma.book.upsert({
+        where: { isbn: r.isbn },
+        create: {
+          id: cuid(),
+          isbn: r.isbn,
+          title: r.title,
+          titleNormalized: r.titleNormalized,
+          titleKana: r.titleKana,
+          subtitle: r.subtitle,
+          seriesName: r.seriesName,
+          volume: r.volume,
+          author: r.author,
+          authorKana: r.authorKana,
+          publisher: r.publisher,
+          publisherNormalized: r.publisherNormalized,
+          label: r.label,
+          labelNormalized: r.labelNormalized,
+          publishedDate: r.publishedDate,
+          totalPages: r.totalPages,
+          coverImageUrl: r.coverImageUrl,
+          coverSource: r.coverSource,
+          description: r.description,
+          sourceData: r.sourceData,
+          publisherTier: "C",
+          publisherScore: 0,
+          popularityScore: 0,
+          completenessScore: r.completenessScore,
+          freshnessScore: 0,
+          customRank: 0,
+          isCanonical: r.isCanonical,
+          isElectronic: r.isElectronic,
+          isKarilRecommended: false,
+          isLongseller: false,
+          registrationCount: 0,
+        },
+        update: {
+          title: r.title,
+          titleNormalized: r.titleNormalized,
+          author: r.author,
+          publisher: r.publisher || undefined,
+          publisherNormalized: r.publisherNormalized || undefined,
+          label: r.label || undefined,
+          labelNormalized: r.labelNormalized || undefined,
+          totalPages: r.totalPages > 0 ? r.totalPages : undefined,
+          coverImageUrl: r.coverImageUrl || undefined,
+          description: r.description || undefined,
+          completenessScore: r.completenessScore,
+          updatedAt: new Date(),
+        },
+      });
+    } catch {
+      // 個別エラーは無視して続行
+    }
+  }
+}
+
 // ── メイン処理 ──
 async function main() {
   const args = process.argv.slice(2);
@@ -257,7 +314,7 @@ async function main() {
   const limitIdx = args.indexOf("--limit");
   const limit = limitIdx >= 0 ? parseInt(args[limitIdx + 1]) : Infinity;
 
-  console.log("=== openBD 全件取り込み ===");
+  console.log("=== openBD 全件取り込み (PostgreSQL版) ===");
   console.log(`Mode: ${isResume ? "RESUME" : "FRESH"}, Limit: ${limit === Infinity ? "ALL" : limit}`);
 
   // Step 1: 全ISBN取得
@@ -266,7 +323,6 @@ async function main() {
   const allIsbns: string[] = await coverageRes.json();
   console.log(`  Total ISBNs in openBD: ${allIsbns.length.toLocaleString()}`);
 
-  // 再開の場合はスキップ
   let startIndex = 0;
   const failedIsbns: string[] = [];
   if (isResume) {
@@ -278,10 +334,9 @@ async function main() {
     }
   }
 
-  // 上限適用
   const endIndex = Math.min(allIsbns.length, startIndex + limit);
   const targetIsbns = allIsbns.slice(startIndex, endIndex);
-  console.log(`  Processing: ${targetIsbns.length.toLocaleString()} ISBNs (index ${startIndex} to ${endIndex})`);
+  console.log(`  Processing: ${targetIsbns.length.toLocaleString()} ISBNs`);
 
   // Step 2: バッチ取得 → DB Upsert
   console.log("\n[2/3] Fetching book data and upserting to DB...");
@@ -306,16 +361,13 @@ async function main() {
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: `isbn=${batch.join(",")}`,
         });
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}`);
-        }
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const items: (OpenBDItem | null)[] = await res.json();
         return { batch, items };
       })
     );
 
-    // 全バッチ結果をパースしてバルクINSERT
-    const parsedRows: ReturnType<typeof parseOpenBDItem>[] = [];
+    const parsedRows: NonNullable<ReturnType<typeof parseOpenBDItem>>[] = [];
     for (const result of results) {
       if (result.status === "rejected") {
         errors += BATCH_SIZE;
@@ -330,70 +382,17 @@ async function main() {
       }
     }
 
-    // SQLiteバルクINSERT OR REPLACE（1トランザクション）
     if (parsedRows.length > 0) {
-      try {
-        const now = new Date().toISOString();
-        const values = parsedRows.map((r) => {
-          const e = (s: string | null | undefined) => s ? `'${s.replace(/'/g, "''")}'` : "NULL";
-          const b = (v: boolean) => v ? "1" : "0";
-          return `(${[
-            e(cuid()), e(r.isbn), e(r.title), e(r.titleNormalized), e(r.titleKana),
-            e(r.subtitle), e(r.seriesName), e(r.volume),
-            e(r.author), e(r.authorKana),
-            e(r.publisher), e(r.publisherNormalized), e(r.label), e(r.labelNormalized),
-            e(r.publishedDate), r.totalPages, e(r.coverImageUrl), e(r.coverSource),
-            e(r.description), e(r.sourceData),
-            "'C'", "0", "0", r.completenessScore, "0", "0",
-            b(r.isCanonical), b(r.isElectronic), "0", "0", "0",
-            e(now), e(now),
-          ].join(",")})`;
-        });
-
-        await prisma.$executeRawUnsafe(`
-          INSERT OR REPLACE INTO Book (
-            id, isbn, title, titleNormalized, titleKana,
-            subtitle, seriesName, volume,
-            author, authorKana,
-            publisher, publisherNormalized, label, labelNormalized,
-            publishedDate, totalPages, coverImageUrl, coverSource,
-            description, sourceData,
-            publisherTier, publisherScore, popularityScore, completenessScore, freshnessScore, customRank,
-            isCanonical, isElectronic, isKarilRecommended, isLongseller, registrationCount,
-            createdAt, updatedAt
-          ) VALUES ${values.join(",\n")}`
-        );
-        upserted += parsedRows.length;
-      } catch (err) {
-        // バルク失敗時は個別フォールバック
-        for (const r of parsedRows) {
-          try {
-            await prisma.book.upsert({
-              where: { isbn: r.isbn },
-              create: r,
-              update: {
-                title: r.title, titleNormalized: r.titleNormalized,
-                author: r.author, publisher: r.publisher || undefined,
-                publisherNormalized: r.publisherNormalized || undefined,
-                label: r.label || undefined,
-                coverImageUrl: r.coverImageUrl || undefined,
-                completenessScore: r.completenessScore,
-                updatedAt: new Date(),
-              },
-            });
-            upserted++;
-          } catch { errors++; }
-        }
-      }
+      await bulkUpsert(parsedRows);
+      upserted += parsedRows.length;
     }
 
     processed += concurrentBatches.reduce((sum, b) => sum + b.length, 0);
 
-    // 進捗表示（100バッチごと）
     if (batchIdx % 10 === 0 || batchIdx === batches.length - 1) {
       const elapsed = (Date.now() - startTime) / 1000;
-      const rate = upserted / elapsed;
-      const remaining = ((targetIsbns.length - (processed - startIndex)) / rate / 60).toFixed(1);
+      const rate = upserted / Math.max(elapsed, 1);
+      const remaining = ((targetIsbns.length - (processed - startIndex)) / Math.max(rate, 1) / 60).toFixed(1);
       const pct = (((processed - startIndex) / targetIsbns.length) * 100).toFixed(1);
       console.log(
         `  [${pct}%] ${processed.toLocaleString()}/${endIndex.toLocaleString()} | ` +
@@ -404,17 +403,12 @@ async function main() {
     }
   }
 
-  // Step 3: サマリー
   console.log("\n[3/3] Import complete!");
   console.log(`  Total processed: ${processed.toLocaleString()}`);
   console.log(`  Upserted: ${upserted.toLocaleString()}`);
-  console.log(`  Skipped (null/invalid): ${skipped.toLocaleString()}`);
+  console.log(`  Skipped: ${skipped.toLocaleString()}`);
   console.log(`  Errors: ${errors}`);
-  if (failedIsbns.length > 0) {
-    console.log(`  Failed ISBNs saved to progress file (${failedIsbns.length} items)`);
-  }
 
-  // DB件数確認
   const bookCount = await prisma.book.count();
   console.log(`\n  Books in DB: ${bookCount.toLocaleString()}`);
 
