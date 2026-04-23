@@ -255,13 +255,6 @@ export default function BookSearchPage() {
       {/* 検索結果 */}
       {results.length > 0 && (
         <>
-          {source === "external" && dbBookCount < 1000 && (
-            <p className="mb-4 rounded-lg bg-blue-50 p-3 text-xs text-blue-600">
-              外部API検索で動作中（DB: {dbBookCount.toLocaleString()}冊）。
-              <code className="rounded bg-blue-100 px-1 mx-1">npx tsx scripts/import-openbd.ts</code>
-              でopenBD全件取り込みを実行すると、検索精度が大幅に向上します。
-            </p>
-          )}
           <div className="space-y-4">
             {results.map((book, i) => (
               <div
@@ -354,21 +347,6 @@ export default function BookSearchPage() {
           <p className="mt-2 text-sm text-gray-400">
             上の「手動で登録」から直接本を追加できます
           </p>
-          {dbBookCount < 1000 && (
-            <div className="mt-4 rounded-lg bg-gray-50 p-4 text-left text-xs text-gray-500">
-              <p className="mb-2 font-semibold">
-                検索精度を向上させるには:
-              </p>
-              <ol className="list-inside list-decimal space-y-1">
-                <li>
-                  <code className="rounded bg-gray-200 px-1">npx tsx scripts/import-openbd.ts</code> でopenBD全件取り込み（約100万冊・無料）
-                </li>
-                <li>
-                  <code className="rounded bg-gray-200 px-1">npx tsx scripts/calculate-ranks.ts</code> でランキング計算
-                </li>
-              </ol>
-            </div>
-          )}
         </div>
       )}
     </div>
