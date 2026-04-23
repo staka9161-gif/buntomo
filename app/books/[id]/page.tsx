@@ -114,26 +114,22 @@ export default function BookDetailPage() {
 
   const handleUpdatePage = async () => {
     if (!myReading) {
-      console.error("myReading is null - session may not be working");
       alert("ログイン状態を確認できません。ページをリロードしてください。");
       return;
     }
-    try {
-      const res = await fetch(apiUrl(`/api/me/readings/${myReading.id}`), {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ currentPage: pageInput }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        alert(data?.error || "更新に失敗しました");
-        return;
-      }
-      await refreshAll();
-    } catch (e) {
-      console.error("Update failed:", e);
-      alert("通信エラーが発生しました");
+    const url = apiUrl(`/api/me/readings/${myReading.id}`);
+    const res = await fetch(url, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ currentPage: pageInput }),
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      alert(data?.error || `更新に失敗しました (${res.status})`);
+      return;
     }
+    alert("更新しました");
+    await refreshAll();
   };
 
   const handleRevertToReading = async () => {
@@ -235,7 +231,7 @@ export default function BookDetailPage() {
                       }}
                       className="w-24 rounded border px-2 py-1 text-sm"
                     />
-                    <span className="text-xs text-gray-400">/ {book.totalPages || "?"}</span>
+                    {book.totalPages > 0 && <span className="text-xs text-gray-400">/ {book.totalPages}</span>}
                     <button
                       type="button"
                       onClick={handleUpdatePage}
