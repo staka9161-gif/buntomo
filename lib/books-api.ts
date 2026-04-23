@@ -180,7 +180,7 @@ async function searchRakuten(query: string): Promise<ExternalBookData[]> {
         publisher: (item.publisherName as string) || null,
         label: (item.seriesName as string) || extractedLabel,
         publishedDate: (item.salesDate as string) || null,
-        totalPages: 0,
+        totalPages: parseInt(item.itemPages as string, 10) || 0,
         coverImageUrl: (item.largeImageUrl as string) || (item.mediumImageUrl as string) || null,
         description: (item.itemCaption as string) || null,
       };
@@ -249,9 +249,15 @@ async function searchNdl(query: string): Promise<ExternalBookData[]> {
       const dateMatch = item.match(/<dc:date[^>]*>([^<]+)<\/dc:date>/);
       const publishedDate = dateMatch?.[1] || null;
       const { title: ndlTitle, label: ndlLabel } = extractLabel(title);
+      const extentMatch = item.match(/<dcterms:extent>([^<]+)<\/dcterms:extent>/);
+      let totalPages = 0;
+      if (extentMatch) {
+        const pagesMatch = extentMatch[1].match(/(\d+)\s*p/);
+        if (pagesMatch) totalPages = parseInt(pagesMatch[1], 10);
+      }
       const coverImageUrl = isbn ? `https://ndlsearch.ndl.go.jp/thumbnail/${isbn}.jpg` : null;
       if (results.some((r) => r.isbn && isbn && r.isbn === isbn)) continue;
-      results.push({ isbn, title: ndlTitle, author, publisher, label: ndlLabel, publishedDate, totalPages: 0, coverImageUrl, description: null });
+      results.push({ isbn, title: ndlTitle, author, publisher, label: ndlLabel, publishedDate, totalPages, coverImageUrl, description: null });
     }
     return results;
   } catch { return []; }

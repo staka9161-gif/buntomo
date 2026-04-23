@@ -121,13 +121,6 @@ export default function BookDetailPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ currentPage: pageInput }),
     });
-    if (totalPagesInput > 0 && book && totalPagesInput !== book.totalPages) {
-      await fetch(apiUrl(`/api/books/${book.id}`), {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ totalPages: totalPagesInput }),
-      });
-    }
     await refreshAll();
   };
 
@@ -217,9 +210,9 @@ export default function BookDetailPage() {
                   <div className="inline-block rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
                     読書中
                   </div>
-                  <ProgressBar percent={progress} />
+                  {book.totalPages > 0 && <ProgressBar percent={progress} />}
                   <p className="text-xs text-gray-400">
-                    {myReading.currentPage} / {book.totalPages > 0 ? book.totalPages : "?"} ページ
+                    {myReading.currentPage}{book.totalPages > 0 ? ` / ${book.totalPages}` : ""} ページ
                   </p>
                   <div className="flex items-center gap-2">
                     <input
@@ -231,18 +224,7 @@ export default function BookDetailPage() {
                       onKeyDown={(e) => {
                         if (e.key === "Enter") handleUpdatePage();
                       }}
-                      className="w-20 rounded border px-2 py-1 text-sm"
-                      placeholder="現在"
-                    />
-                    <span className="text-xs text-gray-400">/</span>
-                    <input
-                      type="number"
-                      min={1}
-                      max={99999}
-                      value={totalPagesInput || ""}
-                      onChange={(e) => setTotalPagesInput(Number(e.target.value))}
-                      className="w-20 rounded border px-2 py-1 text-sm"
-                      placeholder="総ページ"
+                      className="w-24 rounded border px-2 py-1 text-sm"
                     />
                     <button
                       type="button"
