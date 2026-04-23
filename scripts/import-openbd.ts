@@ -130,7 +130,7 @@ function parseOpenBDItem(item: OpenBDItem): ParsedBook | null {
     publisher, publisherNormalized, label, labelNormalized,
     publishedDate: s.pubdate || null, totalPages, coverImageUrl: coverUrl,
     coverSource: coverUrl ? "openbd" : null,
-    description, sourceData: JSON.stringify({ openbd: { hanmoto: item.hanmoto } }),
+    description: null, sourceData: null,  // 容量節約のためNULL
     completenessScore, isElectronic, isCanonical: !isElectronic,
   };
 }
