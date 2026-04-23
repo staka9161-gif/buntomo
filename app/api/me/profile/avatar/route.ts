@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 
-const MAX_SIZE = 500 * 1024; // 500KB（DB保存のため小さめに）
+const MAX_SIZE = 2 * 1024 * 1024; // 2MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
 export async function POST(request: NextRequest) {
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (file.size > MAX_SIZE) {
-      return NextResponse.json({ error: "ファイルサイズは500KB以内にしてください" }, { status: 400 });
+      return NextResponse.json({ error: "ファイルサイズは2MB以内にしてください" }, { status: 400 });
     }
 
     // Base64 data URL として DB に保存
