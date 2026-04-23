@@ -46,7 +46,7 @@ const EMPTY_FORM = {
   description: "",
 };
 
-export default function ReadingEvents({ bookId, compact = false }: { bookId: string; compact?: boolean }) {
+export default function ReadingEvents({ bookId, bookTitle, compact = false }: { bookId: string; bookTitle?: string; compact?: boolean }) {
   const { data: session } = useSession();
   const [events, setEvents] = useState<ReadingEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -220,7 +220,7 @@ export default function ReadingEvents({ bookId, compact = false }: { bookId: str
               <div key={event.id} className="rounded border border-blue-100 bg-blue-50 p-2.5">
                 {event.books && event.books.length > 0 && (
                   <p className="text-[10px] text-amber-700 mb-0.5 truncate">
-                    📖 {event.books.map((b) => b.title).join("、")}
+                    📖 {event.books[0].title}
                   </p>
                 )}
                 <p className="text-xs font-semibold text-gray-800 leading-tight">{event.title}</p>
@@ -414,6 +414,9 @@ export default function ReadingEvents({ bookId, compact = false }: { bookId: str
 
   return (
     <div className="rounded-xl border bg-white p-6 shadow-sm">
+      {bookTitle && (
+        <p className="mb-2 text-sm font-semibold text-gray-900">📖 {bookTitle}</p>
+      )}
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-sm font-semibold text-gray-700">
           読書会の予定 {events.length > 0 && <span className="ml-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700">{events.length}</span>}
@@ -452,7 +455,7 @@ export default function ReadingEvents({ bookId, compact = false }: { bookId: str
                 <div className="flex-1 min-w-0">
                   {event.books && event.books.length > 0 && (
                     <p className="text-[11px] text-amber-700 truncate mb-0.5">
-                      📖 {event.books.map((b) => b.title).join("、")}
+                      📖 {event.books[0].title}
                     </p>
                   )}
                   <div className="flex items-center gap-1.5">

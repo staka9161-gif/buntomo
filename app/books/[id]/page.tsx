@@ -337,7 +337,7 @@ export default function BookDetailPage() {
 
       {/* 読書会の予定 */}
       <div className="mt-6" id="events">
-        <ReadingEvents bookId={bookId} />
+        <ReadingEvents bookId={bookId} bookTitle={book?.title} />
       </div>
 
       {/* チャットへのリンク */}
