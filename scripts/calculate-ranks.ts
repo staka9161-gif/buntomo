@@ -132,8 +132,8 @@ async function main() {
 
   // Step 1: 出版社ごとのbook_countを集計
   console.log("[1/3] Counting books per publisher...");
-  const publisherCounts = await prisma.$queryRawUnsafe<Array<{ publisherNormalized: string; cnt: number }>>(
-    `SELECT publisherNormalized, COUNT(*) as cnt FROM Book WHERE publisherNormalized IS NOT NULL GROUP BY publisherNormalized`
+  const publisherCounts = await prisma.$queryRawUnsafe<Array<{ publisherNormalized: string; cnt: bigint }>>(
+    `SELECT "publisherNormalized", COUNT(*) as cnt FROM "Book" WHERE "publisherNormalized" IS NOT NULL GROUP BY "publisherNormalized"`
   );
   const pubCountMap = new Map<string, number>();
   for (const row of publisherCounts) {
@@ -214,8 +214,8 @@ async function main() {
 
   // Step 3: サマリー
   console.log("\n[3/3] Summary:");
-  const tierCounts = await prisma.$queryRawUnsafe<Array<{ publisherTier: string; cnt: number }>>(
-    `SELECT publisherTier, COUNT(*) as cnt FROM Book GROUP BY publisherTier ORDER BY publisherTier`
+  const tierCounts = await prisma.$queryRawUnsafe<Array<{ publisherTier: string; cnt: bigint }>>(
+    `SELECT "publisherTier", COUNT(*) as cnt FROM "Book" GROUP BY "publisherTier" ORDER BY "publisherTier"`
   );
   for (const row of tierCounts) {
     console.log(`  ${row.publisherTier}: ${Number(row.cnt).toLocaleString()} books`);
