@@ -325,34 +325,17 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
       </div>
       <div>
         <label className="mb-1 block text-xs font-medium text-gray-700">
-          日付 <span className="text-red-500">*</span>
+          日時 <span className="text-red-500">*</span>
         </label>
         <input
-          type="date"
-          value={form.eventDate.split("T")[0] || ""}
-          onChange={(e) => {
-            const time = form.eventDate.split("T")[1] || "00:00";
-            setForm({ ...form, eventDate: e.target.value ? `${e.target.value}T${time}` : "" });
-          }}
+          type="datetime-local"
+          value={form.eventDate}
+          onChange={(e) => setForm({ ...form, eventDate: e.target.value })}
           className="w-full rounded border bg-white px-3 py-1.5 text-sm focus:border-amber-400 focus:outline-none"
           required
         />
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="mb-1 block text-xs font-medium text-gray-700">
-            時刻
-          </label>
-          <input
-            type="time"
-            value={form.eventDate.split("T")[1] || ""}
-            onChange={(e) => {
-              const date = form.eventDate.split("T")[0] || "";
-              setForm({ ...form, eventDate: date ? `${date}T${e.target.value}` : "" });
-            }}
-            className="w-full rounded border bg-white px-3 py-1.5 text-sm focus:border-amber-400 focus:outline-none"
-          />
-        </div>
+      <div>
         <div>
           <label className="mb-1 block text-xs font-medium text-gray-700">
             都道府県 <span className="text-red-500">*</span>
