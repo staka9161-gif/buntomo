@@ -104,7 +104,8 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.title.trim() || !formDate || !form.prefecture || !form.location.trim() || !form.url.trim()) return;
-    const eventDate = `${formDate}T${formTime || "13:00"}`;
+    // ローカル時刻をUTC ISO文字列に変換してサーバーに送信
+    const eventDate = new Date(`${formDate}T${formTime || "13:00"}`).toISOString();
     setSubmitting(true);
     try {
       const payload = { ...form, eventDate, bookIds: [...selectedBookIds] };
