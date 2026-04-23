@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "無効な画像データです" }, { status: 400 });
     }
 
-    if (avatarDataUrl.length > 70000) {
+    if (avatarDataUrl.length > 150000) {
       return NextResponse.json({ error: "画像が大きすぎます" }, { status: 400 });
     }
 

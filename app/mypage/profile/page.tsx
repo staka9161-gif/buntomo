@@ -106,7 +106,7 @@ export default function ProfileEditPage() {
       img.onload = () => {
         URL.revokeObjectURL(blobUrl);
         const canvas = document.createElement("canvas");
-        const size = 64;
+        const size = 200;
         canvas.width = size;
         canvas.height = size;
         const ctx = canvas.getContext("2d")!;
@@ -115,7 +115,7 @@ export default function ProfileEditPage() {
         const sx = (img.width - min) / 2;
         const sy = (img.height - min) / 2;
         ctx.drawImage(img, sx, sy, min, min, 0, 0, size, size);
-        resolve(canvas.toDataURL("image/jpeg", 0.7));
+        resolve(canvas.toDataURL("image/jpeg", 0.85));
       };
       img.onerror = () => {
         URL.revokeObjectURL(blobUrl);
