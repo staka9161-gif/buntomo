@@ -84,12 +84,7 @@ export async function GET(
           displayName: e.organizer.displayName,
           avatarUrl: e.organizer.avatarUrl,
         },
-        books: [
-          { id: e.book.id, title: e.book.title, author: e.book.author, coverImageUrl: e.book.coverImageUrl },
-          ...e.books.filter((b) => b.id !== e.book.id).map((b) => ({
-            id: b.id, title: b.title, author: b.author, coverImageUrl: b.coverImageUrl,
-          })),
-        ],
+        books: [{ id: e.book.id, title: e.book.title, author: e.book.author, coverImageUrl: e.book.coverImageUrl }],
         isOtherEdition: e.bookId !== id && !e.books.some((b) => b.id === id),
       })),
     });
