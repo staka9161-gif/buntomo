@@ -8,114 +8,119 @@ export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ userId: string }> }
 ) {
-  const { userId } = await params;
+  try {
+    const { userId } = await params;
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      id: true,
-      displayName: true,
-      avatarUrl: true,
-      bio: true,
-      area: true,
-      linkX: true,
-      linkInstagram: true,
-      linkWebsite: true,
-      customLinks: true,
-      visibility: true,
-    },
-  });
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        displayName: true,
+        avatarUrl: true,
+        bio: true,
+        area: true,
+        linkX: true,
+        linkInstagram: true,
+        linkWebsite: true,
+        customLinks: true,
+        visibility: true,
+      },
+    });
 
-  if (!user) {
-    return NextResponse.json({ error: "ユーザーが見つかりません" }, { status: 404 });
-  }
-
-  // 友だち関係ステータスを先に判定
-  let friendshipStatus: "none" | "pending-sent" | "pending-received" | "friends" = "none";
-  let friendshipId: string | null = null;
-  let isMe = false;
-
-  const session = await auth();
-  if (session?.user?.id) {
-    if (session.user.id === userId) {
-      isMe = true;
-    } else if (await isBlocked(session.user.id, userId)) {
+    if (!user) {
       return NextResponse.json({ error: "ユーザーが見つかりません" }, { status: 404 });
-    } else {
-      const friendship = await prisma.friendship.findFirst({
-        where: {
-          OR: [
-            { requesterId: session.user.id, addresseeId: userId },
-            { requesterId: userId, addresseeId: session.user.id },
-          ],
-        },
-      });
+    }
 
-      if (friendship) {
-        friendshipId = friendship.id;
-        if (friendship.status === "ACCEPTED") {
-          friendshipStatus = "friends";
-        } else if (friendship.status === "PENDING") {
-          friendshipStatus = friendship.requesterId === session.user.id
-            ? "pending-sent"
-            : "pending-received";
+    // 友だち関係ステータスを先に判定
+    let friendshipStatus: "none" | "pending-sent" | "pending-received" | "friends" = "none";
+    let friendshipId: string | null = null;
+    let isMe = false;
+
+    const session = await auth();
+    if (session?.user?.id) {
+      if (session.user.id === userId) {
+        isMe = true;
+      } else if (await isBlocked(session.user.id, userId)) {
+        return NextResponse.json({ error: "ユーザーが見つかりません" }, { status: 404 });
+      } else {
+        const friendship = await prisma.friendship.findFirst({
+          where: {
+            OR: [
+              { requesterId: session.user.id, addresseeId: userId },
+              { requesterId: userId, addresseeId: session.user.id },
+            ],
+          },
+        });
+
+        if (friendship) {
+          friendshipId = friendship.id;
+          if (friendship.status === "ACCEPTED") {
+            friendshipStatus = "friends";
+          } else if (friendship.status === "PENDING") {
+            friendshipStatus = friendship.requesterId === session.user.id
+              ? "pending-sent"
+              : "pending-received";
+          }
         }
       }
     }
-  }
 
-  const isFriend = friendshipStatus === "friends";
-  const vis = parseVisibility(user.visibility);
+    const isFriend = friendshipStatus === "friends";
+    const vis = parseVisibility(user.visibility);
 
-  // 項目ごとに公開判定: 本人 or public or (friends かつ友だち)
-  const canSee = (field: "bio" | "area" | "links" | "readings") =>
-    isMe || vis[field] === "public" || (vis[field] === "friends" && isFriend);
+    // 項目ごとに公開判定: 本人 or public or (friends かつ友だち)
+    const canSee = (field: "bio" | "area" | "links" | "readings") =>
+      isMe || vis[field] === "public" || (vis[field] === "friends" && isFriend);
 
-  let customLinks: unknown[] = [];
-  if (canSee("links") && user.customLinks) {
-    try { customLinks = JSON.parse(user.customLinks); } catch { /* */ }
-  }
+    let customLinks: unknown[] = [];
+    if (canSee("links") && user.customLinks) {
+      try { customLinks = JSON.parse(user.customLinks); } catch { /* */ }
+    }
 
-  const userResponse = {
-    id: user.id,
-    displayName: user.displayName,
-    avatarUrl: user.avatarUrl,
-    bio: canSee("bio") ? user.bio : null,
-    area: canSee("area") ? user.area : null,
-    linkX: canSee("links") ? user.linkX : null,
-    linkInstagram: canSee("links") ? user.linkInstagram : null,
-    linkWebsite: canSee("links") ? user.linkWebsite : null,
-    customLinks: canSee("links") ? customLinks : [],
-    visibility: vis,
-  };
+    const userResponse = {
+      id: user.id,
+      displayName: user.displayName,
+      avatarUrl: user.avatarUrl,
+      bio: canSee("bio") ? user.bio : null,
+      area: canSee("area") ? user.area : null,
+      linkX: canSee("links") ? user.linkX : null,
+      linkInstagram: canSee("links") ? user.linkInstagram : null,
+      linkWebsite: canSee("links") ? user.linkWebsite : null,
+      customLinks: canSee("links") ? customLinks : [],
+      visibility: vis,
+    };
 
-  // 読書状況
-  const readings = canSee("readings")
-    ? await prisma.readingStatus.findMany({
-        where: { userId },
-        include: {
-          book: {
-            select: { id: true, title: true, author: true, coverImageUrl: true, totalPages: true },
+    // 読書状況
+    const readings = canSee("readings")
+      ? await prisma.readingStatus.findMany({
+          where: { userId },
+          include: {
+            book: {
+              select: { id: true, title: true, author: true, coverImageUrl: true, totalPages: true },
+            },
           },
-        },
-        orderBy: { updatedAt: "desc" },
-        take: 10,
-      })
-    : [];
+          orderBy: { updatedAt: "desc" },
+          take: 10,
+        })
+      : [];
 
-  // どの項目が非表示かをフロントに伝える
-  const hiddenFields = {
-    bio: !canSee("bio") && !!user.bio,
-    area: !canSee("area") && !!user.area,
-    links: !canSee("links"),
-    readings: !canSee("readings"),
-  };
+    // どの項目が非表示かをフロントに伝える
+    const hiddenFields = {
+      bio: !canSee("bio") && !!user.bio,
+      area: !canSee("area") && !!user.area,
+      links: !canSee("links"),
+      readings: !canSee("readings"),
+    };
 
-  return NextResponse.json({
-    user: userResponse,
-    readings,
-    friendshipStatus,
-    friendshipId,
-    hiddenFields,
-  });
+    return NextResponse.json({
+      user: userResponse,
+      readings,
+      friendshipStatus,
+      friendshipId,
+      hiddenFields,
+    });
+  } catch (e) {
+    console.error("User profile GET error:", e);
+    return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });
+  }
 }

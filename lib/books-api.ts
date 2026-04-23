@@ -252,7 +252,7 @@ async function searchNdl(query: string): Promise<ExternalBookData[]> {
       const extentMatch = item.match(/<dcterms:extent>([^<]+)<\/dcterms:extent>/);
       let totalPages = 0;
       if (extentMatch) {
-        const pagesMatch = extentMatch[1].match(/(\d+)\s*p/);
+        const pagesMatch = extentMatch[1].match(/(\d+)\s*(?:p|ページ)/);
         if (pagesMatch) totalPages = parseInt(pagesMatch[1], 10);
       }
       const coverImageUrl = isbn ? `https://ndlsearch.ndl.go.jp/thumbnail/${isbn}.jpg` : null;
@@ -336,7 +336,21 @@ export async function searchBooks(query: string): Promise<BookSearchResult[]> {
     searchNdl(normalizedQuery),
   ]);
 
-  const externalResults = [...rakutenResults, ...googleResults, ...ndlResults];
+  // 同ISBNの結果をマージ（totalPagesが取れたものを優先）
+  const mergedByIsbn = new Map<string, ExternalBookData>();
+  for (const r of [...rakutenResults, ...googleResults, ...ndlResults]) {
+    if (!r.isbn) continue;
+    const existing = mergedByIsbn.get(r.isbn);
+    if (!existing) {
+      mergedByIsbn.set(r.isbn, r);
+    } else {
+      if (r.totalPages > 0 && existing.totalPages === 0) existing.totalPages = r.totalPages;
+      if (r.coverImageUrl && !existing.coverImageUrl) existing.coverImageUrl = r.coverImageUrl;
+      if (r.description && !existing.description) existing.description = r.description;
+    }
+  }
+  const noIsbnResults = [...rakutenResults, ...googleResults, ...ndlResults].filter((r) => !r.isbn);
+  const externalResults = [...mergedByIsbn.values(), ...noIsbnResults];
 
   // 外部結果をDBに保存（バックグラウンド）
   if (externalResults.length > 0) {
