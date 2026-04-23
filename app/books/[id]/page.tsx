@@ -113,13 +113,27 @@ export default function BookDetailPage() {
   };
 
   const handleUpdatePage = async () => {
-    if (!myReading) return;
-    await fetch(apiUrl(`/api/me/readings/${myReading.id}`), {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ currentPage: pageInput }),
-    });
-    await refreshAll();
+    if (!myReading) {
+      console.error("myReading is null - session may not be working");
+      alert("ログイン状態を確認できません。ページをリロードしてください。");
+      return;
+    }
+    try {
+      const res = await fetch(apiUrl(`/api/me/readings/${myReading.id}`), {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currentPage: pageInput }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        alert(data?.error || "更新に失敗しました");
+        return;
+      }
+      await refreshAll();
+    } catch (e) {
+      console.error("Update failed:", e);
+      alert("通信エラーが発生しました");
+    }
   };
 
   const handleRevertToReading = async () => {
