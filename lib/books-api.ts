@@ -324,7 +324,20 @@ export async function searchBooks(query: string): Promise<BookSearchResult[]> {
   // 自社DBに十分な結果がある場合（5件以上かつ上位のmatchScoreが高い）
   const goodResults = localResults.filter((r) => r._matchScore >= 10);
   if (goodResults.length >= 5) {
-    // スコアでソートして返却
+    // totalPages=0の本をバックグラウンドでNDLから補完
+    const missingPages = localResults.filter((r) => r.totalPages === 0 && r.isbn);
+    if (missingPages.length > 0) {
+      searchNdl(normalizedQuery).then((ndlResults) => {
+        for (const ndl of ndlResults) {
+          if (ndl.isbn && ndl.totalPages > 0) {
+            prisma.book.updateMany({
+              where: { isbn: ndl.isbn, totalPages: 0 },
+              data: { totalPages: ndl.totalPages },
+            }).catch(() => {});
+          }
+        }
+      }).catch(() => {});
+    }
     localResults.sort((a, b) => b._finalScore - a._finalScore);
     return localResults.slice(0, 30);
   }
