@@ -37,7 +37,13 @@ export async function GET(
       if (c.status === "COMPLETED") completedCount = c._count;
     }
 
-    return NextResponse.json({ book, readingCount, completedCount, eventCount });
+    return NextResponse.json({
+      book,
+      readingCount,
+      completedCount,
+      eventCount,
+      migratedWorkId: book.migratedWorkId,
+    });
   } catch (e) {
     console.error("Book detail GET error:", e);
     return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });

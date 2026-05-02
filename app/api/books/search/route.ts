@@ -32,7 +32,9 @@ export async function GET(request: NextRequest) {
         },
       });
       for (const ev of events) {
-        eventCountMap.set(ev.bookId, (eventCountMap.get(ev.bookId) ?? 0) + 1);
+        if (ev.bookId) {
+          eventCountMap.set(ev.bookId, (eventCountMap.get(ev.bookId) ?? 0) + 1);
+        }
         for (const b of ev.books) {
           if (b.id !== ev.bookId) {
             eventCountMap.set(b.id, (eventCountMap.get(b.id) ?? 0) + 1);

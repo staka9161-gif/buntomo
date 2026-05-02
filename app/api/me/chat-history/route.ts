@@ -20,6 +20,7 @@ export async function GET() {
     // bookIdごとに最終発言日時と発言数を集計
     const bookMap = new Map<string, { lastMessageAt: Date; messageCount: number }>();
     for (const m of messages) {
+      if (!m.bookId) continue;
       const existing = bookMap.get(m.bookId);
       if (!existing) {
         bookMap.set(m.bookId, { lastMessageAt: m.createdAt, messageCount: 1 });
