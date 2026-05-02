@@ -46,6 +46,13 @@ export default function BookDetailPage() {
       const res = await fetch(apiUrl(`/api/books/${bookId}`));
       if (!res.ok) return;
       const data = await res.json();
+
+      // Work に移行済みならリダイレクト
+      if (data.migratedWorkId) {
+        router.replace(`/works/${data.migratedWorkId}`);
+        return;
+      }
+
       setBook(data.book);
       setTotalPagesInput(data.book.totalPages || 0);
       setReadingCount(data.readingCount ?? 0);
@@ -54,7 +61,7 @@ export default function BookDetailPage() {
     } catch {
       // network error
     }
-  }, [bookId]);
+  }, [bookId, router]);
 
   const fetchMyReading = useCallback(async () => {
     try {
