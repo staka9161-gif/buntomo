@@ -43,4 +43,8 @@ next-env.d.ts
 /app/generated/prisma
 *.db
 
+# backups
+/backups/
+
 .vercel
+.env*.local
