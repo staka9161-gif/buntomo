@@ -138,6 +138,33 @@ describe("assignTranslationGroup - 追加ケース", () => {
 });
 
 // ============================================================
+// PR-B2: ローマ数字巻数が異なる場合は別 Work（separate）
+// ============================================================
+describe("classifyMatch - ローマ数字巻数違い", () => {
+  it("基礎I vs 基礎II → separate（巻数違い）", () => {
+    const a = book({ title: "フォルマシオン・ミュジカル基礎（I）", author: "著者A", authorKana: "チョシャA" });
+    const b = book({ title: "フォルマシオン・ミュジカル基礎II", author: "著者A", authorKana: "チョシャA" });
+    const result = classifyMatch(a, b);
+    expect(result.classification).toBe("separate");
+    expect(result.score).toBeLessThan(MATCH_THRESHOLDS.suggestMerge);
+  });
+
+  it("現代日本会計学説批判II vs III → separate", () => {
+    const a = book({ title: "現代日本会計学説批判II", author: "著者B", authorKana: "チョシャB" });
+    const b = book({ title: "現代日本会計学説批判III", author: "著者B", authorKana: "チョシャB" });
+    const result = classifyMatch(a, b);
+    expect(result.classification).toBe("separate");
+  });
+
+  it("同巻（表記揺れ）: テストII vs テストⅡ → auto_merge", () => {
+    const a = book({ title: "テストII", titleKana: "テスト", author: "著者", authorKana: "チョシャ" });
+    const b = book({ title: "テストⅡ", titleKana: "テスト", author: "著者", authorKana: "チョシャ" });
+    const result = classifyMatch(a, b);
+    expect(result.classification).toBe("auto_merge");
+  });
+});
+
+// ============================================================
 // normalizeTitle の追加ケース
 // ============================================================
 describe("normalizeTitle - 追加カバレッジ", () => {

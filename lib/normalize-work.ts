@@ -44,8 +44,23 @@ const VOLUME_MAP: Record<string, string> = {
   "上": "1", "中": "2", "下": "3",
 };
 
+// ============================================================
+// ローマ数字 → 算用数字マップ
+// ============================================================
+const ROMAN_NUMERAL_MAP: Record<string, string> = {
+  "I": "1", "II": "2", "III": "3", "IV": "4", "V": "5",
+  "VI": "6", "VII": "7", "VIII": "8", "IX": "9", "X": "10",
+};
+
+function romanToArabic(roman: string): string | null {
+  return ROMAN_NUMERAL_MAP[roman.toUpperCase()] || null;
+}
+
 // 逆引き: 数字 → 上中下 にはしない（上中下 → 数字に統一）
 function normalizeVolume(vol: string): string {
+  // ローマ数字の場合
+  const arabic = romanToArabic(vol);
+  if (arabic) return arabic;
   return VOLUME_MAP[vol] || vol;
 }
 
@@ -56,16 +71,28 @@ function normalizeVolume(vol: string): string {
 const VOLUME_PATTERNS: { pattern: RegExp; extract: (m: RegExpMatchArray) => string }[] = [
   // BOOK1, BOOK 1, Book1
   { pattern: /\s*BOOK\s*(\d+)\s*$/i, extract: (m) => m[1] },
-  // Vol.1, Vol 1
+  // Vol.1, Vol 1 (算用数字)
   { pattern: /\s*Vol\.?\s*(\d+)\s*$/i, extract: (m) => m[1] },
+  // Vol.I, Vol I, Vol.III (ローマ数字、I 含む明示パターン)
+  { pattern: /\s*Vol\.?\s*(X|IX|VIII|VII|VI|IV|V|III|II|I)\s*$/i, extract: (m) => m[1] },
   // Part 1, Part1
   { pattern: /\s*Part\s*(\d+)\s*$/i, extract: (m) => m[1] },
-  // 第1巻, 第１巻
+  // 第1巻, 第１巻 (算用数字)
   { pattern: /\s*第(\d+)巻\s*$/, extract: (m) => m[1] },
-  // （上）（中）（下）（1）（12）
+  // 第I巻, 第III巻 (ローマ数字、I 含む���示パターン)
+  { pattern: /\s*第(X|IX|VIII|VII|VI|IV|V|III|II|I)巻\s*$/i, extract: (m) => m[1] },
+  // （上）（中）（下）（1）（12）（算用数字/上中下）
   { pattern: /[（(]\s*([上中下]|\d+)\s*[）)]\s*$/, extract: (m) => m[1] },
+  // 括弧付きローマ数字: (I) (II) (III) （Ⅰ→I は NFKC で変換済み）
+  // 単独 I も括弧付きなら安全に認識
+  { pattern: /[（(]\s*(X|IX|VIII|VII|VI|IV|V|III|II|I)\s*[）)]\s*$/i, extract: (m) => m[1] },
   // 上巻, 中巻, 下巻
   { pattern: /\s*([上中下])巻\s*$/, extract: (m) => m[1] },
+  // 末尾ローマ数字 II〜X（スペースなしでもマッチ、ただし I は除外）
+  // "基礎II" "入門III" のようなケースを拾う
+  // 単語境界として: 直前が英字の場合は誤認識リスクあり（"AI" 等）なので
+  // 直前が非ASCII文字（日本語）or スペースの場合のみマッチ
+  { pattern: /(?<=[^\x00-\x7F]|\s)(X|IX|VIII|VII|VI|IV|V|III|II)\s*$/i, extract: (m) => m[1] },
   // 末尾の単独数字: "テスト 1" （ただし年号っぽい4桁数字は除外）
   { pattern: /\s+(\d{1,3})\s*$/, extract: (m) => m[1] },
 ];

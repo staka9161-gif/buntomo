@@ -156,3 +156,119 @@ describe("normalizeTitle - 巻数抽出", () => {
     expect(normalizeTitle("テスト（下）").volume).toBe("3");
   });
 });
+
+// ============================================================
+// PR-B2: ローマ数字巻数抽出
+// ============================================================
+describe("normalizeTitle - ローマ数字巻数", () => {
+  // --- II〜X: 末尾にあれば抽出（スペースなしも可） ---
+  it("末尾ローマ数字II（スペースなし）: 基礎II → volume: 2", () => {
+    const result = normalizeTitle("フォルマシオン・ミュジカル基礎II");
+    expect(result.volume).toBe("2");
+    expect(result.normalized).not.toContain("II");
+  });
+
+  it("末尾ローマ数字III（スペースなし）: 日韓国交正常化III → volume: 3", () => {
+    const result = normalizeTitle("日韓国交正常化III");
+    expect(result.volume).toBe("3");
+  });
+
+  it("末尾ローマ数字IV: テストIV → volume: 4", () => {
+    expect(normalizeTitle("テストIV").volume).toBe("4");
+  });
+
+  it("末尾ローマ数字V: テストV → volume: 5", () => {
+    expect(normalizeTitle("テストV").volume).toBe("5");
+  });
+
+  it("末尾ローマ数字VIII: テストVIII → volume: 8", () => {
+    expect(normalizeTitle("テストVIII").volume).toBe("8");
+  });
+
+  it("末尾ローマ数字X: テストX ��� volume: 10", () => {
+    expect(normalizeTitle("テストX").volume).toBe("10");
+  });
+
+  it("スペース付きローマ数��: テスト II → volume: 2", () => {
+    expect(normalizeTitle("テスト II").volume).toBe("2");
+  });
+
+  it("小文字ローマ数字: テストiii → volume: 3", () => {
+    expect(normalizeTitle("テストiii").volume).toBe("3");
+  });
+
+  // --- 同タイトル・別巻数の分離確認 ---
+  it("基礎I vs 基礎II が別 volume として抽出", () => {
+    const a = normalizeTitle("フォルマシオン・ミュジカル基礎（I）");
+    const b = normalizeTitle("フォルマシオン・ミュジカル基礎II");
+    expect(a.volume).toBe("1");
+    expect(b.volume).toBe("2");
+    // 正規化タイトルは同じ（巻数を除いた部分）
+    expect(a.normalized).toBe(b.normalized);
+  });
+
+  it("現代日本会計学説批判II vs III が別 volume", () => {
+    const a = normalizeTitle("現代日本会計学説批判II");
+    const b = normalizeTitle("現代日本会計学説批判III");
+    expect(a.volume).toBe("2");
+    expect(b.volume).toBe("3");
+    expect(a.normalized).toBe(b.normalized);
+  });
+
+  // --- 全角ローマ数字 (NFKC で半角化される) ---
+  it("全角Ⅱ: テストⅡ → volume: 2", () => {
+    expect(normalizeTitle("テストⅡ").volume).toBe("2");
+  });
+
+  it("全角Ⅲ: テストⅢ → volume: 3", () => {
+    expect(normalizeTitle("テストⅢ").volume).toBe("3");
+  });
+
+  it("全角Ⅳ: テストⅣ → volume: 4", () => {
+    expect(normalizeTitle("テストⅣ").volume).toBe("4");
+  });
+
+  it("全角Ⅹ: テストⅩ → volume: 10", () => {
+    expect(normalizeTitle("テストⅩ").volume).toBe("10");
+  });
+
+  // --- 括弧付き I は安全に認識 ---
+  it("括弧付き(I): テスト(I) → volume: 1", () => {
+    expect(normalizeTitle("テスト(I)").volume).toBe("1");
+  });
+
+  it("括弧付き（Ⅰ）: テスト（Ⅰ） → volume: 1", () => {
+    expect(normalizeTitle("テスト（Ⅰ）").volume).toBe("1");
+  });
+
+  // --- Vol.I, 第I巻 は明示パターンとして安全 ---
+  it("Vol.I: テスト Vol.I → volume: 1", () => {
+    expect(normalizeTitle("テスト Vol.I").volume).toBe("1");
+  });
+
+  it("Vol.III: テスト Vol.III → volume: 3", () => {
+    expect(normalizeTitle("テスト Vol.III").volume).toBe("3");
+  });
+
+  it("第I巻: テスト 第I巻 → volume: 1", () => {
+    expect(normalizeTitle("テスト 第I巻").volume).toBe("1");
+  });
+
+  // --- 誤認識防止: 単独 I は末尾でも認識しない ---
+  it("AI入門: 末尾の I が巻数にならない", () => {
+    const result = normalizeTitle("AI入門");
+    expect(result.volume).toBeNull();
+  });
+
+  it("英単語末尾の I: ALIBI → 巻数にならない", () => {
+    const result = normalizeTitle("ALIBI");
+    expect(result.volume).toBeNull();
+  });
+
+  // --- 英単語末尾のローマ数字 II が単語の一部の場合 ---
+  // "ASCII" の末尾 II は直前が英字なのでマッチしない
+  it("ASCII: 末尾 II だが英字の一部 → 巻数にならない", () => {
+    const result = normalizeTitle("ASCII");
+    expect(result.volume).toBeNull();
+  });
+});
