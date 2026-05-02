@@ -239,34 +239,43 @@ export function parseAuthorField(input: string): ParsedAuthorField {
     remaining = remaining.replace(parenTranslatorMatch[0], "").trim();
   }
 
-  // --- Step 2: スラッシュ（全角/半角）で分割 ---
-  // "著者/翻訳者訳" パターン
-  const slashParts = remaining.split(/[/／]/);
-
-  if (slashParts.length >= 2) {
-    // スラッシュ前 = 著者部分
-    const authorPart = slashParts[0].trim();
-    // スラッシュ後 = 翻訳者 or その他
-    const afterSlash = slashParts.slice(1).join("/").trim();
-
-    // スラッシュ後が「〇〇訳」「〇〇翻訳」で終わる場合
-    if (/[訳]$/.test(afterSlash) || /翻訳$/.test(afterSlash)) {
-      const tStr = afterSlash.replace(/翻訳$/, "").replace(/訳$/, "");
-      translators = [...translators, ...splitMultipleNames(tStr)];
-      authors = splitAuthorsFromPart(authorPart);
-    } else {
-      // スラッシュだが訳ではない → 共著者扱い
-      authors = [
-        ...splitAuthorsFromPart(authorPart),
-        ...splitAuthorsFromPart(afterSlash),
-      ];
-    }
+  // --- Step 2: 「名前/役割 名前/役割」形式の検出 ---
+  // "村上春樹/著 ジェイ・ルービン/訳" のように各人名に /役割 がついたパターン
+  const nameRoleParsed = tryParseNameRoleFormat(remaining);
+  if (nameRoleParsed) {
+    authors = [...authors, ...nameRoleParsed.authors];
+    translators = [...translators, ...nameRoleParsed.translators];
+    editors = [...editors, ...nameRoleParsed.editors];
   } else {
-    // スラッシュなし → スペースや「著」「訳」キーワードで分離
-    const parsed = parseWithKeywords(remaining);
-    authors = parsed.authors;
-    translators = [...translators, ...parsed.translators];
-    editors = parsed.editors;
+    // --- Step 3: スラッシュ（全角/半角）で分割 ---
+    // "著者/翻訳者訳" パターン（名前/役割形式でない場合のフォールバック）
+    const slashParts = remaining.split(/[/／]/);
+
+    if (slashParts.length >= 2) {
+      // スラッシュ前 = 著者部分
+      const authorPart = slashParts[0].trim();
+      // スラッシュ後 = 翻訳者 or その他
+      const afterSlash = slashParts.slice(1).join("/").trim();
+
+      // スラッシュ後が「〇〇訳」「〇〇翻訳」で終わる場合
+      if (/[訳]$/.test(afterSlash) || /翻訳$/.test(afterSlash)) {
+        const tStr = afterSlash.replace(/翻訳$/, "").replace(/訳$/, "");
+        translators = [...translators, ...splitMultipleNames(tStr)];
+        authors = splitAuthorsFromPart(authorPart);
+      } else {
+        // スラッシュだが訳ではない → 共著者扱い
+        authors = [
+          ...splitAuthorsFromPart(authorPart),
+          ...splitAuthorsFromPart(afterSlash),
+        ];
+      }
+    } else {
+      // スラッシュなし → スペースや「著」「訳」キーワードで分離
+      const parsed = parseWithKeywords(remaining);
+      authors = parsed.authors;
+      translators = [...translators, ...parsed.translators];
+      editors = parsed.editors;
+    }
   }
 
   // --- Step 3: 肩書の接尾辞を除去 ---
@@ -280,25 +289,228 @@ export function parseAuthorField(input: string): ParsedAuthorField {
 }
 
 // ============================================================
-// 補助: 複数人名を中黒・カンマ・読点で分割
+// 補助: 「名前/役割 名前/役割」形式の検出と分離
+//
+// パターン: "村上春樹/著 ジェイ・ルービン/訳"
+//           "千葉康之/著 塚田真紀子/著 岡井崇/著"
+//
+// 各トークンの末尾が "/役割" で終わる場合にこのモードで処理。
+// スペース区切りの各トークンの過半数が "/役割" を持っていれば適用。
 // ============================================================
-function splitMultipleNames(str: string): string[] {
+
+// 役割判定: 末尾キーワードで判定（複合役割 "校訂・運指・解説" にも対応）
+function classifyRole(role: string): "author" | "translator" | "editor" {
+  // 複合役割は末尾の役割で判定（"校訂・運指" → "運指" → 著者系）
+  // ただし「訳」「翻訳」「監訳」「編訳」を含めば翻訳者
+  if (/訳/.test(role) || /翻訳/.test(role)) return "translator";
+  if (/^編$/.test(role) || /編著/.test(role) || /編集/.test(role) || /^他編$/.test(role)) return "editor";
+  // それ以外は著者系（著, 原著, 他著, 作曲, 校訂, 校註, 解説, 監修, etc.）
+  return "author";
+}
+
+// 既知の役割かどうか（tryParseNameRoleFormat の適用判定に使う）
+const KNOWN_ROLES = /^(著|原著|他著|作曲|校訂|校註|注解|解説|運指|監修|補筆完成|演奏例|監|編曲|訳|翻訳|監訳|編訳|編|他編|編著|編集|総監修|日本語版監修)$/;
+
+function tryParseNameRoleFormat(input: string): ParsedAuthorField | null {
+  // 「名前/役割」パターンで分割。スペースが名前の一部の場合があるため
+  // (例: "Salinger, J.D./著 野崎孝/訳")、
+  // まず全ての "/役割" 位置を検出し、そこで区切る
+  const nameRolePattern = /^(.+)[/／]([^/／]+)$/;
+
+  // 戦略: 入力をスペースで分割し、"/役割" で終わるトークンを境界として
+  // 前のトークンを名前の一部として結合する
+  const rawTokens = input.split(/\s+/).filter(Boolean);
+  if (rawTokens.length === 0) return null;
+
+  // フィラーを除外
+  const nonFillerTokens = rawTokens.filter((t) => t !== "ほか" && t !== "他");
+  if (nonFillerTokens.length === 0) return null;
+
+  // トークンを「名前/役割」単位に再構成
+  // "/役割" で終わるトークンを見つけたら、それまでの断片を結合
+  const units: string[] = [];
+  let accumulator: string[] = [];
+
+  for (const token of nonFillerTokens) {
+    accumulator.push(token);
+    if (nameRolePattern.test(token)) {
+      // このトークンで1単位が完結
+      units.push(accumulator.join(" "));
+      accumulator = [];
+    }
+  }
+  // 残りがあれば最後の単位として追加
+  if (accumulator.length > 0) {
+    units.push(accumulator.join(" "));
+  }
+
+  // 全 unit の過半数が「名前/役割」形式かチェック
+  let matchCount = 0;
+  for (const unit of units) {
+    if (nameRolePattern.test(unit)) matchCount++;
+  }
+  if (matchCount < units.length * 0.5) return null;
+
+  // 最低でも1つは既知役割を持つこと
+  // 複合役割("校訂・運指・解説")はドット分割の末尾でも判定
+  const hasKnownRole = units.some((unit) => {
+    const m = unit.match(nameRolePattern);
+    if (!m) return false;
+    const role = m[2];
+    // 複合役割の各パートを確認
+    const roleParts = role.split(/[・]/);
+    return roleParts.some((r) => KNOWN_ROLES.test(r.trim()));
+  });
+  if (!hasKnownRole) return null;
+
+  const authors: string[] = [];
+  const translators: string[] = [];
+  const editors: string[] = [];
+
+  for (const unit of units) {
+    const m = unit.match(nameRolePattern);
+    if (m) {
+      const name = m[1].trim();
+      const role = m[2].trim();
+      const classification = classifyRole(role);
+
+      if (classification === "translator") {
+        translators.push(name);
+      } else if (classification === "editor") {
+        editors.push(name);
+      } else {
+        authors.push(name);
+      }
+    } else {
+      // "/役割" なし → 著者扱い
+      authors.push(unit);
+    }
+  }
+
+  return { authors, translators, editors };
+}
+
+// ============================================================
+// 補助: 複数人名を中黒・読点で分割（カンマは含まない）
+// カンマは姓名区切りの可能性があるため別処理
+// ============================================================
+function splitByNakaguroOrToten(str: string): string[] {
   return str
-    .split(/[・、,，]/)
+    .split(/[・、，]/)
     .map((s) => s.trim())
     .filter(Boolean);
 }
 
 // ============================================================
+// 補助: カンマ区切りが「姓, 名」(1人) か「著者A, 著者B」(共著) かを判定
+//
+// 判定基準:
+// - 2パートで、各パートがスペースなしの短い文字列 → 姓名 (1人)
+// - 英語: "Last, First" (パート1=1単語, パート2=1〜2単語) → 姓名
+// - 日本語: 各パート 1〜4文字で2パートのみ → 姓名
+// - 3パート以上 or 各パートが完全人名 → 共著者
+// ============================================================
+function splitByComma(str: string): string[] {
+  const parts = str.split(/,/).map((s) => s.trim()).filter(Boolean);
+
+  if (parts.length === 0) return [str];
+  if (parts.length === 1) return parts;
+
+  // 2パートの場合: 姓名か共著者かを判定
+  if (parts.length === 2) {
+    if (isLastFirstPattern(parts[0], parts[1])) {
+      // "Last, First" → 1人として結合（順序はそのまま、スペースで結合）
+      return [`${parts[0]} ${parts[1]}`];
+    }
+    // 共著者
+    return parts;
+  }
+
+  // 3パート以上: "Smith, J., Jones, M." のようなパターンを検出
+  // 偶数パートで、奇数番目が短い（イニシャルや名前）→ ペアとして結合
+  if (parts.length % 2 === 0 && isAlternatingLastFirst(parts)) {
+    const result: string[] = [];
+    for (let i = 0; i < parts.length; i += 2) {
+      result.push(`${parts[i]} ${parts[i + 1]}`);
+    }
+    return result;
+  }
+
+  // それ以外は各パートを独立した共著者として扱う
+  return parts;
+}
+
+/**
+ * 2パートが「姓, 名」パターンかどうかを判定
+ *
+ * 判定基準:
+ * - 英語: "Last, First" = 各パート1〜2単語 → 姓名
+ * - 日本語: 一方が1〜2文字（姓のみ or 名のみ）→ 姓名
+ *   - "巽, 孝之" (1文字, 2文字) → 姓名 ✓
+ *   - "佐藤太郎, 山田花子" (4文字, 4文字) → 共著者 ✓
+ *   - 両方が3文字以上は「完全人名」と判断し共著者扱い
+ */
+function isLastFirstPattern(part1: string, part2: string): boolean {
+  // 英語: 両パートが ASCII のみ
+  const isAscii1 = /^[\x20-\x7E]+$/.test(part1);
+  const isAscii2 = /^[\x20-\x7E]+$/.test(part2);
+  if (isAscii1 && isAscii2) {
+    const words1 = part1.trim().split(/\s+/).length;
+    const words2 = part2.trim().split(/\s+/).length;
+    // "Gibson, William" (1, 1) or "de Beauvoir, Simone" (2, 1) → 姓名
+    // "John Smith, Jane Doe" (2, 2) → 共著者（各パートが完全人名っぽい）
+    if (words1 <= 3 && words2 <= 2) return true;
+    return false;
+  }
+
+  // 日本語: 一方のパートが 1〜2 文字であれば「姓のみ」or「名のみ」→ 姓名
+  // 両方が 3 文字以上の場合は、各パートが完全人名の可能性が高い → 共著者
+  const clean1 = part1.replace(/\s/g, "");
+  const clean2 = part2.replace(/\s/g, "");
+  if (clean1.length <= 2 || clean2.length <= 2) {
+    // 一方が短い → 姓名パターン
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * 偶数パートで "Last, First, Last, First, ..." パターンかを判定
+ */
+function isAlternatingLastFirst(parts: string[]): boolean {
+  for (let i = 0; i < parts.length; i += 2) {
+    if (!isLastFirstPattern(parts[i], parts[i + 1])) return false;
+  }
+  return true;
+}
+
+// ============================================================
+// 補助: 複数人名を適切に分割（中黒/読点 + カンマの統合処理）
+// ============================================================
+function splitMultipleNames(str: string): string[] {
+  // まず中黒・読点で分割
+  const byNakaguro = splitByNakaguroOrToten(str);
+  // 各パート内のカンマを処理
+  const result: string[] = [];
+  for (const part of byNakaguro) {
+    if (part.includes(",")) {
+      result.push(...splitByComma(part));
+    } else {
+      result.push(part);
+    }
+  }
+  return result.filter(Boolean);
+}
+
+// ============================================================
 // 補助: 著者パートから共著者を分割
-// 中黒(・)、カンマ、読点(、)を共著者区切りとして扱う
 // ============================================================
 function splitAuthorsFromPart(part: string): string[] {
   // 「著」の除去
   const cleaned = part.replace(/著$/, "").trim();
-  return splitMultipleNames(cleaned).length > 0
-    ? splitMultipleNames(cleaned)
-    : [cleaned];
+  const split = splitMultipleNames(cleaned);
+  return split.length > 0 ? split : [cleaned];
 }
 
 // ============================================================
@@ -331,32 +543,42 @@ function parseWithKeywords(str: string): ParsedAuthorField {
     return { authors, translators, editors };
   }
 
-  // キーワードなし → 全体を共著者として分割
-  // ただし中黒が人名の一部（外国人名）の可能性もあるため注意:
-  // ヒューリスティック: カタカナのみの名前に中黒がある場合は外国人名の一部
+  // キーワードなし → splitAuthorsFromPart で適切に分割
+  // splitMultipleNames 内で:
+  //   - 中黒: containsJapaneseAuthorSeparator で外国人名判定
+  //   - カンマ: splitByComma で姓名 vs 共著者判定
+  //   - 読点: 常に共著者区切り
   if (containsJapaneseAuthorSeparator(str)) {
     authors.push(...splitAuthorsFromPart(str));
   } else {
-    authors.push(str.replace(/著$/, "").trim());
+    // セパレータなし or 姓名カンマのみ → splitAuthorsFromPart で処理
+    // （splitByComma が "Last, First" を 1 人に結合してくれる）
+    authors.push(...splitAuthorsFromPart(str));
   }
 
   return { authors, translators, editors };
 }
 
 // ============================================================
-// 補助: 共著者区切りとして中黒が使われているか判定
+// 補助: 共著者区切りとして分割すべきセパレータが含まれるか判定
 // カタカナのみ + 中黒 = 外国人名（"ヴィクトル・ユーゴー"）→ 分割しない
 // 漢字を含む名前 + 中黒 = 共著者区切り（"伊坂幸太郎・阿部和重"）→ 分割
-// カンマ・読点は常に共著者区切り
+// カンマは「姓, 名」の可能性があるため splitMultipleNames 内で判定
+// 読点(、)は常に共著者区切り
 // ============================================================
 function containsJapaneseAuthorSeparator(str: string): boolean {
-  // カンマまたは読点があれば必ず共著者区切り
-  if (/[、,，]/.test(str)) return true;
+  // 読点があれば必ず共著者区切り
+  if (/[、，]/.test(str)) return true;
+
+  // カンマ: splitByComma で共著者と判定される場合のみ
+  if (/,/.test(str)) {
+    const commaSplit = splitByComma(str);
+    if (commaSplit.length >= 2) return true;
+  }
 
   // 中黒がある場合: 中黒の両側に漢字があれば共著者区切りと判断
   if (/・/.test(str)) {
     const parts = str.split("・");
-    // 各パートに漢字が含まれていれば共著者区切り
     const hasKanjiOnBothSides = parts.length >= 2 &&
       parts.every((p) => /[\u4E00-\u9FFF]/.test(p));
     return hasKanjiOnBothSides;

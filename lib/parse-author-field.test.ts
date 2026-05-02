@@ -83,6 +83,84 @@ describe("parseAuthorField", () => {
     });
   });
 
+  describe("カンマの姓名区切り vs 共著者区切り判定", () => {
+    it("姓, 名 (日本語短い姓): 巽, 孝之 → 1人扱い", () => {
+      const result = parseAuthorField("巽, 孝之");
+      expect(result.authors).toEqual(["巽 孝之"]);
+    });
+
+    it("姓, 名 (英語): Gibson, William → 1人扱い", () => {
+      const result = parseAuthorField("Gibson, William");
+      expect(result.authors).toEqual(["Gibson William"]);
+    });
+
+    it("共著 (日本語フルネーム): 佐藤太郎, 山田花子 → 2人扱い", () => {
+      const result = parseAuthorField("佐藤太郎, 山田花子");
+      expect(result.authors).toEqual(["佐藤太郎", "山田花子"]);
+    });
+
+    it("姓, 名 (英語短い): Doe, John → 1人扱い", () => {
+      const result = parseAuthorField("Doe, John");
+      expect(result.authors).toEqual(["Doe John"]);
+    });
+
+    it("複数の姓名ペア: Smith, J., Jones, M. → 2人扱い", () => {
+      const result = parseAuthorField("Smith, J., Jones, M.");
+      expect(result.authors).toEqual(["Smith J.", "Jones M."]);
+    });
+
+    it("Bougainville, Louis-Antoine de → 1人扱い", () => {
+      const result = parseAuthorField("Bougainville, Louis-Antoine de");
+      expect(result.authors).toEqual(["Bougainville Louis-Antoine de"]);
+    });
+  });
+
+  describe("「名前/役割 名前/役割」形式", () => {
+    it("村上春樹/著 → authors: ['村上春樹']", () => {
+      const result = parseAuthorField("村上春樹/著");
+      expect(result.authors).toEqual(["村上春樹"]);
+      expect(result.translators).toEqual([]);
+    });
+
+    it("村上春樹/著 ジェイ・ルービン/訳 → 著者と翻訳者を分離", () => {
+      const result = parseAuthorField("村上春樹/著 ジェイ・ルービン/訳");
+      expect(result.authors).toEqual(["村上春樹"]);
+      expect(result.translators).toEqual(["ジェイ・ルービン"]);
+    });
+
+    it("マーク・エヴァン・ボンズ/著 土田英三郎/翻訳 → 著者と翻訳者", () => {
+      const result = parseAuthorField("マーク・エヴァン・ボンズ/著 土田英三郎/翻訳");
+      expect(result.authors).toEqual(["マーク・エヴァン・ボンズ"]);
+      expect(result.translators).toEqual(["土田英三郎"]);
+    });
+
+    it("Salinger, J.D./著 野崎孝/訳 → 著者と翻訳者", () => {
+      const result = parseAuthorField("Salinger, J.D./著 野崎孝/訳");
+      expect(result.authors).toEqual(["Salinger, J.D."]);
+      expect(result.translators).toEqual(["野崎孝"]);
+    });
+
+    it("複数著者/著: 千葉康之/著 塚田真紀子/著 岡井崇/著", () => {
+      const result = parseAuthorField("千葉康之/著 塚田真紀子/著 岡井崇/著");
+      expect(result.authors).toEqual(["千葉康之", "塚田真紀子", "岡井崇"]);
+      expect(result.translators).toEqual([]);
+    });
+
+    it("著者+翻訳者+ほか: パウル・ヒンデミット/著 千蔵八郎/翻訳 ほか", () => {
+      // "ほか" はフィラーとして無視
+      const result = parseAuthorField("パウル・ヒンデミット/著 千蔵八郎/翻訳 ほか");
+      expect(result.authors).toEqual(["パウル・ヒンデミット"]);
+      expect(result.translators).toEqual(["千蔵八郎"]);
+    });
+
+    it("既存パターンが壊れない: ドストエフスキー/亀山郁夫訳", () => {
+      // これは「名前/役割」形式ではない（「亀山郁夫訳」は役割タグではない）
+      const result = parseAuthorField("ドストエフスキー/亀山郁夫訳");
+      expect(result.authors).toEqual(["ドストエフスキー"]);
+      expect(result.translators).toEqual(["亀山郁夫"]);
+    });
+  });
+
   describe("「著」「編」などの肩書除去", () => {
     it("著: 村上春樹著", () => {
       const result = parseAuthorField("村上春樹著");
