@@ -188,6 +188,44 @@ describe("calculateMatchScore - authorNormalized 直接使用", () => {
 });
 
 // ============================================================
+// PR-B7: 一方だけ volume あり → 0.85 (suggest_merge)
+// ============================================================
+describe("calculateMatchScore - 一方だけ volume ありのスコア", () => {
+  it("一方だけ volume あり → score 0.85 (suggest_merge)", () => {
+    const a = book({
+      title: "スピリチュエル",
+      author: "著者",
+      authorNormalized: "チョシャ",
+    });
+    const b = book({
+      title: "スピリチュエルIII",
+      author: "著者",
+      authorNormalized: "チョシャ",
+    });
+    const score = calculateMatchScore(a, b);
+    // 片方 volume=null, 片方 volume="3" → 0.85
+    expect(score).toBe(0.85);
+    expect(classifyMatch(a, b).classification).toBe("suggest_merge");
+  });
+
+  it("角括弧で両方 volume 抽出 → 巻数違いで separate (0.3)", () => {
+    const a = book({
+      title: "日本の家計行動のダイナミズム[II]",
+      author: "著者",
+      authorNormalized: "チョシャ",
+    });
+    const b = book({
+      title: "日本の家計行動のダイナミズム[III]",
+      author: "著者",
+      authorNormalized: "チョシャ",
+    });
+    const score = calculateMatchScore(a, b);
+    expect(score).toBe(0.3);
+    expect(classifyMatch(a, b).classification).toBe("separate");
+  });
+});
+
+// ============================================================
 // PR-B5: 同タイトル + ページ数差大 → 別作品判定
 // ============================================================
 describe("calculateMatchScore - ページ数差大の別巻判定", () => {

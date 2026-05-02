@@ -86,8 +86,14 @@ const VOLUME_PATTERNS: { pattern: RegExp; extract: (m: RegExpMatchArray) => stri
   // 括弧付きローマ数字: (I) (II) (III) （Ⅰ→I は NFKC で変換済み）
   // 単独 I も括弧付きなら安全に認識
   { pattern: /[（(]\s*(X|IX|VIII|VII|VI|IV|V|III|II|I)\s*[）)]\s*$/i, extract: (m) => m[1] },
+  // 角括弧付き: [II] [III] [2] 【5】（単独 I は除外）
+  { pattern: /[\[【]\s*(X|IX|VIII|VII|VI|IV|V|III|II|\d+)\s*[\]】]\s*$/, extract: (m) => m[1] },
   // 上巻, 中巻, 下巻
   { pattern: /\s*([上中下])巻\s*$/, extract: (m) => m[1] },
+  // 修飾語（〈新装版〉〔改訂版〕等）の直前にあるローマ数字 II〜X を抽出
+  // "正常化II〈新装版〉" → volume: "2"
+  // 単独 I は除外。修飾語は〈〉〔〕[]（）で囲まれた部分。
+  { pattern: /(?<=[^\x00-\x7F])(X|IX|VIII|VII|VI|IV|V|III|II)[〈〔\[（(][^〉〕\]）)]+[〉〕\]）)]\s*$/i, extract: (m) => m[1] },
   // 末尾ローマ数字 II〜X（スペースなしでもマッチ、ただし I は除外）
   // "基礎II" "入門III" のようなケースを拾う
   // 単語境界として: 直前が英字の場合は誤認識リスクあり（"AI" 等）なので

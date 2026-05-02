@@ -56,7 +56,9 @@ describe("classifyMatch", () => {
         year: 1991,
       });
       const result = classifyMatch(a, b);
-      expect(result.classification).toBe("auto_merge");
+      // 一方だけ volume あり (null vs "1") → 0.85 (suggest_merge)
+      // 単行本 vs 分冊文庫は人間判断に委ねる
+      expect(result.classification).toBe("suggest_merge");
     });
 
     it("M2: 紙書籍と電子版", () => {

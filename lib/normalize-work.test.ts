@@ -271,4 +271,47 @@ describe("normalizeTitle - ローマ数字巻数", () => {
     const result = normalizeTitle("ASCII");
     expect(result.volume).toBeNull();
   });
+
+  // --- PR-B7: 角括弧パターン ---
+  it("角括弧[II]: 日本の家計行動のダイナミズム[II] → volume: 2", () => {
+    expect(normalizeTitle("日本の家計行動のダイナミズム[II]").volume).toBe("2");
+  });
+
+  it("角括弧[III]: 日本の家計行動のダイナミズム[III] → volume: 3", () => {
+    expect(normalizeTitle("日本の家計行動のダイナミズム[III]").volume).toBe("3");
+  });
+
+  it("角括弧[2]: テスト[2] → volume: 2", () => {
+    expect(normalizeTitle("テスト[2]").volume).toBe("2");
+  });
+
+  it("隅付き括弧【5】: テスト【5】 → volume: 5", () => {
+    expect(normalizeTitle("テスト【5】").volume).toBe("5");
+  });
+
+  it("角括弧[I]: テスト[I] → volume: null (単独I除外)", () => {
+    expect(normalizeTitle("テスト[I]").volume).toBeNull();
+  });
+
+  it("角括弧[改訂版]: テスト[改訂版] → volume: null (数字/ローマ数字でない)", () => {
+    expect(normalizeTitle("テスト[改訂版]").volume).toBeNull();
+  });
+
+  // --- PR-B7: 修飾語前ローマ数字パターン ---
+  it("修飾語前: 正常化II〈新装版〉 → volume: 2", () => {
+    expect(normalizeTitle("歴史としての日韓国交正常化II〈新装版〉").volume).toBe("2");
+  });
+
+  it("修飾語前: タイトルIII（増補版） → volume: 3", () => {
+    expect(normalizeTitle("タイトルIII（増補版）").volume).toBe("3");
+  });
+
+  it("修飾語なし末尾II: タイトルII → volume: 2 (既存パターンで抽出)", () => {
+    // 末尾密着ローマ数字（日本語の後）は既存パターンで動作
+    expect(normalizeTitle("タイトルII").volume).toBe("2");
+  });
+
+  it("年度数字: 過去問 2015 → volume: null (4桁は除外)", () => {
+    expect(normalizeTitle("過去問 2015").volume).toBeNull();
+  });
 });

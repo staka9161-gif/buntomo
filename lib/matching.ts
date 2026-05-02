@@ -214,9 +214,9 @@ export function calculateMatchScore(a: BookCandidate, b: BookCandidate): number 
       // 「合本版」と明記されている場合 → 中スコア
       const hasGapponLabel = a.title.includes("合本") || b.title.includes("合本");
       if (hasGapponLabel) return 0.85;
-      // それ以外（単行本 vs 分冊文庫等）→ 同一 Work の別 Edition
-      // （例: "ノルウェイの森" と "ノルウェイの森（上）"）
-      return 0.95;
+      // それ以外 → suggest_merge 閾値に留める (人間判断)
+      // シリーズ別巻 ("歌曲集" vs "歌曲集II") の誤統合を防ぐ
+      return 0.85;
     }
     // 翻訳者が異なる → 中スコア（同一 Work + 別 TranslationGroup として保留）
     if (a.translator && b.translator && a.translator !== b.translator) {
