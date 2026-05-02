@@ -106,6 +106,88 @@ describe("classifyMatch - 分類結果の網羅", () => {
 });
 
 // ============================================================
+// PR-B4: authorNormalized を直接使うケース
+// ============================================================
+describe("calculateMatchScore - authorNormalized 直接使用", () => {
+  it("翻訳違い同作品: authorNormalized 提供時は高スコア (>= 0.92)", () => {
+    const a = book({
+      title: "ヒロシマ",
+      author: "J.ハーシー/著 石川欣一/訳 谷本清/訳",
+      authorNormalized: "Jハアシイ",
+    });
+    const b = book({
+      title: "ヒロシマ",
+      author: "J.ハーシー/著 石川欣一/訳 谷本清/訳 明田川融/訳",
+      authorNormalized: "Jハアシイ",
+    });
+    const result = classifyMatch(a, b);
+    expect(result.score).toBeGreaterThanOrEqual(MATCH_THRESHOLDS.autoMerge);
+    expect(result.classification).toBe("auto_merge");
+  });
+
+  it("authorNormalized なし (undefined) → フォールバックで normalizeAuthor が呼ばれる", () => {
+    const a = book({ title: "テスト", author: "村上春樹", authorKana: "ムラカミハルキ" });
+    const b = book({ title: "テスト", author: "村上春樹", authorKana: "ムラカミハルキ" });
+    // authorNormalized は undefined → フォールバック
+    const score = calculateMatchScore(a, b);
+    expect(score).toBeGreaterThanOrEqual(MATCH_THRESHOLDS.autoMerge);
+  });
+
+  it("authorNormalized が空文字列 → フォールバックで normalizeAuthor が呼ばれる", () => {
+    const a = book({ title: "テスト", author: "村上春樹", authorKana: "ムラカミハルキ", authorNormalized: "" });
+    const b = book({ title: "テスト", author: "村上春樹", authorKana: "ムラカミハルキ", authorNormalized: "" });
+    const score = calculateMatchScore(a, b);
+    expect(score).toBeGreaterThanOrEqual(MATCH_THRESHOLDS.autoMerge);
+  });
+
+  it("authorNormalized が片方だけ提供 → 各々フォールバック or DB値を使う", () => {
+    const a = book({
+      title: "テスト",
+      author: "村上春樹",
+      authorKana: "ムラカミハルキ",
+      authorNormalized: "ムラカミハルキ", // DB 値
+    });
+    const b = book({
+      title: "テスト",
+      author: "村上春樹",
+      authorKana: "ムラカミハルキ",
+      // authorNormalized: undefined → フォールバック
+    });
+    const score = calculateMatchScore(a, b);
+    // 両方とも "ムラカミハルキ" になるため一致
+    expect(score).toBeGreaterThanOrEqual(MATCH_THRESHOLDS.autoMerge);
+  });
+
+  it("raw author が異なっても authorNormalized が同じなら著者一致", () => {
+    const a = book({
+      title: "魔女・産婆・看護婦 女性医療家の歴史",
+      author: "バーバラ・エーレンライク/著 ディアドリー・イングリシュ/著 長瀬久子/訳",
+      authorNormalized: "バアバラエイレンライク",
+    });
+    const b = book({
+      title: "魔女・産婆・看護婦 女性医療家の歴史",
+      author: "バーバラ・エーレンライク/著 ディアドリー・イングリッシュ/著 長瀬久子/訳",
+      authorNormalized: "バアバラエイレンライク",
+    });
+    expect(calculateMatchScore(a, b)).toBeGreaterThanOrEqual(MATCH_THRESHOLDS.autoMerge);
+  });
+
+  it("authorNormalized が異なる場合は著者不一致として低スコア", () => {
+    const a = book({
+      title: "テスト",
+      author: "著者A",
+      authorNormalized: "チョシャA",
+    });
+    const b = book({
+      title: "テスト",
+      author: "著者B",
+      authorNormalized: "チョシャB",
+    });
+    expect(calculateMatchScore(a, b)).toBeLessThan(MATCH_THRESHOLDS.suggestMerge);
+  });
+});
+
+// ============================================================
 // assignTranslationGroup の追加ケース
 // ============================================================
 describe("assignTranslationGroup - 追加ケース", () => {

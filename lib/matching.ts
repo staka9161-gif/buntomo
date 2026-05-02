@@ -24,8 +24,10 @@ export const MATCH_THRESHOLDS = {
 export interface BookCandidate {
   title: string;
   titleKana?: string;
+  titleNormalized?: string;   // DB に保存済みの正規化値（あればこちらを優先）
   author: string;
   authorKana?: string;
+  authorNormalized?: string;  // DB に保存済みの正規化値（あればこちらを優先）
   publisher?: string;
   year?: number;
   pageCount?: number;
@@ -162,8 +164,14 @@ export function calculateMatchScore(a: BookCandidate, b: BookCandidate): number 
   }
 
   // --- 2. 著者名の正規化と比較 ---
-  const authorA = normalizeAuthor(a.author, a.authorKana);
-  const authorB = normalizeAuthor(b.author, b.authorKana);
+  // DB に保存済みの正規化値があればそちらを優先（parseAuthorField 適用済み）
+  // なければ実行時に計算（既存テストとの後方互換性維持）
+  const authorA = (a.authorNormalized && a.authorNormalized.length > 0)
+    ? a.authorNormalized
+    : normalizeAuthor(a.author, a.authorKana);
+  const authorB = (b.authorNormalized && b.authorNormalized.length > 0)
+    ? b.authorNormalized
+    : normalizeAuthor(b.author, b.authorKana);
   const authorMatch = authorA === authorB;
 
   // 著者不一致は大きなペナルティ（基本的に別 Work）
@@ -176,6 +184,8 @@ export function calculateMatchScore(a: BookCandidate, b: BookCandidate): number 
   }
 
   // --- 3. タイトルの正規化と比較 ---
+  // titleNormalized は volume/subtitle 分離が必要なため normalizeTitle を呼ぶ
+  // （DB の titleNormalized は volume 除去済みの文字列のみで、volume 情報を持たない）
   const titleNormA = normalizeTitle(a.title, a.titleKana);
   const titleNormB = normalizeTitle(b.title, b.titleKana);
 

@@ -39,7 +39,9 @@ function toCandidate(work: WorkRecord): BookCandidate {
   const edition = work.editions[0];
   return {
     title: work.title,
+    titleNormalized: work.titleNormalized || undefined,
     author: work.author,
+    authorNormalized: work.authorNormalized || undefined,
     publisher: edition?.publisher || undefined,
     year: edition?.publishedAt ? new Date(edition.publishedAt).getFullYear() : undefined,
     pageCount: edition?.pageCount || undefined,

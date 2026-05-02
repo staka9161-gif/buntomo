@@ -90,7 +90,9 @@ async function main() {
 
     const candidateA: BookCandidate = {
       title: workA.title,
+      titleNormalized: workA.titleNormalized || undefined,
       author: workA.author,
+      authorNormalized: workA.authorNormalized || undefined,
       publisher: workA.editions[0]?.publisher || undefined,
       year: workA.editions[0]?.publishedAt ? new Date(workA.editions[0].publishedAt).getFullYear() : undefined,
       pageCount: workA.editions[0]?.pageCount || undefined,
@@ -102,7 +104,9 @@ async function main() {
     };
     const candidateB: BookCandidate = {
       title: workB.title,
+      titleNormalized: workB.titleNormalized || undefined,
       author: workB.author,
+      authorNormalized: workB.authorNormalized || undefined,
       publisher: workB.editions[0]?.publisher || undefined,
       year: workB.editions[0]?.publishedAt ? new Date(workB.editions[0].publishedAt).getFullYear() : undefined,
       pageCount: workB.editions[0]?.pageCount || undefined,
