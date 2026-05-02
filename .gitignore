@@ -46,5 +46,8 @@ next-env.d.ts
 # backups
 /backups/
 
+# script runtime state
+scripts/.openbd-progress.json
+
 .vercel
 .env*.local
