@@ -200,6 +200,14 @@ export function calculateMatchScore(a: BookCandidate, b: BookCandidate): number 
         titleNormA.volume != null && titleNormB.volume != null) {
       return 0.3;
     }
+    // ページ数が大幅に異なる場合は別巻の可能性（シリーズ刊行物等）
+    // タイトル・著者が完全一致でも、ページ数 ratio < 0.6 なら別作品扱い
+    if (a.pageCount && b.pageCount && a.pageCount > 0 && b.pageCount > 0) {
+      const pageRatio = Math.min(a.pageCount, b.pageCount) / Math.max(a.pageCount, b.pageCount);
+      if (pageRatio < 0.6) {
+        return 0.4; // 低スコア: 別巻/別分野の可能性が高い
+      }
+    }
     // 一方だけ巻数あり
     if (titleNormA.volume !== titleNormB.volume &&
         (titleNormA.volume != null || titleNormB.volume != null)) {

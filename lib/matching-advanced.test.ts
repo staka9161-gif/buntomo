@@ -188,6 +188,84 @@ describe("calculateMatchScore - authorNormalized 直接使用", () => {
 });
 
 // ============================================================
+// PR-B5: 同タイトル + ページ数差大 → 別作品判定
+// ============================================================
+describe("calculateMatchScore - ページ数差大の別巻判定", () => {
+  it("同タイトル + 同著者 + ページ数 ratio < 0.6 → 低スコア (< 0.75)", () => {
+    const a = book({
+      title: "JISハンドブック",
+      author: "日本規格協会",
+      authorNormalized: "日本規格協会",
+      pageCount: 2172,
+    });
+    const b = book({
+      title: "JISハンドブック",
+      author: "日本規格協会",
+      authorNormalized: "日本規格協会",
+      pageCount: 1280,
+    });
+    const score = calculateMatchScore(a, b);
+    // ratio = 1280/2172 = 0.59 < 0.6 → 別巻判定
+    expect(score).toBeLessThan(MATCH_THRESHOLDS.suggestMerge);
+    expect(classifyMatch(a, b).classification).toBe("separate");
+  });
+
+  it("同タイトル + 同著者 + ページ数 ratio >= 0.6 → 高スコア", () => {
+    const a = book({
+      title: "薬剤師のための症候学",
+      author: "服部豊",
+      authorNormalized: "服部豊",
+      pageCount: 88,
+    });
+    const b = book({
+      title: "薬剤師のための症候学",
+      author: "服部豊",
+      authorNormalized: "服部豊",
+      pageCount: 128,
+    });
+    const score = calculateMatchScore(a, b);
+    // ratio = 88/128 = 0.69 >= 0.6 → 通過
+    expect(score).toBeGreaterThanOrEqual(MATCH_THRESHOLDS.autoMerge);
+  });
+
+  it("同タイトル + 片方ページ数 null → チェックスキップ (高スコア)", () => {
+    const a = book({
+      title: "ヒロシマ",
+      author: "J.ハーシー",
+      authorNormalized: "Jハアシイ",
+      pageCount: 252,
+    });
+    const b = book({
+      title: "ヒロシマ",
+      author: "J.ハーシー",
+      authorNormalized: "Jハアシイ",
+      // pageCount undefined
+    });
+    const score = calculateMatchScore(a, b);
+    expect(score).toBeGreaterThanOrEqual(MATCH_THRESHOLDS.autoMerge);
+  });
+
+  it("異なるタイトル + ページ数差大 → ページ数チェックは関係ない (タイトル不一致でスコアが決まる)", () => {
+    const a = book({
+      title: "テストA",
+      author: "著者",
+      authorNormalized: "チョシャ",
+      pageCount: 100,
+    });
+    const b = book({
+      title: "テストB",
+      author: "著者",
+      authorNormalized: "チョシャ",
+      pageCount: 1000,
+    });
+    // タイトルが異なるので正規化完全一致セクションには入らない
+    // スコアベース計算になる
+    const score = calculateMatchScore(a, b);
+    expect(score).toBeLessThan(MATCH_THRESHOLDS.autoMerge);
+  });
+});
+
+// ============================================================
 // assignTranslationGroup の追加ケース
 // ============================================================
 describe("assignTranslationGroup - 追加ケース", () => {
