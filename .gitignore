@@ -43,5 +43,11 @@ next-env.d.ts
 /app/generated/prisma
 *.db
 
+# backups
+/backups/
+
+# script runtime state
+scripts/.openbd-progress.json
+
 .vercel
 .env*.local

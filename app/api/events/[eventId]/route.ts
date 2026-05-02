@@ -68,7 +68,7 @@ export async function PATCH(
 
     // 対象書籍の更新
     if (Array.isArray(body.bookIds) && body.bookIds.length > 0) {
-      const newBookIds: string[] = [...new Set([event.bookId, ...body.bookIds])];
+      const newBookIds: string[] = [...new Set([event.bookId, ...body.bookIds].filter((id): id is string => id != null))];
       updateData.books = { set: newBookIds.map((bid: string) => ({ id: bid })) };
     }
 

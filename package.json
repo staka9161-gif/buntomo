@@ -9,7 +9,13 @@
     "lint": "eslint",
     "import:openbd": "npx tsx scripts/import-openbd.ts",
     "import:openbd:resume": "npx tsx scripts/import-openbd.ts --resume",
-    "calculate:ranks": "npx tsx scripts/calculate-ranks.ts"
+    "calculate:ranks": "npx tsx scripts/calculate-ranks.ts",
+    "migrate:works": "npx tsx scripts/migrate-books-to-works.ts",
+    "migrate:works:execute": "npx tsx scripts/migrate-books-to-works.ts --execute",
+    "batch:matching": "npx tsx scripts/batch-matching.ts",
+    "batch:matching:execute": "npx tsx scripts/batch-matching.ts --execute",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
@@ -33,6 +39,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.5"
   }
 }

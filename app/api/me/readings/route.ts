@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     });
 
     // 各書籍の読書中・読了カウント＋読書会数を取得
-    const bookIds = readings.map((r) => r.bookId);
+    const bookIds = readings.map((r) => r.bookId).filter((id): id is string => id != null);
     const counts = await prisma.readingStatus.groupBy({
       by: ["bookId", "status"],
       where: { bookId: { in: bookIds } },
@@ -30,6 +30,7 @@ export async function GET(request: NextRequest) {
 
     const countMap = new Map<string, { reading: number; completed: number }>();
     for (const c of counts) {
+      if (!c.bookId) continue;
       const existing = countMap.get(c.bookId) || { reading: 0, completed: 0 };
       if (c.status === "READING") existing.reading = c._count;
       if (c.status === "COMPLETED") existing.completed = c._count;
@@ -54,7 +55,7 @@ export async function GET(request: NextRequest) {
       });
       for (const ev of eventsForBooks) {
         // 主本にカウント
-        if (bookIds.includes(ev.bookId)) {
+        if (ev.bookId && bookIds.includes(ev.bookId)) {
           eventCountMap.set(ev.bookId, (eventCountMap.get(ev.bookId) ?? 0) + 1);
         }
         // 多対多で紐づく本にもカウント
@@ -68,9 +69,9 @@ export async function GET(request: NextRequest) {
 
     const readingsWithCounts = readings.map((r) => ({
       ...r,
-      readingCount: countMap.get(r.bookId)?.reading ?? 0,
-      completedCount: countMap.get(r.bookId)?.completed ?? 0,
-      eventCount: eventCountMap.get(r.bookId) ?? 0,
+      readingCount: (r.bookId ? countMap.get(r.bookId)?.reading : 0) ?? 0,
+      completedCount: (r.bookId ? countMap.get(r.bookId)?.completed : 0) ?? 0,
+      eventCount: (r.bookId ? eventCountMap.get(r.bookId) : 0) ?? 0,
     }));
 
     return NextResponse.json({ readings: readingsWithCounts });
