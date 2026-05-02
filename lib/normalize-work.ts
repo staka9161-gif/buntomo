@@ -149,6 +149,7 @@ export function normalizeTitle(input: string, kana?: string): NormalizedTitle {
 
 // ============================================================
 // normalizeAuthor: 著者名をマッチング用に正規化
+// シグネチャ維持: normalizeAuthor(input, kana): string
 // ============================================================
 export function normalizeAuthor(input: string, kana?: string): string {
   // 0. kana（読み仮名）が提供されている場合はそちらをベースにする
@@ -177,6 +178,164 @@ export function normalizeAuthor(input: string, kana?: string): string {
   name = normalizeLongVowel(name);
 
   return name;
+}
+
+// ============================================================
+// parseAuthorField: 著者フィールドから原著者・翻訳者・編者を分離
+//
+// 書籍データで "ドストエフスキー/亀山郁夫訳" のように
+// 原著者と翻訳者が1フィールドに混在するケースを構造化する。
+// ============================================================
+export interface ParsedAuthorField {
+  /** 原著者（1人以上） */
+  authors: string[];
+  /** 翻訳者（0人以上） */
+  translators: string[];
+  /** 編者（0人以上） */
+  editors: string[];
+}
+
+export function parseAuthorField(input: string): ParsedAuthorField {
+  const normalized = input.normalize("NFKC").trim();
+
+  let authors: string[] = [];
+  let translators: string[] = [];
+  let editors: string[] = [];
+
+  // --- Step 1: 括弧内の訳者を抽出して除去 ---
+  // "ドストエフスキー（亀山郁夫訳）" パターン
+  let remaining = normalized;
+  const parenTranslatorMatch = remaining.match(/[（(]([^）)]+?)[訳翻][）)]/);
+  if (parenTranslatorMatch) {
+    const translatorStr = parenTranslatorMatch[1].replace(/翻訳$/, "").replace(/訳$/, "");
+    translators = splitMultipleNames(translatorStr);
+    remaining = remaining.replace(parenTranslatorMatch[0], "").trim();
+  }
+
+  // --- Step 2: スラッシュ（全角/半角）で分割 ---
+  // "著者/翻訳者訳" パターン
+  const slashParts = remaining.split(/[/／]/);
+
+  if (slashParts.length >= 2) {
+    // スラッシュ前 = 著者部分
+    const authorPart = slashParts[0].trim();
+    // スラッシュ後 = 翻訳者 or その他
+    const afterSlash = slashParts.slice(1).join("/").trim();
+
+    // スラッシュ後が「〇〇訳」「〇〇翻訳」で終わる場合
+    if (/[訳]$/.test(afterSlash) || /翻訳$/.test(afterSlash)) {
+      const tStr = afterSlash.replace(/翻訳$/, "").replace(/訳$/, "");
+      translators = [...translators, ...splitMultipleNames(tStr)];
+      authors = splitAuthorsFromPart(authorPart);
+    } else {
+      // スラッシュだが訳ではない → 共著者扱い
+      authors = [
+        ...splitAuthorsFromPart(authorPart),
+        ...splitAuthorsFromPart(afterSlash),
+      ];
+    }
+  } else {
+    // スラッシュなし → スペースや「著」「訳」キーワードで分離
+    const parsed = parseWithKeywords(remaining);
+    authors = parsed.authors;
+    translators = [...translators, ...parsed.translators];
+    editors = parsed.editors;
+  }
+
+  // --- Step 3: 肩書の接尾辞を除去 ---
+  // 著者に「編」がついていて editors が空の場合は、その人を editors に移動せず authors に残す
+  // ただし「編」は除去する（「芥川龍之介編」→ authors:["芥川龍之介"]）
+  authors = authors.map((a) => a.replace(/[著編]$/, "").replace(/編著$/, "").trim()).filter(Boolean);
+  translators = translators.map((t) => t.replace(/訳$/, "").replace(/翻訳$/, "").trim()).filter(Boolean);
+  editors = editors.map((e) => e.replace(/編$/, "").replace(/編著$/, "").trim()).filter(Boolean);
+
+  return { authors, translators, editors };
+}
+
+// ============================================================
+// 補助: 複数人名を中黒・カンマ・読点で分割
+// ============================================================
+function splitMultipleNames(str: string): string[] {
+  return str
+    .split(/[・、,，]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+// ============================================================
+// 補助: 著者パートから共著者を分割
+// 中黒(・)、カンマ、読点(、)を共著者区切りとして扱う
+// ============================================================
+function splitAuthorsFromPart(part: string): string[] {
+  // 「著」の除去
+  const cleaned = part.replace(/著$/, "").trim();
+  return splitMultipleNames(cleaned).length > 0
+    ? splitMultipleNames(cleaned)
+    : [cleaned];
+}
+
+// ============================================================
+// 補助: キーワード（著/訳/編）ベースの分離
+// "カミュ著 窪田啓作訳" や "太宰治著 奥野健男編" を処理
+// ============================================================
+function parseWithKeywords(str: string): ParsedAuthorField {
+  const authors: string[] = [];
+  const translators: string[] = [];
+  const editors: string[] = [];
+
+  // "〇〇訳" が文字列末尾 or スペース前に存在するか
+  // パターン: "著者名 翻訳者名訳" or "著者名著 翻訳者名訳"
+  const translatorSuffixMatch = str.match(/\s+(.+?)(?:訳|翻訳)$/);
+  if (translatorSuffixMatch) {
+    const tStr = translatorSuffixMatch[1];
+    translators.push(...splitMultipleNames(tStr));
+    const authorPart = str.slice(0, translatorSuffixMatch.index!).trim();
+    authors.push(...splitAuthorsFromPart(authorPart));
+    return { authors, translators, editors };
+  }
+
+  // "〇〇著 〇〇編" パターン
+  const editorSuffixMatch = str.match(/\s+(.+?)編$/);
+  if (editorSuffixMatch) {
+    const eStr = editorSuffixMatch[1];
+    editors.push(...splitMultipleNames(eStr));
+    const authorPart = str.slice(0, editorSuffixMatch.index!).trim();
+    authors.push(...splitAuthorsFromPart(authorPart));
+    return { authors, translators, editors };
+  }
+
+  // キーワードなし → 全体を共著者として分割
+  // ただし中黒が人名の一部（外国人名）の可能性もあるため注意:
+  // ヒューリスティック: カタカナのみの名前に中黒がある場合は外国人名の一部
+  if (containsJapaneseAuthorSeparator(str)) {
+    authors.push(...splitAuthorsFromPart(str));
+  } else {
+    authors.push(str.replace(/著$/, "").trim());
+  }
+
+  return { authors, translators, editors };
+}
+
+// ============================================================
+// 補助: 共著者区切りとして中黒が使われているか判定
+// カタカナのみ + 中黒 = 外国人名（"ヴィクトル・ユーゴー"）→ 分割しない
+// 漢字を含む名前 + 中黒 = 共著者区切り（"伊坂幸太郎・阿部和重"）→ 分割
+// カンマ・読点は常に共著者区切り
+// ============================================================
+function containsJapaneseAuthorSeparator(str: string): boolean {
+  // カンマまたは読点があれば必ず共著者区切り
+  if (/[、,，]/.test(str)) return true;
+
+  // 中黒がある場合: 中黒の両側に漢字があれば共著者区切りと判断
+  if (/・/.test(str)) {
+    const parts = str.split("・");
+    // 各パートに漢字が含まれていれば共著者区切り
+    const hasKanjiOnBothSides = parts.length >= 2 &&
+      parts.every((p) => /[\u4E00-\u9FFF]/.test(p));
+    return hasKanjiOnBothSides;
+  }
+
+  return false;
 }
 
 // ============================================================
