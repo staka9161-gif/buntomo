@@ -21,6 +21,8 @@ export interface RRFBook {
   totalPages: number;
   coverImageUrl: string | null;
   description: string | null;
+  reviewCount?: number;
+  reviewAverage?: number;
 }
 
 export interface RankedBook extends RRFBook {
@@ -60,6 +62,8 @@ function mergeBooks(existing: RRFBook, incoming: RRFBook): RRFBook {
     totalPages: existing.totalPages > 0 ? existing.totalPages : incoming.totalPages,
     coverImageUrl: existing.coverImageUrl || incoming.coverImageUrl,
     description: existing.description || incoming.description,
+    reviewCount: Math.max(existing.reviewCount ?? 0, incoming.reviewCount ?? 0),
+    reviewAverage: existing.reviewAverage || incoming.reviewAverage,
   };
 }
 
