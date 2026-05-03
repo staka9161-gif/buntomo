@@ -85,7 +85,9 @@ export async function GET(
           displayName: e.organizer.displayName,
           avatarUrl: e.organizer.avatarUrl,
         },
-        books: [{ id: e.book.id, title: e.book.title, author: e.book.author, coverImageUrl: e.book.coverImageUrl }],
+        books: e.book
+          ? [{ id: e.book.id, title: e.book.title, author: e.book.author, coverImageUrl: e.book.coverImageUrl }]
+          : e.books.slice(0, 1).map(b => ({ id: b.id, title: b.title, author: b.author, coverImageUrl: b.coverImageUrl })),
         isOtherEdition: e.bookId !== id && !e.books.some((b) => b.id === id),
       })),
     });

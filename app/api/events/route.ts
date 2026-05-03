@@ -61,7 +61,9 @@ export async function GET(request: NextRequest) {
         url: e.url,
         description: e.description,
         book: e.book,
-        books: [{ id: e.book.id, title: e.book.title, author: e.book.author, coverImageUrl: e.book.coverImageUrl }],
+        books: e.book
+          ? [{ id: e.book.id, title: e.book.title, author: e.book.author, coverImageUrl: e.book.coverImageUrl }]
+          : e.books.slice(0, 1).map(b => ({ id: b.id, title: b.title, author: b.author, coverImageUrl: b.coverImageUrl })),
         organizer: {
           id: e.organizer.id,
           displayName: e.organizer.displayName,
