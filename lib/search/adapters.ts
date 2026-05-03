@@ -141,10 +141,7 @@ async function searchRakutenSingle(
   params: Record<string, string>,
   sort: string = "standard",
 ): Promise<ExternalBookData[]> {
-  if (isCircuitOpen(source)) {
-    console.log(`[Rakuten] circuit OPEN for ${source}, skipping`);
-    return [];
-  }
+  if (isCircuitOpen(source)) return [];
   const appId = process.env.RAKUTEN_APPLICATION_ID;
   const accessKey = process.env.RAKUTEN_ACCESS_KEY;
   if (!appId || !accessKey) {
@@ -163,12 +160,10 @@ async function searchRakutenSingle(
       url.searchParams.set(k, v);
     }
     const referer = process.env.RAKUTEN_REFERER || "https://buntomo.bunkare.jp/";
-    console.log(`[Rakuten] ${source}: fetching ${url.toString().slice(0, 100)}...`);
     const res = await fetch(url.toString(), {
       signal: AbortSignal.timeout(3000),
       headers: { "Referer": referer, "Origin": referer.replace(/\/$/, "") },
     });
-    console.log(`[Rakuten] ${source}: response status=${res.status}`);
     if (!res.ok) {
       const body = await res.text().catch(() => "");
       console.error(`[Rakuten] ${source}: error response: ${body.slice(0, 200)}`);
@@ -208,18 +203,7 @@ async function searchRakutenSingle(
  */
 export async function searchRakutenEnhanced(query: string): Promise<RRFInput[]> {
   const appId = process.env.RAKUTEN_APPLICATION_ID;
-  const accessKey = process.env.RAKUTEN_ACCESS_KEY;
-  console.log("[Rakuten] searchRakutenEnhanced called", {
-    hasAppId: !!appId,
-    appIdLength: appId?.length ?? 0,
-    hasAccessKey: !!accessKey,
-    accessKeyLength: accessKey?.length ?? 0,
-    query: query.slice(0, 20),
-  });
-  if (!appId) {
-    console.warn("[Rakuten] RAKUTEN_APPLICATION_ID is empty or not set in searchRakutenEnhanced, skipping");
-    return [];
-  }
+  if (!appId) return [];
 
   const normalized = normalizeText(query);
   const [byKeyword, byTitle, byAuthor] = await Promise.all([
