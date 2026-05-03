@@ -283,6 +283,8 @@ export async function searchGoogleBooks(query: string): Promise<ExternalBookData
         totalPages: (info.pageCount as number) || 0,
         coverImageUrl: imageLinks?.thumbnail?.replace("http://", "https://") || null,
         description: (info.description as string) || null,
+        reviewCount: (info.ratingsCount as number) || 0,
+        reviewAverage: (info.averageRating as number) || 0,
       } satisfies ExternalBookData;
     });
   } catch {
