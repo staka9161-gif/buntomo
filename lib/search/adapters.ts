@@ -142,17 +142,28 @@ async function searchRakutenSingle(
 ): Promise<ExternalBookData[]> {
   if (isCircuitOpen(source)) return [];
   const appId = process.env.RAKUTEN_APPLICATION_ID;
-  if (!appId) return [];
+  const accessKey = process.env.RAKUTEN_ACCESS_KEY;
+  if (!appId || !accessKey) {
+    if (!appId) console.warn("[Rakuten] RAKUTEN_APPLICATION_ID is not set, skipping");
+    if (!accessKey) console.warn("[Rakuten] RAKUTEN_ACCESS_KEY is not set, skipping");
+    return [];
+  }
   try {
-    const url = new URL("https://app.rakuten.co.jp/services/api/BooksBook/Search/20170404");
+    // 新 API エンドポイント (旧 app.rakuten.co.jp は 2026-05-13 停止)
+    const url = new URL("https://openapi.rakuten.co.jp/services/api/BooksBook/Search/20170404");
     url.searchParams.set("applicationId", appId);
+    url.searchParams.set("accessKey", accessKey);
     url.searchParams.set("hits", "20");
     url.searchParams.set("sort", "standard");
     url.searchParams.set("booksGenreId", "001");
     for (const [k, v] of Object.entries(params)) {
       url.searchParams.set(k, v);
     }
-    const res = await fetch(url.toString(), { signal: AbortSignal.timeout(3000) });
+    const referer = process.env.RAKUTEN_REFERER || "https://buntomo.bunkare.jp/";
+    const res = await fetch(url.toString(), {
+      signal: AbortSignal.timeout(3000),
+      headers: { "Referer": referer },
+    });
     if (!res.ok) {
       recordFailure(source);
       return [];
