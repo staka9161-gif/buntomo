@@ -27,7 +27,7 @@ const SOURCE_WEIGHTS = {
   rakuten_author: 1.1,
   google: 1.0,
   ndl: 0.8,
-  local: 1.5, // ローカルDBはcustomRank+matchScoreで事前ソート済みなので高重み
+  local: 1.0, // ローカルDBはデータ品質にばらつきがあるため他ソースと同等扱い
 };
 
 // ============================================================
@@ -200,58 +200,9 @@ export async function metaSearch(rawQuery: string): Promise<MetaSearchResult> {
     };
   }
 
-  // 2. ローカルDB検索（常に実行）
-  const localResults = await searchLocalDb(rawQuery);
-
-  // 3. ローカルDBに十分な結果がある場合 → 即返却（高速パス）
-  const normalizedQ = normalizeText(rawQuery);
-  const goodLocalResults = localResults.filter((r) => {
-    const ms = getMatchScore(normalizedQ, r.title, r.author);
-    return ms >= 10;
-  });
-
-  if (goodLocalResults.length >= 5) {
-    // matchScore + customRankでローカル結果をスコアリング
-    const localDb = await prisma.book.findMany({
-      where: { isbn: { in: localResults.filter((r) => r.isbn).map((r) => r.isbn!) } },
-      select: { isbn: true, customRank: true },
-    });
-    const rankMap = new Map(localDb.map((b) => [b.isbn!, b.customRank]));
-
-    const scored: RankedBook[] = localResults.map((book) => {
-      const matchScore = getMatchScore(normalizedQ, book.title, book.author);
-      const customRank = book.isbn ? (rankMap.get(book.isbn) ?? 0) : 0;
-      const finalScore = customRank + matchScore * 3;
-      return {
-        ...book,
-        _rrfScore: 0,
-        _sources: ["local"],
-        _finalScore: finalScore,
-        _bonusDetail: { rrfBase: 0, multiSourceBonus: 0, publisherBonus: 0, completenessBonus: 0, penalty: 0 },
-      };
-    });
-    scored.sort((a, b) => b._finalScore - a._finalScore);
-    const top30 = scored.slice(0, 30);
-
-    // openBDでページ数補完（バックグラウンド）
-    const missingPageIsbns = top30.filter((r) => r.isbn && r.totalPages === 0).map((r) => r.isbn!);
-    if (missingPageIsbns.length > 0) enrichPagesFromOpenBD(missingPageIsbns);
-
-    // キャッシュ保存
-    saveCacheResults(normalizedQuery, rawQuery, top30, ["local"]);
-
-    return {
-      books: top30,
-      meta: {
-        sourcesUsed: ["local"],
-        cacheHit: false,
-        tookMs: Date.now() - start,
-      },
-    };
-  }
-
-  // 4. ローカルDB不十分 → 外部API並列呼び出し（メタサーチ発動）
-  const [rakutenResults, googleResults, ndlResults] = await Promise.all([
+  // 2. ローカル + 外部 API を全て並列実行（常に統合）
+  const [localResults, rakutenResults, googleResults, ndlResults] = await Promise.all([
+    searchLocalDb(rawQuery),
     searchRakutenEnhanced(rawQuery),
     searchGoogleBooks(rawQuery),
     searchNdl(rawQuery),
