@@ -165,7 +165,7 @@ async function searchRakutenSingle(
     console.log(`[Rakuten] ${source}: fetching ${url.toString().slice(0, 100)}...`);
     const res = await fetch(url.toString(), {
       signal: AbortSignal.timeout(3000),
-      headers: { "Referer": referer },
+      headers: { "Referer": referer, "Origin": referer.replace(/\/$/, "") },
     });
     console.log(`[Rakuten] ${source}: response status=${res.status}`);
     if (!res.ok) {
