@@ -74,7 +74,7 @@ async function getCachedResults(normalizedQuery: string): Promise<RankedBook[] |
         _rrfScore: scores[i] || 0,
         _sources: cached.sourcesUsed,
         _finalScore: scores[i] || 0,
-        _bonusDetail: { rrfBase: 0, multiSourceBonus: 0, publisherBonus: 0, completenessBonus: 0, penalty: 0 },
+        _bonusDetail: { rrfBase: 0, multiSourceBonus: 0, publisherBonus: 0, completenessBonus: 0, popularityBonus: 0, penalty: 0 },
       });
     }
 
