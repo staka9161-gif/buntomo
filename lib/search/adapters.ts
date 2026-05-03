@@ -139,6 +139,7 @@ function dbBookToRRF(book: {
 async function searchRakutenSingle(
   source: string,
   params: Record<string, string>,
+  sort: string = "standard",
 ): Promise<ExternalBookData[]> {
   if (isCircuitOpen(source)) {
     console.log(`[Rakuten] circuit OPEN for ${source}, skipping`);
@@ -156,7 +157,7 @@ async function searchRakutenSingle(
     url.searchParams.set("applicationId", appId);
     url.searchParams.set("accessKey", accessKey);
     url.searchParams.set("hits", "20");
-    url.searchParams.set("sort", "standard");
+    url.searchParams.set("sort", sort);
     url.searchParams.set("booksGenreId", "001");
     for (const [k, v] of Object.entries(params)) {
       url.searchParams.set(k, v);
@@ -192,6 +193,8 @@ async function searchRakutenSingle(
         totalPages: parseInt(item.itemPages as string, 10) || 0,
         coverImageUrl: (item.largeImageUrl as string) || (item.mediumImageUrl as string) || null,
         description: (item.itemCaption as string) || null,
+        reviewCount: parseInt(item.reviewCount as string, 10) || 0,
+        reviewAverage: parseFloat(item.reviewAverage as string) || 0,
       } satisfies ExternalBookData;
     });
   } catch {
@@ -220,9 +223,9 @@ export async function searchRakutenEnhanced(query: string): Promise<RRFInput[]> 
 
   const normalized = normalizeText(query);
   const [byKeyword, byTitle, byAuthor] = await Promise.all([
-    searchRakutenSingle("rakuten_keyword", { keyword: normalized }),
-    searchRakutenSingle("rakuten_title", { title: normalized }),
-    searchRakutenSingle("rakuten_author", { author: normalized }),
+    searchRakutenSingle("rakuten_keyword", { keyword: normalized }, "sales"),
+    searchRakutenSingle("rakuten_title", { title: normalized }, "standard"),
+    searchRakutenSingle("rakuten_author", { author: normalized }, "reviewCount"),
   ]);
 
   const results: RRFInput[] = [];
@@ -280,6 +283,8 @@ export async function searchGoogleBooks(query: string): Promise<ExternalBookData
         totalPages: (info.pageCount as number) || 0,
         coverImageUrl: imageLinks?.thumbnail?.replace("http://", "https://") || null,
         description: (info.description as string) || null,
+        reviewCount: (info.ratingsCount as number) || 0,
+        reviewAverage: (info.averageRating as number) || 0,
       } satisfies ExternalBookData;
     });
   } catch {

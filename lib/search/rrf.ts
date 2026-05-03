@@ -21,6 +21,8 @@ export interface RRFBook {
   totalPages: number;
   coverImageUrl: string | null;
   description: string | null;
+  reviewCount?: number;
+  reviewAverage?: number;
 }
 
 export interface RankedBook extends RRFBook {
@@ -32,6 +34,7 @@ export interface RankedBook extends RRFBook {
     multiSourceBonus: number;
     publisherBonus: number;
     completenessBonus: number;
+    popularityBonus: number;
     penalty: number;
   };
 }
@@ -60,6 +63,8 @@ function mergeBooks(existing: RRFBook, incoming: RRFBook): RRFBook {
     totalPages: existing.totalPages > 0 ? existing.totalPages : incoming.totalPages,
     coverImageUrl: existing.coverImageUrl || incoming.coverImageUrl,
     description: existing.description || incoming.description,
+    reviewCount: Math.max(existing.reviewCount ?? 0, incoming.reviewCount ?? 0),
+    reviewAverage: existing.reviewAverage || incoming.reviewAverage,
   };
 }
 
@@ -114,6 +119,13 @@ export function reciprocalRankFusion(inputs: RRFInput[]): RankedBook[] {
       if (book.coverImageUrl) completenessBonus += 2;
       if (book.description) completenessBonus += 1;
 
+      // 人気ボーナス（楽天 reviewCount / Google Books ratingsCount）
+      let popularityBonus = 0;
+      if (book.reviewCount && book.reviewCount > 0) {
+        // 対数スケール: 1件→+1, 10件→+5, 100件→+10, 1000件→+15, 上限+20
+        popularityBonus = Math.min(20, Math.round(Math.log10(book.reviewCount + 1) * 5));
+      }
+
       // ペナルティ（電子版・完全版等）
       let penalty = 0;
       const titleLower = book.title.toLowerCase();
@@ -125,6 +137,7 @@ export function reciprocalRankFusion(inputs: RRFInput[]): RankedBook[] {
         + multiSourceBonus
         + publisherBonus
         + completenessBonus
+        + popularityBonus
         - penalty;
 
       return {
@@ -137,6 +150,7 @@ export function reciprocalRankFusion(inputs: RRFInput[]): RankedBook[] {
           multiSourceBonus,
           publisherBonus,
           completenessBonus,
+          popularityBonus,
           penalty,
         },
       } as RankedBook;
