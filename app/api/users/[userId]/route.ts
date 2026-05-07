@@ -72,6 +72,34 @@ export async function GET(
     const canSee = (field: "bio" | "area" | "links" | "readings") =>
       isMe || vis[field] === "public" || (vis[field] === "friends" && isFriend);
 
+    // 並列で統計・読書状況・カスタムリンクを取得
+    const [readingCount, completedCount, friendCount, readings] = await Promise.all([
+      canSee("readings")
+        ? prisma.readingStatus.count({ where: { userId, status: "READING" } })
+        : Promise.resolve(0),
+      canSee("readings")
+        ? prisma.readingStatus.count({ where: { userId, status: "COMPLETED" } })
+        : Promise.resolve(0),
+      prisma.friendship.count({
+        where: {
+          status: "ACCEPTED",
+          OR: [{ requesterId: userId }, { addresseeId: userId }],
+        },
+      }),
+      canSee("readings")
+        ? prisma.readingStatus.findMany({
+            where: { userId },
+            include: {
+              book: {
+                select: { id: true, title: true, author: true, coverImageUrl: true, totalPages: true },
+              },
+            },
+            orderBy: { updatedAt: "desc" },
+            take: 10,
+          })
+        : Promise.resolve([]),
+    ]);
+
     let customLinks: unknown[] = [];
     if (canSee("links") && user.customLinks) {
       try { customLinks = JSON.parse(user.customLinks); } catch { /* */ }
@@ -90,20 +118,6 @@ export async function GET(
       visibility: vis,
     };
 
-    // 読書状況
-    const readings = canSee("readings")
-      ? await prisma.readingStatus.findMany({
-          where: { userId },
-          include: {
-            book: {
-              select: { id: true, title: true, author: true, coverImageUrl: true, totalPages: true },
-            },
-          },
-          orderBy: { updatedAt: "desc" },
-          take: 10,
-        })
-      : [];
-
     // どの項目が非表示かをフロントに伝える
     const hiddenFields = {
       bio: !canSee("bio") && !!user.bio,
@@ -118,6 +132,7 @@ export async function GET(
       friendshipStatus,
       friendshipId,
       hiddenFields,
+      stats: { readingCount, completedCount, friendCount },
     });
   } catch (e) {
     console.error("User profile GET error:", e);

@@ -130,41 +130,27 @@ export default function MyPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <div className="mb-8 card-base p-6">
-        <div className="flex items-center gap-4">
-          <Link href={`/users/${session.user?.id}`} className="shrink-0">
-            {(profile?.avatarUrl || session.user?.image) ? (
-              <img
-                src={profile?.avatarUrl || session.user?.image || ""}
-                alt=""
-                className="h-16 w-16 rounded-full object-cover shadow-[var(--shadow-cover)] transition"
-                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-              />
-            ) : (
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-xl font-bold text-[var(--color-accent)] transition">
-                {session.user?.name?.charAt(0) || "?"}
-              </div>
-            )}
-          </Link>
-          <div className="min-w-0 flex-1">
-            <Link href={`/users/${session.user?.id}`} className="hover:underline">
-              <h1 className="font-serif text-lg font-medium tracking-[0.05em] text-[var(--color-ink-primary)] truncate md:text-xl">{session.user?.name}</h1>
-            </Link>
-            {profile?.area && (
-              <p className="text-xs text-[var(--color-ink-muted)]">📍 {profile.area}</p>
-            )}
-            {profile?.bio && (
-              <p className="mt-0.5 text-xs text-[var(--color-ink-muted)] leading-relaxed truncate md:text-sm">{profile.bio}</p>
-            )}
+      <Link
+        href={`/users/${session.user?.id}`}
+        className="mb-6 flex items-center gap-3 rounded-xl border border-[var(--color-border-faint)] bg-[var(--color-bg-elevated)] p-3 hover:bg-[var(--color-bg-base)] transition-colors"
+      >
+        {(profile?.avatarUrl || session.user?.image) ? (
+          <img
+            src={profile?.avatarUrl || session.user?.image || ""}
+            alt=""
+            className="h-10 w-10 rounded-full object-cover shadow-[var(--shadow-cover)]"
+            onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+          />
+        ) : (
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-sm font-bold text-[var(--color-accent)]">
+            {session.user?.name?.charAt(0) || "?"}
           </div>
-          <Link
-            href="/mypage/profile"
-            className="shrink-0 btn-secondary-sm"
-          >
-            編集
-          </Link>
+        )}
+        <div className="flex-1 min-w-0">
+          <p className="font-serif text-sm font-medium text-[var(--color-ink-primary)] truncate">{session.user?.name}</p>
+          <p className="text-xs text-[var(--color-ink-muted)]">プロフィールを見る →</p>
         </div>
-      </div>
+      </Link>
 
       <div className="mb-8 grid gap-4 grid-cols-2 sm:grid-cols-5">
         <Link

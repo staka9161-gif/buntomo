@@ -42,6 +42,7 @@ export default function UserProfilePage() {
   const router = useRouter();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [readings, setReadings] = useState<Reading[]>([]);
+  const [stats, setStats] = useState({ readingCount: 0, completedCount: 0, friendCount: 0 });
   const [friendshipStatus, setFriendshipStatus] = useState<FriendshipStatus>("none");
   const [friendshipId, setFriendshipId] = useState<string | null>(null);
   const [hiddenFields, setHiddenFields] = useState({ bio: false, area: false, links: false, readings: false });
@@ -67,6 +68,7 @@ export default function UserProfilePage() {
       const data = await res.json();
       setUser(data.user);
       setReadings(data.readings || []);
+      setStats(data.stats || { readingCount: 0, completedCount: 0, friendCount: 0 });
       setFriendshipStatus(data.friendshipStatus || "none");
       setFriendshipId(data.friendshipId || null);
       setHiddenFields(data.hiddenFields || { bio: false, area: false, links: false, readings: false });
@@ -190,6 +192,26 @@ export default function UserProfilePage() {
               </div>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* 数字グリッド */}
+      <div className="mt-5 grid grid-cols-3 gap-3">
+        <div className="card-base p-4 text-center md:p-5">
+          <p className="font-serif text-2xl font-medium leading-none text-[var(--color-accent)] md:text-3xl">
+            {hiddenFields.readings && !isMe ? "—" : stats.readingCount}
+          </p>
+          <p className="mt-2 text-[11px] tracking-[0.05em] text-[var(--color-ink-muted)] md:text-xs">読みかけの本</p>
+        </div>
+        <div className="card-base p-4 text-center md:p-5">
+          <p className="font-serif text-2xl font-medium leading-none text-[var(--color-accent)] md:text-3xl">
+            {hiddenFields.readings && !isMe ? "—" : stats.completedCount}
+          </p>
+          <p className="mt-2 text-[11px] tracking-[0.05em] text-[var(--color-ink-muted)] md:text-xs">読了した本</p>
+        </div>
+        <div className="card-base p-4 text-center md:p-5">
+          <p className="font-serif text-2xl font-medium leading-none text-[var(--color-accent)] md:text-3xl">{stats.friendCount}</p>
+          <p className="mt-2 text-[11px] tracking-[0.05em] text-[var(--color-ink-muted)] md:text-xs">友だち</p>
         </div>
       </div>
 
