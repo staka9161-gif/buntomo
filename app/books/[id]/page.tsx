@@ -331,12 +331,6 @@ export default function BookDetailPage() {
           </div>
         </div>
 
-        {book.description && (
-          <div className="mt-4 border-t border-[var(--color-border-subtle)] pt-4">
-            <h2 className="mb-2 font-serif text-sm font-medium tracking-[0.05em] text-[var(--color-ink-primary)] md:text-base">あらすじ</h2>
-            <p className="text-sm leading-[1.9] text-[var(--color-ink-primary)]">{book.description}</p>
-          </div>
-        )}
       </div>
 
       {/* 今読んでいる人 */}
