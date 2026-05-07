@@ -3,13 +3,13 @@
 export default function ProgressBar({ percent }: { percent: number }) {
   return (
     <div className="flex items-center gap-2">
-      <div className="h-2.5 flex-1 rounded-full bg-gray-200">
+      <div className="h-[5px] flex-1 rounded-full bg-[rgb(31_42_68_/_0.08)] overflow-hidden">
         <div
-          className="h-2.5 rounded-full bg-amber-500 transition-all"
+          className="h-full rounded-full bg-[var(--color-accent)] transition-[width] duration-300"
           style={{ width: `${Math.min(percent, 100)}%` }}
         />
       </div>
-      <span className="text-xs font-medium text-gray-600">{percent}%</span>
+      <span className="font-mono text-xs font-medium text-[var(--color-accent)]">{percent}%</span>
     </div>
   );
 }

@@ -7,28 +7,32 @@ export default function Header() {
   const { data: session } = useSession();
 
   return (
-    <header className="border-b border-gray-200 bg-white">
+    <header className="border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)]">
       <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4">
-        <Link href="/" className="text-xl font-bold text-amber-700">
-          📖 文とも
+        <Link href="/" className="flex items-center gap-1.5 font-serif text-base tracking-[0.08em] text-[var(--color-ink-primary)]">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="1.6">
+            <path d="M2 4.5C2 3.67 2.67 3 3.5 3H11v18H3.5C2.67 21 2 20.33 2 19.5v-15z"/>
+            <path d="M22 4.5C22 3.67 21.33 3 20.5 3H13v18h7.5c.83 0 1.5-.67 1.5-1.5v-15z"/>
+          </svg>
+          文とも
         </Link>
 
         <nav className="flex items-center gap-4 text-sm">
           <a
             href="https://bunkare.jp/"
-            className="text-gray-500 hover:text-amber-700 text-xs"
+            className="text-xs text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)] transition-colors"
           >
-            📅 文学カレンダー
+            文学カレンダー
           </a>
           {session ? (
             <>
-              <Link href="/books/search" className="text-gray-600 hover:text-amber-700">
+              <Link href="/books/search" className="text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)] transition-colors">
                 本を探す
               </Link>
-              <Link href="/events" className="text-gray-600 hover:text-amber-700">
+              <Link href="/events" className="text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)] transition-colors">
                 読書会
               </Link>
-              <Link href="/mypage" className="flex items-center gap-1.5 text-gray-600 hover:text-amber-700">
+              <Link href="/mypage" className="flex items-center gap-1.5 text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)] transition-colors">
                 {session.user?.image ? (
                   <img
                     src={session.user.image}
@@ -41,7 +45,7 @@ export default function Header() {
               </Link>
               <button
                 onClick={() => signOut({ callbackUrl: "/" })}
-                className="rounded-md bg-gray-100 px-3 py-1.5 text-gray-600 hover:bg-gray-200"
+                className="btn-secondary-sm"
               >
                 ログアウト
               </button>
@@ -50,13 +54,13 @@ export default function Header() {
             <>
               <Link
                 href="/login"
-                className="text-gray-600 hover:text-amber-700"
+                className="text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)] transition-colors"
               >
                 ログイン
               </Link>
               <Link
                 href="/signup"
-                className="rounded-md bg-amber-600 px-3 py-1.5 text-white hover:bg-amber-700"
+                className="btn-primary-sm"
               >
                 新規登録
               </Link>

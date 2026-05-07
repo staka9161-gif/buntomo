@@ -47,27 +47,27 @@ export default function MessagesPage() {
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <p className="text-gray-400">読み込み中...</p>
+        <p className="text-[var(--color-ink-faint)]">読み込み中...</p>
       </div>
     );
   }
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
-      <Link href="/mypage" className="text-sm text-amber-600 hover:underline">
+      <Link href="/mypage" className="text-sm text-[var(--color-accent)] hover:underline">
         ← マイページに戻る
       </Link>
-      <h1 className="mt-4 mb-6 text-2xl font-bold text-gray-900">メッセージ</h1>
+      <h1 className="mt-4 mb-6 font-serif text-xl font-medium tracking-[0.05em] text-[var(--color-ink-primary)] md:text-2xl">メッセージ</h1>
 
       {conversations.length === 0 ? (
-        <div className="rounded-xl border bg-white p-8 text-center">
-          <p className="text-gray-500">メッセージはまだありません</p>
-          <p className="mt-2 text-sm text-gray-400">
+        <div className="card-base p-8 text-center">
+          <p className="text-[var(--color-ink-muted)]">メッセージはまだありません</p>
+          <p className="mt-2 text-sm text-[var(--color-ink-faint)]">
             友だちのプロフィールからメッセージを送ってみましょう
           </p>
           <Link
             href="/mypage/friends"
-            className="mt-4 inline-block rounded-lg bg-amber-600 px-6 py-2 text-sm font-semibold text-white hover:bg-amber-700"
+            className="mt-4 inline-block btn-primary"
           >
             友だちリスト
           </Link>
@@ -78,27 +78,27 @@ export default function MessagesPage() {
             <Link
               key={conv.user.id}
               href={`/mypage/messages/${conv.user.id}`}
-              className="flex items-center gap-3 rounded-lg border bg-white p-4 shadow-sm transition hover:shadow-md"
+              className="card-base flex items-center gap-3 p-3 transition hover:shadow-md"
             >
               {conv.user.avatarUrl ? (
                 <img
                   src={conv.user.avatarUrl}
                   alt=""
-                  className="h-12 w-12 shrink-0 rounded-full object-cover"
+                  className="h-12 w-12 shrink-0 rounded-full object-cover shadow-[var(--shadow-cover)]"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                 />
               ) : (
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amber-200 text-lg font-bold text-amber-800">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-lg font-bold text-[var(--color-accent)]">
                   {conv.user.displayName.charAt(0)}
                 </div>
               )}
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between">
-                  <p className="font-semibold text-gray-900 truncate">{conv.user.displayName}</p>
-                  <span className="shrink-0 text-xs text-gray-400">{formatRelativeTime(conv.lastMessageAt)}</span>
+                  <p className="font-serif text-sm font-medium text-[var(--color-ink-primary)] truncate">{conv.user.displayName}</p>
+                  <span className="shrink-0 text-[10px] font-mono text-[var(--color-ink-faint)]">{formatRelativeTime(conv.lastMessageAt)}</span>
                 </div>
-                <p className="mt-0.5 truncate text-sm text-gray-500">
-                  {conv.isMe && <span className="text-gray-400">自分: </span>}
+                <p className="mt-0.5 truncate text-xs text-[var(--color-ink-muted)]">
+                  {conv.isMe && <span className="text-[var(--color-ink-faint)]">自分: </span>}
                   {conv.lastMessage}
                 </p>
               </div>

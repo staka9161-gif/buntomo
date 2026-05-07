@@ -86,17 +86,17 @@ export default function ChatRoom({ bookId }: { bookId: string }) {
   };
 
   return (
-    <div className="flex flex-col rounded-lg border border-gray-200 bg-white">
-      <div className="border-b px-4 py-3">
-        <h3 className="mb-2 text-sm font-semibold text-gray-700">読了チャット</h3>
+    <div className="flex flex-col card-base">
+      <div className="border-b border-[var(--color-border-subtle)] px-4 py-3">
+        <h3 className="mb-2 font-serif text-sm font-medium text-[var(--color-ink-primary)]">読了チャット</h3>
         <WindowSelector selected={window} onChange={setWindow} />
       </div>
 
       <div className="flex-1 overflow-y-auto p-4" style={{ maxHeight: "400px" }}>
         {loading ? (
-          <p className="text-center text-sm text-gray-400">読み込み中...</p>
+          <p className="text-center text-sm text-[var(--color-ink-faint)]">読み込み中...</p>
         ) : messages.length === 0 ? (
-          <p className="text-center text-sm text-gray-400">
+          <p className="text-center text-sm text-[var(--color-ink-faint)]">
             この期間のメッセージはありません
           </p>
         ) : (
@@ -110,27 +110,27 @@ export default function ChatRoom({ bookId }: { bookId: string }) {
                       <img
                         src={msg.avatarUrl}
                         alt={msg.displayName}
-                        className="h-8 w-8 rounded-full object-cover hover:ring-2 hover:ring-amber-400 transition"
+                        className="h-8 w-8 rounded-full object-cover hover:ring-2 hover:ring-[var(--color-accent)] transition"
                         onError={(e) => {
                           (e.target as HTMLImageElement).style.display = "none";
                           (e.target as HTMLImageElement).nextElementSibling?.classList.remove("hidden");
                         }}
                       />
                     ) : null}
-                    <div className={`flex h-8 w-8 items-center justify-center rounded-full bg-amber-200 text-xs font-bold text-amber-800 hover:ring-2 hover:ring-amber-400 transition ${msg.avatarUrl ? "hidden" : ""}`}>
+                    <div className={`flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-xs font-bold text-[var(--color-accent)] hover:ring-2 hover:ring-[var(--color-accent)] transition ${msg.avatarUrl ? "hidden" : ""}`}>
                       {msg.displayName.charAt(0)}
                     </div>
                   </Link>
                   <div className={`max-w-[70%] ${isMe ? "text-right" : ""}`}>
-                    <Link href={`/users/${msg.userId}`} className="text-xs text-gray-500 hover:text-amber-600 hover:underline">{msg.displayName}</Link>
+                    <Link href={`/users/${msg.userId}`} className="text-xs text-[var(--color-ink-muted)] hover:text-[var(--color-accent)] hover:underline">{msg.displayName}</Link>
                     <div
                       className={`mt-1 inline-block rounded-lg px-3 py-2 text-sm ${
-                        isMe ? "bg-amber-100 text-amber-900" : "bg-gray-100 text-gray-800"
+                        isMe ? "bg-[var(--color-accent)] text-[var(--color-bg-elevated)]" : "bg-[var(--color-bg-elevated)] text-[var(--color-ink-primary)] border border-[var(--color-border-faint)]"
                       }`}
                     >
                       {msg.content}
                     </div>
-                    <p className="mt-0.5 text-xs text-gray-400">
+                    <p className="mt-0.5 text-[10px] font-mono text-[var(--color-ink-faint)]">
                       {new Date(msg.createdAt).toLocaleString("ja-JP")}
                     </p>
                   </div>
@@ -144,7 +144,7 @@ export default function ChatRoom({ bookId }: { bookId: string }) {
 
       {session ? (
         canPost ? (
-          <div className="border-t px-4 py-3">
+          <div className="border-t border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-4 py-3">
             <div className="flex gap-2">
               <input
                 type="text"
@@ -152,24 +152,24 @@ export default function ChatRoom({ bookId }: { bookId: string }) {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSend()}
                 placeholder="メッセージを入力..."
-                className="flex-1 rounded-lg border px-3 py-2 text-sm focus:border-amber-400 focus:outline-none"
+                className="flex-1 rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-4 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
               />
               <button
                 onClick={handleSend}
                 disabled={sending || !input.trim()}
-                className="rounded-lg bg-amber-600 px-4 py-2 text-sm text-white hover:bg-amber-700 disabled:opacity-50"
+                className="btn-primary-sm disabled:opacity-50"
               >
                 送信
               </button>
             </div>
           </div>
         ) : (
-          <div className="border-t px-4 py-3 text-center text-sm text-gray-400">
+          <div className="border-t border-[var(--color-border-subtle)] px-4 py-3 text-center text-sm text-[var(--color-ink-faint)]">
             選択した期間内にこの本を読了していないため、投稿できません
           </div>
         )
       ) : (
-        <div className="border-t px-4 py-3 text-center text-sm text-gray-400">
+        <div className="border-t border-[var(--color-border-subtle)] px-4 py-3 text-center text-sm text-[var(--color-ink-faint)]">
           チャットに参加するにはログインしてください
         </div>
       )}

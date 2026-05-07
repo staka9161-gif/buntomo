@@ -51,8 +51,8 @@ export default function ReviewForm({
   };
 
   return (
-    <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
-      <h3 className="mb-2 text-sm font-semibold text-gray-700">レビューを書く</h3>
+    <div className="mt-4 card-base p-5">
+      <h3 className="mb-2 font-serif text-base font-medium tracking-[0.05em] text-[var(--color-ink-primary)]">レビューを書く</h3>
 
       {/* 星評価 */}
       <div className="mb-2 flex gap-1">
@@ -60,13 +60,13 @@ export default function ReviewForm({
           <button
             key={n}
             onClick={() => setRating(rating === n ? null : n)}
-            className={`text-xl ${n <= (rating ?? 0) ? "text-amber-400" : "text-gray-300"} hover:text-amber-400`}
+            className={`text-xl ${n <= (rating ?? 0) ? "text-[var(--color-accent)]" : "text-[var(--color-ink-faint)]"} hover:text-[var(--color-accent)]`}
           >
             ★
           </button>
         ))}
         {rating && (
-          <button onClick={() => setRating(null)} className="ml-1 text-xs text-gray-400 hover:text-gray-600">
+          <button onClick={() => setRating(null)} className="ml-1 text-xs text-[var(--color-ink-faint)] hover:text-[var(--color-ink-primary)]">
             クリア
           </button>
         )}
@@ -76,17 +76,17 @@ export default function ReviewForm({
         value={body}
         onChange={(e) => setBody(e.target.value)}
         placeholder="この作品の感想を書いてください..."
-        className="w-full rounded border px-3 py-2 text-sm"
+        className="w-full rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] p-3 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
         rows={3}
       />
 
-      {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
+      {error && <p className="mt-1 text-xs text-[var(--color-accent)]">{error}</p>}
 
       <div className="mt-2 flex justify-end">
         <button
           onClick={handleSubmit}
           disabled={submitting || !body.trim()}
-          className="rounded bg-amber-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-amber-700 disabled:opacity-50"
+          className="btn-primary disabled:opacity-50"
         >
           {submitting ? "送信中..." : "投稿する"}
         </button>

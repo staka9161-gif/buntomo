@@ -24,15 +24,15 @@ function VisToggle({ value, onChange, label }: { value: "public" | "friends"; on
   const isPublic = value === "public";
   return (
     <div className="mt-1.5 flex items-center gap-2">
-      {label && <span className="text-xs text-gray-500">{label}:</span>}
+      {label && <span className="text-xs text-[var(--color-ink-muted)]">{label}:</span>}
       <button
         type="button"
         onClick={() => onChange(isPublic ? "friends" : "public")}
-        className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${isPublic ? "bg-green-500" : "bg-gray-300"}`}
+        className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${isPublic ? "bg-[var(--color-status-success)]" : "bg-[rgb(31_42_68_/_0.2)]"}`}
       >
         <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform ${isPublic ? "translate-x-4.5" : "translate-x-0.5"}`} />
       </button>
-      <span className={`text-xs font-medium ${isPublic ? "text-green-600" : "text-gray-500"}`}>
+      <span className={`text-xs font-medium ${isPublic ? "text-[var(--color-status-success)]" : "text-[var(--color-ink-muted)]"}`}>
         {isPublic ? "公開" : "友だちのみ"}
       </span>
     </div>
@@ -251,7 +251,7 @@ export default function ProfileEditPage() {
   if (status === "loading" || loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <p className="text-gray-400">読み込み中...</p>
+        <p className="text-[var(--color-ink-faint)]">読み込み中...</p>
       </div>
     );
   }
@@ -260,12 +260,12 @@ export default function ProfileEditPage() {
 
   return (
     <div className="mx-auto max-w-xl px-4 py-8">
-      <Link href="/mypage" className="text-sm text-amber-600 hover:underline">
+      <Link href="/mypage" className="text-sm text-[var(--color-accent)] hover:underline">
         ← マイページに戻る
       </Link>
-      <h1 className="mt-4 mb-6 text-2xl font-bold text-gray-900">プロフィール編集</h1>
+      <h1 className="mt-4 mb-6 font-serif text-xl font-medium tracking-[0.05em] text-[var(--color-ink-primary)]">プロフィール編集</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-5 rounded-xl border bg-white p-6 shadow-sm">
+      <form onSubmit={handleSubmit} className="card-base space-y-5 p-6">
         {/* アイコン */}
         <div className="flex items-center gap-4">
           <button
@@ -278,11 +278,11 @@ export default function ProfileEditPage() {
               <img
                 src={avatarUrl}
                 alt="アイコン"
-                className="h-20 w-20 rounded-full object-cover border-2 border-gray-200"
+                className="h-20 w-20 rounded-full object-cover shadow-[var(--shadow-cover)]"
                 onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
               />
             ) : (
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-amber-200 text-2xl font-bold text-amber-800">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-2xl font-bold text-[var(--color-accent)]">
                 {form.displayName.charAt(0) || "?"}
               </div>
             )}
@@ -298,13 +298,13 @@ export default function ProfileEditPage() {
             className="hidden"
           />
           <div>
-            <p className="text-sm text-gray-700">アイコン画像</p>
-            <p className="text-xs text-gray-400">JPEG, PNG, WebP, GIF（2MB以内）</p>
+            <p className="text-sm text-[var(--color-ink-primary)] font-medium">アイコン画像</p>
+            <p className="text-xs text-[var(--color-ink-faint)] mt-1">JPEG, PNG, WebP, GIF（2MB以内）</p>
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={uploading}
-              className="mt-1 text-xs text-amber-600 hover:underline disabled:opacity-50"
+              className="mt-1 text-xs text-[var(--color-ink-faint)] hover:text-[var(--color-accent)] disabled:opacity-50"
             >
               {uploading ? "アップロード中..." : "画像を選択"}
             </button>
@@ -313,25 +313,25 @@ export default function ProfileEditPage() {
 
         {/* 名前 */}
         <div>
-          <label className="mb-1 flex items-center justify-between text-xs font-medium text-gray-700">
+          <label className="mb-1 flex items-center justify-between text-sm text-[var(--color-ink-primary)] font-medium">
             <span>ハンドルネーム <span className="text-red-500">*</span></span>
-            <span className="text-gray-400">{form.displayName.length}/20</span>
+            <span className="text-[var(--color-ink-faint)]">{form.displayName.length}/20</span>
           </label>
           <input
             type="text"
             value={form.displayName}
             onChange={(e) => setForm({ ...form, displayName: e.target.value })}
             maxLength={20}
-            className="w-full rounded-lg border px-3 py-2 text-sm focus:border-amber-400 focus:outline-none"
+            className="w-full rounded-lg border px-3 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
             required
           />
         </div>
 
         {/* 一言 */}
         <div>
-          <label className="mb-1 flex items-center justify-between text-xs font-medium text-gray-700">
+          <label className="mb-1 flex items-center justify-between text-sm text-[var(--color-ink-primary)] font-medium">
             <span>一言</span>
-            <span className="text-gray-400">{form.bio.length}/40</span>
+            <span className="text-[var(--color-ink-faint)]">{form.bio.length}/40</span>
           </label>
           <input
             type="text"
@@ -339,16 +339,16 @@ export default function ProfileEditPage() {
             onChange={(e) => setForm({ ...form, bio: e.target.value })}
             maxLength={40}
             placeholder="読書が好きです"
-            className="w-full rounded-lg border px-3 py-2 text-sm focus:border-amber-400 focus:outline-none"
+            className="w-full rounded-lg border px-3 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
           />
           <VisToggle value={visibility.bio} onChange={(v) => setVisibility({ ...visibility, bio: v })} />
         </div>
 
         {/* エリア */}
         <div>
-          <label className="mb-1 flex items-center justify-between text-xs font-medium text-gray-700">
+          <label className="mb-1 flex items-center justify-between text-sm text-[var(--color-ink-primary)] font-medium">
             <span>エリア</span>
-            <span className="text-gray-400">{form.area.length}/15</span>
+            <span className="text-[var(--color-ink-faint)]">{form.area.length}/15</span>
           </label>
           <input
             type="text"
@@ -356,51 +356,51 @@ export default function ProfileEditPage() {
             onChange={(e) => setForm({ ...form, area: e.target.value })}
             maxLength={15}
             placeholder="例: 東京・渋谷あたり"
-            className="w-full rounded-lg border px-3 py-2 text-sm focus:border-amber-400 focus:outline-none"
+            className="w-full rounded-lg border px-3 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
           />
           <VisToggle value={visibility.area} onChange={(v) => setVisibility({ ...visibility, area: v })} />
         </div>
 
         {/* SNSリンク */}
         <fieldset className="space-y-3">
-          <legend className="text-xs font-medium text-gray-700">SNSリンク / 追加リンク</legend>
+          <legend className="text-sm text-[var(--color-ink-primary)] font-medium">SNSリンク / 追加リンク</legend>
 
           <div>
-            <label className="mb-1 block text-xs text-gray-500">X（Twitter）</label>
+            <label className="mb-1 block text-xs text-[var(--color-ink-muted)]">X（Twitter）</label>
             <div className="flex items-center gap-1">
-              <span className="text-sm text-gray-400">x.com/</span>
+              <span className="text-sm text-[var(--color-ink-faint)]">x.com/</span>
               <input
                 type="text"
                 value={form.linkX}
                 onChange={(e) => setForm({ ...form, linkX: e.target.value })}
                 placeholder="username"
-                className="flex-1 rounded-lg border px-3 py-2 text-sm focus:border-amber-400 focus:outline-none"
+                className="flex-1 rounded-lg border px-3 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
               />
             </div>
           </div>
 
           <div>
-            <label className="mb-1 block text-xs text-gray-500">Instagram</label>
+            <label className="mb-1 block text-xs text-[var(--color-ink-muted)]">Instagram</label>
             <div className="flex items-center gap-1">
-              <span className="text-sm text-gray-400">instagram.com/</span>
+              <span className="text-sm text-[var(--color-ink-faint)]">instagram.com/</span>
               <input
                 type="text"
                 value={form.linkInstagram}
                 onChange={(e) => setForm({ ...form, linkInstagram: e.target.value })}
                 placeholder="username"
-                className="flex-1 rounded-lg border px-3 py-2 text-sm focus:border-amber-400 focus:outline-none"
+                className="flex-1 rounded-lg border px-3 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
               />
             </div>
           </div>
 
           <div>
-            <label className="mb-1 block text-xs text-gray-500">Webサイト / HP</label>
+            <label className="mb-1 block text-xs text-[var(--color-ink-muted)]">Webサイト / HP</label>
             <input
               type="url"
               value={form.linkWebsite}
               onChange={(e) => setForm({ ...form, linkWebsite: e.target.value })}
               placeholder="https://example.com"
-              className="w-full rounded-lg border px-3 py-2 text-sm focus:border-amber-400 focus:outline-none"
+              className="w-full rounded-lg border px-3 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
             />
           </div>
         </fieldset>
@@ -408,8 +408,8 @@ export default function ProfileEditPage() {
         {/* 追加リンク */}
         <fieldset className="space-y-3">
           <div className="flex items-center justify-between">
-            <legend className="text-xs font-medium text-gray-700">追加リンク</legend>
-            <span className="text-xs text-gray-400">{customLinks.length}/3</span>
+            <legend className="text-sm text-[var(--color-ink-primary)] font-medium">追加リンク</legend>
+            <span className="text-xs text-[var(--color-ink-faint)]">{customLinks.length}/3</span>
           </div>
 
           {customLinks.map((link, i) => (
@@ -421,20 +421,20 @@ export default function ProfileEditPage() {
                   onChange={(e) => updateCustomLink(i, "label", e.target.value)}
                   placeholder="ラベル（例: note, Threads）"
                   maxLength={20}
-                  className="w-full rounded-lg border px-3 py-1.5 text-sm focus:border-amber-400 focus:outline-none"
+                  className="w-full rounded-lg border px-3 py-1.5 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
                 />
                 <input
                   type="url"
                   value={link.url}
                   onChange={(e) => updateCustomLink(i, "url", e.target.value)}
                   placeholder="https://..."
-                  className="w-full rounded-lg border px-3 py-1.5 text-sm focus:border-amber-400 focus:outline-none"
+                  className="w-full rounded-lg border px-3 py-1.5 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
                 />
               </div>
               <button
                 type="button"
                 onClick={() => removeCustomLink(i)}
-                className="mt-1.5 rounded p-1 text-red-400 hover:bg-red-50 hover:text-red-600"
+                className="mt-1.5 rounded p-1 text-[var(--color-ink-faint)] hover:bg-[var(--color-accent-soft)] hover:text-[var(--color-accent)]"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM6.75 9.25a.75.75 0 000 1.5h6.5a.75.75 0 000-1.5h-6.5z" clipRule="evenodd" />
@@ -447,7 +447,7 @@ export default function ProfileEditPage() {
             <button
               type="button"
               onClick={addCustomLink}
-              className="text-xs text-amber-600 hover:underline"
+              className="text-xs text-[var(--color-accent)] hover:underline"
             >
               + リンクを追加
             </button>
@@ -463,7 +463,7 @@ export default function ProfileEditPage() {
           <button
             type="submit"
             disabled={saving}
-            className="rounded-lg bg-amber-600 px-6 py-2 text-sm font-semibold text-white hover:bg-amber-700 disabled:opacity-50"
+            className="btn-primary disabled:opacity-50"
           >
             {saving ? "保存中..." : "保存する"}
           </button>
@@ -471,66 +471,66 @@ export default function ProfileEditPage() {
       </form>
 
       {/* アカウント設定（メール・パスワード） */}
-      <form onSubmit={handleAccountSubmit} className="mt-8 space-y-5 rounded-xl border bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-bold text-gray-900">アカウント設定</h2>
-        <p className="text-xs text-gray-500">メールアドレス・パスワードは他のユーザーには公開されません。</p>
+      <form onSubmit={handleAccountSubmit} className="card-base mt-8 space-y-5 p-6">
+        <h2 className="font-serif text-lg font-medium text-[var(--color-ink-primary)]">アカウント設定</h2>
+        <p className="text-xs text-[var(--color-ink-muted)]">メールアドレス・パスワードは他のユーザーには公開されません。</p>
 
         {accountMsg && (
-          <div className={`rounded-lg px-4 py-2 text-sm ${accountMsg.type === "success" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>
+          <div className={`rounded px-4 py-3 text-sm ${accountMsg.type === "success" ? "bg-[rgb(45_106_79_/_0.08)] text-[var(--color-status-success)]" : "bg-[var(--color-accent-soft)] text-[var(--color-accent)]"}`}>
             {accountMsg.text}
           </div>
         )}
 
         {/* メールアドレス */}
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-700">メールアドレス</label>
+          <label className="mb-1 block text-sm text-[var(--color-ink-primary)] font-medium">メールアドレス</label>
           <input
             type="email"
             value={accountForm.email}
             onChange={(e) => setAccountForm({ ...accountForm, email: e.target.value })}
-            className="w-full rounded-lg border px-3 py-2 text-sm focus:border-amber-400 focus:outline-none"
+            className="w-full rounded-lg border px-3 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
           />
         </div>
 
         {/* 現在のパスワード */}
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-700">
+          <label className="mb-1 block text-sm text-[var(--color-ink-primary)] font-medium">
             現在のパスワード <span className="text-red-500">*</span>
           </label>
           <input
             type="password"
             value={accountForm.currentPassword}
             onChange={(e) => setAccountForm({ ...accountForm, currentPassword: e.target.value })}
-            className="w-full rounded-lg border px-3 py-2 text-sm focus:border-amber-400 focus:outline-none"
+            className="w-full rounded-lg border px-3 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
             autoComplete="current-password"
           />
-          <p className="mt-1 text-xs text-gray-400">変更するには現在のパスワードが必要です</p>
+          <p className="mt-1 text-xs text-[var(--color-ink-faint)]">変更するには現在のパスワードが必要です</p>
         </div>
 
         {/* 新しいパスワード */}
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-700">新しいパスワード</label>
+          <label className="mb-1 block text-sm text-[var(--color-ink-primary)] font-medium">新しいパスワード</label>
           <input
             type="password"
             value={accountForm.newPassword}
             onChange={(e) => setAccountForm({ ...accountForm, newPassword: e.target.value })}
             placeholder="変更しない場合は空欄"
             minLength={8}
-            className="w-full rounded-lg border px-3 py-2 text-sm focus:border-amber-400 focus:outline-none"
+            className="w-full rounded-lg border px-3 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
             autoComplete="new-password"
           />
         </div>
 
         {/* 新しいパスワード（確認） */}
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-700">新しいパスワード（確認）</label>
+          <label className="mb-1 block text-sm text-[var(--color-ink-primary)] font-medium">新しいパスワード（確認）</label>
           <input
             type="password"
             value={accountForm.newPasswordConfirm}
             onChange={(e) => setAccountForm({ ...accountForm, newPasswordConfirm: e.target.value })}
             placeholder="もう一度入力してください"
             minLength={8}
-            className="w-full rounded-lg border px-3 py-2 text-sm focus:border-amber-400 focus:outline-none"
+            className="w-full rounded-lg border px-3 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
             autoComplete="new-password"
           />
         </div>
@@ -539,7 +539,7 @@ export default function ProfileEditPage() {
           <button
             type="submit"
             disabled={savingAccount}
-            className="rounded-lg bg-gray-800 px-6 py-2 text-sm font-semibold text-white hover:bg-gray-900 disabled:opacity-50"
+            className="btn-dark disabled:opacity-50 px-6 py-2 text-sm"
           >
             {savingAccount ? "更新中..." : "アカウント情報を更新"}
           </button>

@@ -161,7 +161,7 @@ export default function BookDetailPage() {
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <p className="text-gray-400">読み込み中...</p>
+        <p className="text-[var(--color-ink-faint)]">読み込み中...</p>
       </div>
     );
   }
@@ -169,7 +169,7 @@ export default function BookDetailPage() {
   if (!book) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <p className="text-gray-500">本が見つかりませんでした</p>
+        <p className="text-[var(--color-ink-muted)]">本が見つかりませんでした</p>
       </div>
     );
   }
@@ -181,40 +181,40 @@ export default function BookDetailPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <div className="rounded-xl border bg-white p-6 shadow-sm">
+      <div className="card-base p-6">
         <div className="flex gap-6">
           {book.coverImageUrl ? (
             <img
               src={book.coverImageUrl}
               alt={book.title}
-              className="h-48 w-32 shrink-0 rounded-lg object-cover shadow"
+              className="h-48 w-32 shrink-0 rounded-sm object-cover shadow-[var(--shadow-cover)]"
             />
           ) : (
-            <div className="flex h-48 w-32 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-sm text-gray-400">
+            <div className="flex h-48 w-32 shrink-0 items-center justify-center rounded-sm bg-[rgb(31_42_68_/_0.05)] text-sm text-[var(--color-ink-faint)]">
               No Image
             </div>
           )}
 
           <div className="flex-1">
-            <h1 className="text-2xl font-bold text-gray-900">{book.title}</h1>
-            <p className="mt-1 text-gray-500">{book.author}</p>
+            <h1 className="font-serif text-xl font-medium tracking-[0.06em] text-[var(--color-ink-primary)] md:text-2xl">{book.title}</h1>
+            <p className="mt-1 text-sm text-[var(--color-ink-muted)]">{book.author}</p>
             {book.totalPages > 0 && (
-              <p className="mt-1 text-sm text-gray-400">{book.totalPages}ページ</p>
+              <p className="mt-1 text-xs font-mono text-[var(--color-ink-faint)]">{book.totalPages}ページ</p>
             )}
             {book.isbn && (
-              <p className="mt-1 text-xs text-gray-400">ISBN: {book.isbn}</p>
+              <p className="mt-1 text-xs font-mono text-[var(--color-ink-faint)]">ISBN: {book.isbn}</p>
             )}
 
             <div className="mt-2 flex flex-wrap gap-3">
-              <span className={`text-sm ${readingCount > 0 ? "text-amber-600" : "text-gray-300"}`}>
+              <span className={`text-sm ${readingCount > 0 ? "text-[var(--color-accent)]" : "text-[var(--color-ink-faint)]"}`}>
                 📖 {readingCount}人が読書中
               </span>
-              <span className={`text-sm ${completedCount > 0 ? "text-green-600" : "text-gray-300"}`}>
+              <span className={`text-sm ${completedCount > 0 ? "text-[var(--color-status-success)]" : "text-[var(--color-ink-faint)]"}`}>
                 ✅ {completedCount}人が読了
               </span>
               <a
                 href="#events"
-                className={`text-sm ${eventCount > 0 ? "text-blue-600 hover:underline" : "text-gray-300"}`}
+                className={`text-sm ${eventCount > 0 ? "text-[var(--color-ink-muted)] hover:underline" : "text-[var(--color-ink-faint)]"}`}
               >
                 📅 {eventCount}件の読書会
               </a>
@@ -225,25 +225,27 @@ export default function BookDetailPage() {
               {!myReading ? (
                 <button
                   onClick={handleStartReading}
-                  className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700"
+                  className="btn-primary"
                 >
                   読み始める
                 </button>
               ) : myReading.status === "READING" ? (
                 <div className="space-y-3">
-                  <div className="inline-block rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+                  <span className="badge-reading">
                     読書中
-                  </div>
+                  </span>
 
                   {/* プログレスバー: totalPagesがある時のみ表示 */}
                   {book.totalPages > 0 && <ProgressBar percent={progress} />}
 
                   {/* ページ数表示 */}
-                  <p className="text-sm text-gray-600">
+                  <p className="text-xs text-[var(--color-ink-muted)]">
                     {myReading.currentPage}
                     {book.totalPages > 0
-                      ? ` / ${book.totalPages} ページ（${progress}%）`
+                      ? ` / ${book.totalPages} ページ（`
                       : " ページ読了"}
+                    {book.totalPages > 0 && <span className="font-mono font-medium text-[var(--color-accent)]">{progress}%</span>}
+                    {book.totalPages > 0 && "）"}
                   </p>
 
                   {/* ページ数入力フォーム */}
@@ -258,10 +260,10 @@ export default function BookDetailPage() {
                         onKeyDown={(e) => {
                           if (e.key === "Enter") handleUpdatePage();
                         }}
-                        className="w-20 rounded border px-2 py-1.5 text-sm"
+                        className="w-20 rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-2 py-1 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
                         placeholder="現在"
                       />
-                      <span className="text-gray-400">/</span>
+                      <span className="text-[var(--color-ink-faint)]">/</span>
                       <input
                         type="number"
                         min={1}
@@ -271,7 +273,7 @@ export default function BookDetailPage() {
                         onKeyDown={(e) => {
                           if (e.key === "Enter") handleUpdatePage();
                         }}
-                        className="w-20 rounded border px-2 py-1.5 text-sm"
+                        className="w-20 rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-2 py-1 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
                         placeholder="総ページ"
                       />
                     </div>
@@ -279,7 +281,7 @@ export default function BookDetailPage() {
                       type="button"
                       disabled={updating}
                       onClick={handleUpdatePage}
-                      className="rounded bg-amber-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-amber-700 disabled:opacity-50"
+                      className="btn-dark disabled:opacity-50"
                     >
                       {updating ? "更新中..." : "更新"}
                     </button>
@@ -287,38 +289,38 @@ export default function BookDetailPage() {
 
                   {/* 総ページ数が未設定の場合のヒント */}
                   {book.totalPages === 0 && (
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-[var(--color-ink-faint)]">
                       総ページ数を入力すると進捗バーが表示されます
                     </p>
                   )}
 
                   <button
                     onClick={handleMarkCompleted}
-                    className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700"
+                    className="border border-[rgb(184_71_60_/_0.4)] text-[var(--color-accent)] bg-transparent px-3.5 py-1.5 rounded text-xs tracking-[0.08em] hover:bg-[var(--color-accent-soft)] transition-colors"
                   >
                     読了にする
                   </button>
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <div className="inline-block rounded bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+                  <span className="badge-completed">
                     読了
-                  </div>
+                  </span>
                   {myReading.completedAt && (
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs font-mono text-[var(--color-ink-faint)]">
                       読了日: {new Date(myReading.completedAt).toLocaleDateString("ja-JP")}
                     </p>
                   )}
                   <div className="flex items-center gap-3">
                     <Link
                       href={`/books/${book.id}/chat`}
-                      className="inline-block rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700"
+                      className="btn-primary-sm"
                     >
                       読了チャットに参加
                     </Link>
                     <button
                       onClick={handleRevertToReading}
-                      className="text-xs text-gray-400 hover:text-amber-600"
+                      className="text-xs text-[var(--color-ink-faint)] hover:text-[var(--color-accent)]"
                     >
                       読みかけに戻す
                     </button>
@@ -330,28 +332,28 @@ export default function BookDetailPage() {
         </div>
 
         {book.description && (
-          <div className="mt-6 border-t pt-4">
-            <h2 className="mb-2 text-sm font-semibold text-gray-700">あらすじ</h2>
-            <p className="text-sm leading-relaxed text-gray-600">{book.description}</p>
+          <div className="mt-4 border-t border-[var(--color-border-subtle)] pt-4">
+            <h2 className="mb-2 font-serif text-sm font-medium tracking-[0.05em] text-[var(--color-ink-primary)] md:text-base">あらすじ</h2>
+            <p className="text-sm leading-[1.9] text-[var(--color-ink-primary)]">{book.description}</p>
           </div>
         )}
       </div>
 
       {/* 今読んでいる人 */}
-      <div className="mt-6 rounded-xl border bg-white p-6 shadow-sm">
+      <div className="mt-5 card-base p-5">
         <CurrentlyReadingList bookId={bookId} />
       </div>
 
       {/* 読書会の予定 */}
-      <div className="mt-6" id="events">
+      <div className="mt-5" id="events">
         <ReadingEvents bookId={bookId} bookTitle={book?.title} />
       </div>
 
       {/* チャットへのリンク */}
-      <div className="mt-6 rounded-xl border bg-white p-6 text-center shadow-sm">
+      <div className="mt-5 card-base p-4 text-center">
         <Link
           href={`/books/${book.id}/chat`}
-          className="text-amber-600 hover:underline"
+          className="font-serif text-sm text-[var(--color-accent)] hover:underline"
         >
           読了チャットを見る →
         </Link>

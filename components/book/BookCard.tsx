@@ -46,37 +46,37 @@ export default function BookCard({
     : 0;
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md">
+    <div className="card-base p-5 transition hover:shadow-md">
       <div className="flex gap-4">
         <Link href={`/books/${id}`} className="shrink-0">
           {coverImageUrl ? (
             <img
               src={coverImageUrl}
               alt={title}
-              className="h-32 w-22 rounded object-cover"
+              className="h-32 w-22 rounded-sm shadow-[var(--shadow-cover)] object-cover"
             />
           ) : (
-            <div className="flex h-32 w-22 items-center justify-center rounded bg-gray-100 text-xs text-gray-400">
+            <div className="flex h-32 w-22 items-center justify-center rounded-sm bg-[rgb(31_42_68_/_0.05)] text-xs text-[var(--color-ink-faint)]">
               No Image
             </div>
           )}
         </Link>
 
         <div className="flex flex-1 flex-col">
-          <Link href={`/books/${id}`} className="font-semibold text-gray-900 hover:text-amber-700">
+          <Link href={`/books/${id}`} className="font-serif text-base font-medium tracking-[0.05em] text-[var(--color-ink-primary)] hover:text-[var(--color-accent)] md:text-lg">
             {title}
           </Link>
-          <p className="text-sm text-gray-500">{author}</p>
+          <p className="text-xs text-[var(--color-ink-muted)]">{author}</p>
           <div className="mt-1 flex flex-wrap gap-2">
-            <span className={`text-xs ${readingCount > 0 ? "text-amber-600" : "text-gray-300"}`}>
+            <span className={`text-xs ${readingCount > 0 ? "text-[var(--color-accent)]" : "text-[var(--color-ink-faint)]"}`}>
               📖 {readingCount}人が読書中
             </span>
-            <span className={`text-xs ${completedCount > 0 ? "text-green-600" : "text-gray-300"}`}>
+            <span className={`text-xs ${completedCount > 0 ? "text-[var(--color-status-success)]" : "text-[var(--color-ink-faint)]"}`}>
               ✅ {completedCount}人が読了
             </span>
             <Link
               href={`/books/${id}#events`}
-              className={`text-xs ${eventCount > 0 ? "text-blue-600 hover:underline" : "text-gray-300"}`}
+              className={`text-xs ${eventCount > 0 ? "text-[var(--color-ink-muted)] hover:underline" : "text-[var(--color-ink-faint)]"}`}
             >
               📅 {eventCount}件の読書会
             </Link>
@@ -85,7 +85,7 @@ export default function BookCard({
           {status === "READING" && (
             <div className="mt-2">
               <ProgressBar percent={progress} />
-              <p className="mt-1 text-xs text-gray-400">
+              <p className="mt-1 text-[11px] font-mono text-[var(--color-ink-faint)]">
                 {currentPage} / {totalPages} ページ
               </p>
 
@@ -100,11 +100,11 @@ export default function BookCard({
                     onKeyDown={(e) => {
                       if (e.key === "Enter") onUpdatePage(readingId, localPage);
                     }}
-                    className="w-20 rounded border px-2 py-1 text-sm"
+                    className="w-20 rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-2 py-1 text-sm"
                   />
                   <button
                     onClick={() => onUpdatePage(readingId, localPage)}
-                    className="rounded bg-amber-100 px-2 py-1 text-xs text-amber-700 hover:bg-amber-200"
+                    className="btn-dark"
                   >
                     更新
                   </button>
@@ -115,7 +115,7 @@ export default function BookCard({
                 {readingId && onStatusChange && (
                   <button
                     onClick={() => onStatusChange(readingId, "COMPLETED")}
-                    className="rounded bg-green-100 px-3 py-1 text-xs text-green-700 hover:bg-green-200"
+                    className="border border-[rgb(184_71_60_/_0.4)] text-[var(--color-accent)] bg-transparent px-3.5 py-1.5 rounded text-xs tracking-[0.08em] hover:bg-[var(--color-accent-soft)] transition-colors"
                   >
                     読了にする
                   </button>
@@ -125,7 +125,7 @@ export default function BookCard({
                     onClick={() => {
                       if (confirm("この本を本棚から削除しますか？")) onDelete(readingId);
                     }}
-                    className="rounded bg-red-50 px-3 py-1 text-xs text-red-500 hover:bg-red-100"
+                    className="btn-secondary-sm"
                   >
                     削除
                   </button>
@@ -136,23 +136,23 @@ export default function BookCard({
 
           {status === "COMPLETED" && completedAt && (
             <div className="mt-2">
-              <span className="inline-block rounded bg-green-100 px-2 py-0.5 text-xs text-green-700">
+              <span className="badge-completed">
                 読了
               </span>
-              <span className="ml-2 text-xs text-gray-400">
+              <span className="ml-2 text-[11px] font-mono text-[var(--color-ink-faint)]">
                 {new Date(completedAt).toLocaleDateString("ja-JP")}
               </span>
               <div className="mt-1 flex items-center gap-3">
                 <Link
                   href={`/books/${id}/chat`}
-                  className="text-xs text-amber-600 hover:underline"
+                  className="text-xs text-[var(--color-accent)] hover:underline"
                 >
                   読了チャットに参加
                 </Link>
                 {readingId && onStatusChange && (
                   <button
                     onClick={() => onStatusChange(readingId, "READING")}
-                    className="text-xs text-gray-400 hover:text-amber-600"
+                    className="text-xs text-[var(--color-ink-faint)] hover:text-[var(--color-accent)]"
                   >
                     読みかけに戻す
                   </button>
@@ -162,7 +162,7 @@ export default function BookCard({
                     onClick={() => {
                       if (confirm("この本を本棚から削除しますか？")) onDelete(readingId);
                     }}
-                    className="text-xs text-red-400 hover:text-red-600"
+                    className="text-xs text-[var(--color-ink-faint)] hover:text-[var(--color-accent)]"
                   >
                     削除
                   </button>

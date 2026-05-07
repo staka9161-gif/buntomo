@@ -111,7 +111,7 @@ export default function FriendRequestButton({ userId, initialStatus, friendshipI
       <button
         onClick={handleRequest}
         disabled={loading}
-        className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700 disabled:opacity-50"
+        className="btn-primary-sm disabled:opacity-50"
       >
         {loading ? "送信中..." : "友だち申請"}
       </button>
@@ -123,7 +123,7 @@ export default function FriendRequestButton({ userId, initialStatus, friendshipI
       <button
         onClick={handleCancel}
         disabled={loading}
-        className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+        className="btn-secondary-sm opacity-70 disabled:opacity-50"
       >
         {loading ? "..." : "申請中 ✕"}
       </button>
@@ -136,14 +136,14 @@ export default function FriendRequestButton({ userId, initialStatus, friendshipI
         <button
           onClick={handleAccept}
           disabled={loading}
-          className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700 disabled:opacity-50"
+          className="btn-primary-sm disabled:opacity-50"
         >
           承認する
         </button>
         <button
           onClick={handleReject}
           disabled={loading}
-          className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+          className="btn-secondary-sm disabled:opacity-50"
         >
           拒否
         </button>
@@ -156,7 +156,7 @@ export default function FriendRequestButton({ userId, initialStatus, friendshipI
     <button
       onClick={handleUnfriend}
       disabled={loading}
-      className="rounded-lg border border-green-300 bg-green-50 px-4 py-2 text-sm font-semibold text-green-700 hover:bg-green-100 disabled:opacity-50"
+      className="btn-secondary-sm disabled:opacity-50"
     >
       友だち
     </button>

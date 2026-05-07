@@ -95,11 +95,11 @@ export default function DMChatPage() {
   if (error) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-8">
-        <Link href="/mypage/messages" className="text-sm text-amber-600 hover:underline">
+        <Link href="/mypage/messages" className="text-sm text-[var(--color-accent)] hover:underline">
           ← メッセージ一覧に戻る
         </Link>
-        <div className="mt-8 rounded-xl border bg-white p-8 text-center">
-          <p className="text-gray-500">{error}</p>
+        <div className="mt-8 card-base p-8 text-center">
+          <p className="text-[var(--color-ink-muted)]">{error}</p>
         </div>
       </div>
     );
@@ -109,7 +109,7 @@ export default function DMChatPage() {
     <div className="mx-auto max-w-2xl px-4 py-8">
       {/* ヘッダー */}
       <div className="mb-4 flex items-center gap-3">
-        <Link href="/mypage/messages" className="text-sm text-amber-600 hover:underline shrink-0">
+        <Link href="/mypage/messages" className="text-sm text-[var(--color-accent)] hover:underline shrink-0">
           ←
         </Link>
         {partner && (
@@ -117,22 +117,22 @@ export default function DMChatPage() {
             {partner.avatarUrl ? (
               <img src={partner.avatarUrl} alt="" className="h-9 w-9 shrink-0 rounded-full object-cover" />
             ) : (
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-200 text-sm font-bold text-amber-800">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-sm font-bold text-[var(--color-accent)]">
                 {partner.displayName.charAt(0)}
               </div>
             )}
-            <h1 className="text-lg font-bold text-gray-900 truncate">{partner.displayName}</h1>
+            <h1 className="font-serif text-base font-medium text-[var(--color-ink-primary)] truncate">{partner.displayName}</h1>
           </Link>
         )}
       </div>
 
       {/* メッセージ */}
-      <div className="rounded-xl border bg-white shadow-sm">
+      <div className="card-base">
         <div className="overflow-y-auto p-4" style={{ maxHeight: "60vh", minHeight: "300px" }}>
           {loading ? (
-            <p className="text-center text-sm text-gray-400">読み込み中...</p>
+            <p className="text-center text-sm text-[var(--color-ink-faint)]">読み込み中...</p>
           ) : messages.length === 0 ? (
-            <p className="text-center text-sm text-gray-400">メッセージはまだありません</p>
+            <p className="text-center text-sm text-[var(--color-ink-faint)]">メッセージはまだありません</p>
           ) : (
             <div className="space-y-3">
               {messages.map((msg) => {
@@ -143,7 +143,7 @@ export default function DMChatPage() {
                       {msg.sender.avatarUrl ? (
                         <img src={msg.sender.avatarUrl} alt="" className="h-8 w-8 rounded-full object-cover" />
                       ) : (
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-200 text-xs font-bold text-amber-800">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-xs font-bold text-[var(--color-accent)]">
                           {msg.sender.displayName.charAt(0)}
                         </div>
                       )}
@@ -151,12 +151,12 @@ export default function DMChatPage() {
                     <div className={`max-w-[70%] ${isMe ? "text-right" : ""}`}>
                       <div
                         className={`inline-block rounded-lg px-3 py-2 text-sm ${
-                          isMe ? "bg-amber-100 text-amber-900" : "bg-gray-100 text-gray-800"
+                          isMe ? "bg-[var(--color-accent)] text-[var(--color-bg-elevated)]" : "bg-[var(--color-bg-elevated)] text-[var(--color-ink-primary)] border border-[var(--color-border-faint)]"
                         }`}
                       >
                         {msg.content}
                       </div>
-                      <p className="mt-0.5 text-xs text-gray-400">
+                      <p className="mt-0.5 text-[10px] font-mono text-[var(--color-ink-faint)]">
                         {new Date(msg.createdAt).toLocaleString("ja-JP")}
                       </p>
                     </div>
@@ -170,7 +170,7 @@ export default function DMChatPage() {
 
         {/* 入力欄 */}
         {session && (
-          <div className="border-t px-4 py-3">
+          <div className="border-t border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-4 py-3">
             <div className="flex gap-2">
               <input
                 type="text"
@@ -179,12 +179,12 @@ export default function DMChatPage() {
                 onKeyDown={(e) => e.key === "Enter" && handleSend()}
                 placeholder="メッセージを入力..."
                 maxLength={500}
-                className="flex-1 rounded-lg border px-3 py-2 text-sm focus:border-amber-400 focus:outline-none"
+                className="flex-1 rounded-2xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-4 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
               />
               <button
                 onClick={handleSend}
                 disabled={sending || !input.trim()}
-                className="rounded-lg bg-amber-600 px-4 py-2 text-sm text-white hover:bg-amber-700 disabled:opacity-50"
+                className="btn-primary-sm disabled:opacity-50"
               >
                 送信
               </button>

@@ -16,8 +16,8 @@ export default function WindowSelector({ selected, onChange }: WindowSelectorPro
           onClick={() => onChange(key)}
           className={`rounded-full px-3 py-1 text-xs font-medium transition ${
             selected === key
-              ? "bg-amber-600 text-white"
-              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              ? "bg-[var(--color-accent-soft)] text-[var(--color-accent)] border border-[var(--color-accent)]"
+              : "bg-[var(--color-bg-elevated)] border border-[var(--color-border-subtle)] text-[var(--color-ink-muted)] hover:bg-[var(--color-bg-base)]"
           }`}
         >
           {label}

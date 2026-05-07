@@ -51,7 +51,7 @@ export default function EditionSelector({
 
   return (
     <div>
-      <h2 className="mb-3 text-sm font-semibold text-gray-700">版を選択</h2>
+      <h2 className="mb-3 font-serif text-sm font-medium text-[var(--color-ink-primary)]">版を選択</h2>
       {groupKeys.map((groupId) => {
         const group = groupMap.get(groupId);
         const groupEditions = editionsByGroup[groupId];
@@ -59,10 +59,10 @@ export default function EditionSelector({
         return (
           <div key={groupId} className="mb-4">
             {hasMultipleGroups && (
-              <h3 className="mb-2 text-xs font-medium text-gray-500 border-b pb-1">
+              <h3 className="mb-2 text-xs font-medium text-[var(--color-ink-muted)] border-b border-[var(--color-border-subtle)] pb-1">
                 {group ? group.label : "その他"}
                 {group?.translator && (
-                  <span className="ml-2 text-gray-400">訳: {group.translator}</span>
+                  <span className="ml-2 text-[var(--color-ink-faint)]">訳: {group.translator}</span>
                 )}
               </h3>
             )}
@@ -83,10 +83,10 @@ export default function EditionSelector({
                       flex shrink-0 flex-col items-center rounded-lg border-2 p-2 transition
                       w-28 md:w-32
                       ${isSelected
-                        ? "border-amber-500 bg-amber-50 shadow"
+                        ? "border-[var(--color-accent)] bg-[var(--color-accent-soft)] shadow-[var(--shadow-card)]"
                         : isUserEdition
-                          ? "border-amber-300 bg-amber-25"
-                          : "border-gray-200 hover:border-gray-300"
+                          ? "border-[rgb(184_71_60_/_0.3)] bg-[var(--color-accent-soft)]"
+                          : "border-[var(--color-border-faint)] hover:border-[var(--color-border-subtle)]"
                       }
                     `}
                   >
@@ -94,28 +94,28 @@ export default function EditionSelector({
                       <img
                         src={edition.coverImageUrl}
                         alt={edition.titleOnCover}
-                        className="h-24 w-16 rounded object-cover"
+                        className="h-24 w-16 rounded-sm object-cover shadow-[var(--shadow-cover)]"
                       />
                     ) : (
-                      <div className="flex h-24 w-16 items-center justify-center rounded bg-gray-100 text-xs text-gray-400">
+                      <div className="flex h-24 w-16 items-center justify-center rounded-sm bg-[rgb(31_42_68_/_0.05)] text-xs text-[var(--color-ink-faint)]">
                         No Image
                       </div>
                     )}
 
                     <div className="mt-1.5 w-full text-center">
-                      <p className="truncate text-xs font-medium text-gray-700">
+                      <p className="truncate text-xs font-medium text-[var(--color-ink-primary)]">
                         {FORMAT_LABELS[edition.format] || edition.format}
                       </p>
                       {edition.publisher && (
-                        <p className="truncate text-xs text-gray-400">{edition.publisher}</p>
+                        <p className="truncate text-xs text-[var(--color-ink-muted)]">{edition.publisher}</p>
                       )}
                       {year && (
-                        <p className="text-xs text-gray-400">{year}年</p>
+                        <p className="text-xs font-mono text-[var(--color-ink-faint)]">{year}年</p>
                       )}
                     </div>
 
                     {isUserEdition && (
-                      <span className="mt-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700">
+                      <span className="mt-1 rounded-full bg-[var(--color-accent-soft)] px-2 py-0.5 text-xs text-[var(--color-accent)]">
                         登録中
                       </span>
                     )}
@@ -128,7 +128,7 @@ export default function EditionSelector({
       })}
 
       {editions.length === 0 && (
-        <p className="text-sm text-gray-400">版の情報がありません</p>
+        <p className="text-sm text-[var(--color-ink-faint)]">版の情報がありません</p>
       )}
     </div>
   );

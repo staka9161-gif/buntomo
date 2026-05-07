@@ -32,8 +32,8 @@ export default function CurrentlyReadingList({ bookId }: { bookId: string }) {
       .finally(() => setLoading(false));
   }, [bookId]);
 
-  if (loading) return <p className="text-sm text-gray-400">読み込み中...</p>;
-  if (readers.length === 0) return <p className="text-sm text-gray-400">今読んでいる人はいません</p>;
+  if (loading) return <p className="text-sm text-[var(--color-ink-faint)]">読み込み中...</p>;
+  if (readers.length === 0) return <p className="text-sm text-[var(--color-ink-faint)]">今読んでいる人はいません</p>;
 
   const shown = readers.slice(0, visibleCount);
   const canExpand = visibleCount < readers.length;
@@ -42,13 +42,13 @@ export default function CurrentlyReadingList({ bookId }: { bookId: string }) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-gray-700">
+        <h3 className="font-serif text-sm font-medium text-[var(--color-ink-primary)]">
           今読んでいる人 ({readers.length}人)
         </h3>
         {canShrink && (
           <button
             onClick={() => setVisibleCount(BASE_COUNT)}
-            className="text-xs text-amber-600 hover:underline"
+            className="text-xs text-[var(--color-accent)] hover:underline"
           >
             上位{BASE_COUNT}人だけ見る
           </button>
@@ -59,14 +59,14 @@ export default function CurrentlyReadingList({ bookId }: { bookId: string }) {
       {canShrink && visibleCount > BASE_COUNT + STEP && (
         <button
           onClick={() => setVisibleCount(Math.max(visibleCount - STEP, BASE_COUNT))}
-          className="w-full rounded border border-gray-200 bg-gray-50 py-1 text-xs text-gray-500 hover:bg-gray-100"
+          className="w-full rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] py-1 text-xs text-[var(--color-ink-muted)] hover:bg-[var(--color-bg-base)]"
         >
           {STEP}人分縮める
         </button>
       )}
 
       {shown.map((reader) => (
-        <Link key={reader.userId} href={`/users/${reader.userId}`} className="flex items-center gap-3 rounded-lg bg-gray-50 p-3 hover:bg-gray-100 transition">
+        <Link key={reader.userId} href={`/users/${reader.userId}`} className="flex items-center gap-3 rounded-lg bg-[var(--color-bg-elevated)] p-3 hover:bg-[var(--color-bg-base)] transition">
           {reader.avatarUrl ? (
             <img
               src={reader.avatarUrl}
@@ -78,7 +78,7 @@ export default function CurrentlyReadingList({ bookId }: { bookId: string }) {
               }}
             />
           ) : null}
-          <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-200 text-sm font-bold text-amber-800 ${reader.avatarUrl ? "hidden" : ""}`}>
+          <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-sm font-bold text-[var(--color-accent)] ${reader.avatarUrl ? "hidden" : ""}`}>
             {reader.displayName.charAt(0)}
           </div>
           <div className="flex-1">
@@ -94,7 +94,7 @@ export default function CurrentlyReadingList({ bookId }: { bookId: string }) {
           {canExpand && (
             <button
               onClick={() => setVisibleCount(Math.min(visibleCount + STEP, readers.length))}
-              className="flex-1 rounded border border-gray-200 bg-gray-50 py-1.5 text-xs text-gray-500 hover:bg-gray-100"
+              className="flex-1 rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] py-1.5 text-xs text-[var(--color-ink-muted)] hover:bg-[var(--color-bg-base)]"
             >
               もっと見る（+{Math.min(STEP, readers.length - visibleCount)}人）
             </button>
@@ -102,7 +102,7 @@ export default function CurrentlyReadingList({ bookId }: { bookId: string }) {
           {canShrink && (
             <button
               onClick={() => setVisibleCount(Math.max(visibleCount - STEP, BASE_COUNT))}
-              className="flex-1 rounded border border-gray-200 bg-gray-50 py-1.5 text-xs text-gray-500 hover:bg-gray-100"
+              className="flex-1 rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] py-1.5 text-xs text-[var(--color-ink-muted)] hover:bg-[var(--color-bg-base)]"
             >
               縮める（-{Math.min(STEP, visibleCount - BASE_COUNT)}人）
             </button>

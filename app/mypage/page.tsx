@@ -121,7 +121,7 @@ export default function MyPage() {
   if (status === "loading" || loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <p className="text-gray-400">読み込み中...</p>
+        <p className="text-[var(--color-ink-faint)]">読み込み中...</p>
       </div>
     );
   }
@@ -130,36 +130,36 @@ export default function MyPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <div className="mb-8 rounded-xl border bg-white p-5 shadow-sm">
+      <div className="mb-8 card-base p-6">
         <div className="flex items-center gap-4">
           <Link href={`/users/${session.user?.id}`} className="shrink-0">
             {(profile?.avatarUrl || session.user?.image) ? (
               <img
                 src={profile?.avatarUrl || session.user?.image || ""}
                 alt=""
-                className="h-16 w-16 rounded-full object-cover border-2 border-gray-200 hover:border-amber-400 transition"
+                className="h-16 w-16 rounded-full object-cover shadow-[var(--shadow-cover)] transition"
                 onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
               />
             ) : (
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-200 text-xl font-bold text-amber-800 hover:ring-2 hover:ring-amber-400 transition">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-xl font-bold text-[var(--color-accent)] transition">
                 {session.user?.name?.charAt(0) || "?"}
               </div>
             )}
           </Link>
           <div className="min-w-0 flex-1">
             <Link href={`/users/${session.user?.id}`} className="hover:underline">
-              <h1 className="text-xl font-bold text-gray-900 truncate">{session.user?.name}</h1>
+              <h1 className="font-serif text-lg font-medium tracking-[0.05em] text-[var(--color-ink-primary)] truncate md:text-xl">{session.user?.name}</h1>
             </Link>
             {profile?.area && (
-              <p className="text-xs text-gray-500">📍 {profile.area}</p>
+              <p className="text-xs text-[var(--color-ink-muted)]">📍 {profile.area}</p>
             )}
             {profile?.bio && (
-              <p className="mt-0.5 text-sm text-gray-600 truncate">{profile.bio}</p>
+              <p className="mt-0.5 text-xs text-[var(--color-ink-muted)] leading-relaxed truncate md:text-sm">{profile.bio}</p>
             )}
           </div>
           <Link
             href="/mypage/profile"
-            className="shrink-0 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm text-gray-600 shadow-sm hover:bg-gray-50"
+            className="shrink-0 btn-secondary-sm"
           >
             編集
           </Link>
@@ -169,51 +169,59 @@ export default function MyPage() {
       <div className="mb-8 grid gap-4 grid-cols-2 sm:grid-cols-5">
         <Link
           href="/mypage/reading"
-          className="rounded-xl border bg-white p-6 text-center shadow-sm hover:shadow-md"
+          className="card-base p-4 text-center md:p-5"
         >
-          <p className="text-3xl font-bold text-amber-600">{readingBooks.length}</p>
-          <p className="mt-1 text-sm text-gray-500">読みかけの本</p>
+          <p className="font-serif text-2xl font-medium leading-none text-[var(--color-accent)] md:text-3xl">{readingBooks.length}</p>
+          <p className="mt-2 text-[11px] tracking-[0.05em] text-[var(--color-ink-muted)] md:text-xs">読みかけの本</p>
         </Link>
         <Link
           href="/mypage/completed"
-          className="rounded-xl border bg-white p-6 text-center shadow-sm hover:shadow-md"
+          className="card-base p-4 text-center md:p-5"
         >
-          <p className="text-3xl font-bold text-green-600">{completedBooks.length}</p>
-          <p className="mt-1 text-sm text-gray-500">読了した本</p>
+          <p className="font-serif text-2xl font-medium leading-none text-[var(--color-accent)] md:text-3xl">{completedBooks.length}</p>
+          <p className="mt-2 text-[11px] tracking-[0.05em] text-[var(--color-ink-muted)] md:text-xs">読了した本</p>
         </Link>
         <Link
           href="/mypage/friends"
-          className="relative rounded-xl border bg-white p-6 text-center shadow-sm hover:shadow-md"
+          className="relative card-base p-4 text-center md:p-5"
         >
-          <p className="text-3xl font-bold text-purple-600">{friendCount}</p>
-          <p className="mt-1 text-sm text-gray-500">友だち</p>
+          <p className="font-serif text-2xl font-medium leading-none text-[var(--color-accent)] md:text-3xl">{friendCount}</p>
+          <p className="mt-2 text-[11px] tracking-[0.05em] text-[var(--color-ink-muted)] md:text-xs">友だち</p>
           {pendingRequestCount > 0 && (
-            <span className="absolute top-2 right-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
+            <span className="absolute top-2 right-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--color-accent)] px-1.5 text-[10px] font-bold text-[var(--color-bg-elevated)]">
               {pendingRequestCount}
             </span>
           )}
         </Link>
         <Link
           href="/mypage/messages"
-          className="rounded-xl border bg-white p-6 text-center shadow-sm hover:shadow-md"
+          className="card-base p-4 text-center md:p-5"
         >
-          <p className="text-3xl font-bold text-blue-600">💬</p>
-          <p className="mt-1 text-sm text-gray-500">メッセージ</p>
+          <div className="flex justify-center">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 11.5a8.38 8.38 0 0 1-9 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.2A8.5 8.5 0 0 1 3 11.5a8.38 8.38 0 0 1 8.5-8.5 8.38 8.38 0 0 1 9.5 8.5z"/>
+            </svg>
+          </div>
+          <p className="mt-2 text-[11px] tracking-[0.05em] text-[var(--color-ink-muted)] md:text-xs">メッセージ</p>
         </Link>
         <Link
           href="/books/search"
-          className="rounded-xl border bg-white p-6 text-center shadow-sm hover:shadow-md"
+          className="card-base p-4 text-center md:p-5"
         >
-          <p className="text-3xl font-bold text-blue-600">+</p>
-          <p className="mt-1 text-sm text-gray-500">本を探す</p>
+          <div className="flex justify-center">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="1.6" strokeLinecap="round">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
+          </div>
+          <p className="mt-2 text-[11px] tracking-[0.05em] text-[var(--color-ink-muted)] md:text-xs">本を探す</p>
         </Link>
       </div>
 
       {readingBooks.length > 0 && (
         <section className="mb-8">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-800">読みかけの本</h2>
-            <Link href="/mypage/reading" className="text-sm text-amber-600 hover:underline">
+            <h2 className="font-serif text-base font-medium tracking-[0.05em] text-[var(--color-ink-primary)] md:text-lg">読みかけの本</h2>
+            <Link href="/mypage/reading" className="text-sm text-[var(--color-accent)] hover:underline transition-colors">
               すべて見る →
             </Link>
           </div>
@@ -244,8 +252,8 @@ export default function MyPage() {
       {completedBooks.length > 0 && (
         <section className="mb-8">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-800">最近読了した本</h2>
-            <Link href="/mypage/completed" className="text-sm text-amber-600 hover:underline">
+            <h2 className="font-serif text-base font-medium tracking-[0.05em] text-[var(--color-ink-primary)] md:text-lg">最近読了した本</h2>
+            <Link href="/mypage/completed" className="text-sm text-[var(--color-accent)] hover:underline transition-colors">
               すべて見る →
             </Link>
           </div>
@@ -274,37 +282,37 @@ export default function MyPage() {
 
       {chatHistory.length > 0 && (
         <section className="mb-8">
-          <h2 className="mb-3 text-lg font-semibold text-gray-800">最近のチャット</h2>
+          <h2 className="mb-3 font-serif text-base font-medium tracking-[0.05em] text-[var(--color-ink-primary)] md:text-lg">最近のチャット</h2>
           <div className="space-y-2">
             {chatHistory.slice(0, 5).map((item) => (
               <Link
                 key={item.book.id}
                 href={`/books/${item.book.id}/chat`}
-                className="flex items-center gap-3 rounded-lg border bg-white p-3 shadow-sm transition hover:shadow-md"
+                className="card-base flex items-center gap-3 p-3 transition hover:shadow-md"
               >
                 {item.book.coverImageUrl ? (
                   <img
                     src={item.book.coverImageUrl}
                     alt={item.book.title}
-                    className="h-12 w-8 shrink-0 rounded object-cover"
+                    className="h-12 w-8 shrink-0 rounded-sm shadow-[var(--shadow-cover)] object-cover"
                     onError={(e) => {
                       (e.target as HTMLImageElement).style.display = "none";
                     }}
                   />
                 ) : (
-                  <div className="flex h-12 w-8 shrink-0 items-center justify-center rounded bg-gray-100 text-[9px] text-gray-400">
+                  <div className="flex h-12 w-8 shrink-0 items-center justify-center rounded-sm bg-[rgb(31_42_68_/_0.05)] text-[9px] text-[var(--color-ink-faint)]">
                     No Image
                   </div>
                 )}
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-gray-900">{item.book.title}</p>
-                  <p className="truncate text-xs text-gray-400">{item.book.author}</p>
+                  <p className="truncate font-serif text-sm font-medium text-[var(--color-ink-primary)]">{item.book.title}</p>
+                  <p className="truncate text-xs text-[var(--color-ink-muted)]">{item.book.author}</p>
                 </div>
                 <div className="shrink-0 text-right">
-                  <p className="text-xs text-gray-500">
+                  <p className="text-[10px] font-mono text-[var(--color-ink-faint)]">
                     {formatRelativeTime(item.lastMessageAt)}
                   </p>
-                  <p className="text-[11px] text-gray-400">
+                  <p className="text-[11px] text-[var(--color-ink-faint)]">
                     {item.totalMessageCount}件{item.myMessageCount > 0 && ` (自分${item.myMessageCount}件)`}
                   </p>
                 </div>
@@ -315,11 +323,11 @@ export default function MyPage() {
       )}
 
       {readingBooks.length === 0 && completedBooks.length === 0 && (
-        <div className="rounded-xl border bg-white p-8 text-center">
-          <p className="text-gray-500">まだ本が登録されていません</p>
+        <div className="card-base p-8 text-center">
+          <p className="text-[var(--color-ink-muted)]">まだ本が登録されていません</p>
           <Link
             href="/books/search"
-            className="mt-4 inline-block rounded-lg bg-amber-600 px-6 py-2 text-white hover:bg-amber-700"
+            className="mt-4 inline-block btn-primary"
           >
             本を探す
           </Link>

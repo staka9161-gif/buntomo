@@ -41,70 +41,70 @@ export default function EditionDetailPanel({
     : null;
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+    <div className="card-base p-5">
       <div className="flex gap-4">
         {edition.coverImageUrl ? (
           <img
             src={edition.coverImageUrl}
             alt={edition.titleOnCover}
-            className="h-36 w-24 shrink-0 rounded object-cover shadow-sm"
+            className="h-36 w-24 shrink-0 rounded-sm object-cover shadow-[var(--shadow-cover)]"
           />
         ) : (
-          <div className="flex h-36 w-24 shrink-0 items-center justify-center rounded bg-gray-200 text-xs text-gray-400">
+          <div className="flex h-36 w-24 shrink-0 items-center justify-center rounded-sm bg-[rgb(31_42_68_/_0.05)] text-xs text-[var(--color-ink-faint)]">
             No Image
           </div>
         )}
 
         <div className="flex-1">
-          <h3 className="font-semibold text-gray-900">{edition.titleOnCover}</h3>
+          <h3 className="font-serif text-base font-medium text-[var(--color-ink-primary)]">{edition.titleOnCover}</h3>
 
           <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-            <dt className="text-gray-500">判型</dt>
-            <dd className="text-gray-700">{FORMAT_LABELS[edition.format] || edition.format}</dd>
+            <dt className="text-xs tracking-[0.05em] text-[var(--color-ink-muted)]">判型</dt>
+            <dd className="text-sm text-[var(--color-ink-primary)]">{FORMAT_LABELS[edition.format] || edition.format}</dd>
 
             {edition.publisher && (
               <>
-                <dt className="text-gray-500">出版社</dt>
-                <dd className="text-gray-700">{edition.publisher}</dd>
+                <dt className="text-xs tracking-[0.05em] text-[var(--color-ink-muted)]">出版社</dt>
+                <dd className="text-sm text-[var(--color-ink-primary)]">{edition.publisher}</dd>
               </>
             )}
 
             {year && (
               <>
-                <dt className="text-gray-500">発売年</dt>
-                <dd className="text-gray-700">{year}年</dd>
+                <dt className="text-xs tracking-[0.05em] text-[var(--color-ink-muted)]">発売年</dt>
+                <dd className="text-sm text-[var(--color-ink-primary)]">{year}年</dd>
               </>
             )}
 
             {edition.pageCount && (
               <>
-                <dt className="text-gray-500">ページ数</dt>
-                <dd className="text-gray-700">{edition.pageCount}ページ</dd>
+                <dt className="text-xs tracking-[0.05em] text-[var(--color-ink-muted)]">ページ数</dt>
+                <dd className="text-sm font-mono text-[var(--color-ink-primary)]">{edition.pageCount}ページ</dd>
               </>
             )}
 
             {edition.isbn13 && (
               <>
-                <dt className="text-gray-500">ISBN</dt>
-                <dd className="text-gray-700 font-mono text-xs">{edition.isbn13}</dd>
+                <dt className="text-xs tracking-[0.05em] text-[var(--color-ink-muted)]">ISBN</dt>
+                <dd className="font-mono text-xs text-[var(--color-ink-primary)]">{edition.isbn13}</dd>
               </>
             )}
           </dl>
 
           <div className="mt-3">
             {isAlreadyRegistered ? (
-              <span className="inline-block rounded bg-amber-100 px-3 py-1.5 text-sm text-amber-700">
+              <span className="inline-block bg-[var(--color-accent-soft)] text-[var(--color-accent)] text-xs px-2 py-0.5 rounded-full">
                 この作品は本棚に登録済みです
               </span>
             ) : isLoggedIn ? (
               <button
                 onClick={() => onAddToBookshelf(edition.id)}
-                className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700"
+                className="btn-primary-sm"
               >
                 この版を本棚に追加
               </button>
             ) : (
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-[var(--color-ink-faint)]">
                 本棚に追加するにはログインしてください
               </p>
             )}

@@ -29,12 +29,12 @@ const FORMAT_LABELS: Record<string, string> = {
 };
 
 const COLORS = [
-  "bg-amber-500",
-  "bg-green-500",
-  "bg-blue-500",
-  "bg-purple-500",
-  "bg-pink-500",
-  "bg-orange-500",
+  "bg-[var(--color-accent)]",
+  "bg-[rgb(184_71_60_/_0.55)]",
+  "bg-[rgb(184_71_60_/_0.3)]",
+  "bg-[rgb(31_42_68_/_0.15)]",
+  "bg-[rgb(31_42_68_/_0.1)]",
+  "bg-[rgb(31_42_68_/_0.06)]",
 ];
 
 export default function EditionDistributionBar({
@@ -47,10 +47,10 @@ export default function EditionDistributionBar({
 
   return (
     <div>
-      <h2 className="mb-2 text-sm font-semibold text-gray-700">読者の版の分布</h2>
+      <h2 className="mb-2 text-xs text-[var(--color-ink-muted)]">読者の版の分布</h2>
 
       {/* 横バー */}
-      <div className="flex h-4 w-full overflow-hidden rounded-full bg-gray-100">
+      <div className="flex h-3 w-full overflow-hidden rounded-full bg-[rgb(31_42_68_/_0.06)]">
         {distribution.map((entry, i) => (
           <div
             key={entry.edition_id}
@@ -70,10 +70,10 @@ export default function EditionDistributionBar({
           const detail = edition.publisher ? `${label} / ${edition.publisher}` : label;
 
           return (
-            <div key={entry.edition_id} className="flex items-center gap-1.5 text-xs text-gray-600">
+            <div key={entry.edition_id} className="flex items-center gap-1.5 text-[10px] text-[var(--color-ink-primary)]">
               <span className={`inline-block h-2.5 w-2.5 rounded-full ${COLORS[i % COLORS.length]}`} />
               <span>{detail}</span>
-              <span className="text-gray-400">{Math.round(entry.percentage * 100)}%</span>
+              <span className="font-mono text-[var(--color-ink-faint)]">{Math.round(entry.percentage * 100)}%</span>
             </div>
           );
         })}

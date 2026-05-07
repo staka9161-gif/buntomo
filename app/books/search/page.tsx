@@ -156,7 +156,7 @@ export default function BookSearchPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">本を探す</h1>
+      <h1 className="mb-6 font-serif text-xl font-medium tracking-[0.05em] text-[var(--color-ink-primary)] md:text-2xl">本を探す</h1>
 
       {/* 検索フォーム */}
       <form onSubmit={handleSearch} className="mb-4 flex gap-2">
@@ -165,12 +165,12 @@ export default function BookSearchPage() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="書名、著者名、ISBNで検索"
-          className="flex-1 rounded-lg border px-4 py-2.5 focus:border-amber-400 focus:outline-none"
+          className="flex-1 rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-4 py-3 text-base focus:border-[var(--color-accent)] focus:outline-none transition-colors"
         />
         <button
           type="submit"
           disabled={loading}
-          className="rounded-lg bg-amber-600 px-6 py-2.5 font-semibold text-white hover:bg-amber-700 disabled:opacity-50"
+          className="btn-primary disabled:opacity-50"
         >
           {loading ? "検索中..." : "検索"}
         </button>
@@ -180,7 +180,7 @@ export default function BookSearchPage() {
       <div className="mb-6 text-right">
         <button
           onClick={() => setShowManual(!showManual)}
-          className="text-sm text-amber-600 hover:underline"
+          className="text-sm text-[var(--color-accent)] hover:underline"
         >
           {showManual ? "閉じる" : "検索で見つからない場合は手動で登録"}
         </button>
@@ -188,48 +188,48 @@ export default function BookSearchPage() {
 
       {/* 手動登録フォーム */}
       {showManual && (
-        <div className="mb-8 rounded-xl border border-amber-200 bg-amber-50 p-6">
-          <h2 className="mb-4 text-lg font-semibold text-gray-800">本を手動で登録</h2>
+        <div className="mb-8 card-base p-6">
+          <h2 className="mb-4 font-serif text-lg font-medium text-[var(--color-ink-primary)]">本を手動で登録</h2>
           <div className="space-y-3">
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label className="mb-1.5 block text-sm font-medium text-[var(--color-ink-primary)]">
                 タイトル <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 value={manualForm.title}
                 onChange={(e) => setManualForm({ ...manualForm, title: e.target.value })}
-                className="w-full rounded-lg border bg-white px-3 py-2 focus:border-amber-400 focus:outline-none"
+                className="w-full rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-3 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
                 placeholder="例: 人間失格"
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label className="mb-1.5 block text-sm font-medium text-[var(--color-ink-primary)]">
                 著者 <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 value={manualForm.author}
                 onChange={(e) => setManualForm({ ...manualForm, author: e.target.value })}
-                className="w-full rounded-lg border bg-white px-3 py-2 focus:border-amber-400 focus:outline-none"
+                className="w-full rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-3 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
                 placeholder="例: 太宰治"
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+              <label className="mb-1.5 block text-sm font-medium text-[var(--color-ink-primary)]">
                 出版社
               </label>
               <input
                 type="text"
                 value={manualForm.publisher}
                 onChange={(e) => setManualForm({ ...manualForm, publisher: e.target.value })}
-                className="w-full rounded-lg border bg-white px-3 py-2 focus:border-amber-400 focus:outline-none"
+                className="w-full rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-3 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
                 placeholder="例: 新潮社"
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+                <label className="mb-1.5 block text-sm font-medium text-[var(--color-ink-primary)]">
                   総ページ数
                 </label>
                 <input
@@ -238,13 +238,13 @@ export default function BookSearchPage() {
                   onChange={(e) =>
                     setManualForm({ ...manualForm, totalPages: e.target.value })
                   }
-                  className="w-full rounded-lg border bg-white px-3 py-2 focus:border-amber-400 focus:outline-none"
+                  className="w-full rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-3 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
                   placeholder="例: 300"
                   min={0}
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
+                <label className="mb-1.5 block text-sm font-medium text-[var(--color-ink-primary)]">
                   ISBN（任意）
                 </label>
                 <input
@@ -253,7 +253,7 @@ export default function BookSearchPage() {
                   onChange={(e) =>
                     setManualForm({ ...manualForm, isbn: e.target.value })
                   }
-                  className="w-full rounded-lg border bg-white px-3 py-2 focus:border-amber-400 focus:outline-none"
+                  className="w-full rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-3 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
                   placeholder="例: 9784101006055"
                 />
               </div>
@@ -262,14 +262,14 @@ export default function BookSearchPage() {
               <button
                 onClick={() => handleManualAdd("READING")}
                 disabled={manualSubmitting}
-                className="rounded-lg bg-amber-600 px-5 py-2 text-sm font-semibold text-white hover:bg-amber-700 disabled:opacity-50"
+                className="btn-primary-sm disabled:opacity-50"
               >
                 読み始める
               </button>
               <button
                 onClick={() => handleManualAdd("COMPLETED")}
                 disabled={manualSubmitting}
-                className="rounded-lg bg-green-600 px-5 py-2 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-50"
+                className="border border-[rgb(184_71_60_/_0.4)] text-[var(--color-accent)] bg-transparent px-3.5 py-1.5 rounded text-xs tracking-[0.08em] hover:bg-[var(--color-accent-soft)] transition-colors disabled:opacity-50"
               >
                 読了にする
               </button>
@@ -285,7 +285,7 @@ export default function BookSearchPage() {
             {results.map((book, i) => (
               <div
                 key={`${book.isbn || book.title}-${i}`}
-                className="flex gap-4 rounded-lg border bg-white p-4 shadow-sm"
+                className="card-base flex gap-4 p-4"
               >
                 {book.coverImageUrl ? (
                   <img
@@ -301,46 +301,46 @@ export default function BookSearchPage() {
                   />
                 ) : null}
                 <div
-                  className={`flex h-32 w-22 shrink-0 items-center justify-center rounded bg-gray-100 text-xs text-gray-400 ${book.coverImageUrl ? "hidden" : ""}`}
+                  className={`flex h-32 w-22 shrink-0 items-center justify-center rounded-sm bg-[rgb(31_42_68_/_0.05)] text-xs text-[var(--color-ink-faint)] ${book.coverImageUrl ? "hidden" : ""}`}
                 >
                   No Image
                 </div>
                 <div className="flex flex-1 flex-col">
-                  <h3 className="font-semibold text-gray-900">{book.title}</h3>
-                  <p className="text-sm text-gray-500">{book.author}</p>
+                  <h3 className="font-serif text-base font-medium text-[var(--color-ink-primary)]">{book.title}</h3>
+                  <p className="text-sm text-[var(--color-ink-muted)]">{book.author}</p>
                   <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5">
                     {book.publisher && (
-                      <p className="text-xs text-gray-400">{book.publisher}</p>
+                      <p className="text-xs text-[var(--color-ink-faint)]">{book.publisher}</p>
                     )}
                     {book.publishedDate && (
-                      <p className="text-xs text-gray-400">{book.publishedDate}</p>
+                      <p className="text-xs text-[var(--color-ink-faint)]">{book.publishedDate}</p>
                     )}
                     {book.totalPages > 0 && (
-                      <p className="text-xs text-gray-400">{book.totalPages}ページ</p>
+                      <p className="text-xs text-[var(--color-ink-faint)]">{book.totalPages}ページ</p>
                     )}
                   </div>
                   <div className="mt-1 flex flex-wrap gap-2">
-                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs ${book.readingCount > 0 ? "bg-amber-50 text-amber-700" : "bg-gray-50 text-gray-400"}`}>
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs ${book.readingCount > 0 ? "bg-[var(--color-accent-soft)] text-[var(--color-accent)]" : "bg-[rgb(31_42_68_/_0.04)] text-[var(--color-ink-faint)]"}`}>
                       📖 {book.readingCount}人が読書中
                     </span>
-                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs ${book.completedCount > 0 ? "bg-green-50 text-green-700" : "bg-gray-50 text-gray-400"}`}>
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs ${book.completedCount > 0 ? "bg-[rgb(45_106_79_/_0.08)] text-[var(--color-status-success)]" : "bg-[rgb(31_42_68_/_0.04)] text-[var(--color-ink-faint)]"}`}>
                       ✅ {book.completedCount}人が読了
                     </span>
                     {book.bookDbId ? (
                       <Link
                         href={`/books/${book.bookDbId}#events`}
-                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs ${book.eventCount > 0 ? "bg-blue-50 text-blue-700 hover:bg-blue-100" : "bg-gray-50 text-gray-400"}`}
+                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs ${book.eventCount > 0 ? "bg-[var(--color-accent-soft)] text-[var(--color-accent)] hover:bg-[var(--color-accent-soft)]" : "bg-[rgb(31_42_68_/_0.04)] text-[var(--color-ink-faint)]"}`}
                       >
                         📅 {book.eventCount}件の読書会
                       </Link>
                     ) : (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-gray-50 px-2 py-0.5 text-xs text-gray-400">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-[rgb(31_42_68_/_0.04)] px-2 py-0.5 text-xs text-[var(--color-ink-faint)]">
                         📅 0件の読書会
                       </span>
                     )}
                   </div>
                   {book.description && (
-                    <p className="mt-1 line-clamp-2 text-xs text-gray-500">
+                    <p className="mt-1 line-clamp-2 text-xs text-[var(--color-ink-muted)]">
                       {book.description}
                     </p>
                   )}
@@ -348,14 +348,14 @@ export default function BookSearchPage() {
                     <button
                       onClick={() => handleAddBook(book, i, "READING")}
                       disabled={addingIndex === i}
-                      className="rounded bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700 hover:bg-amber-200 disabled:opacity-50"
+                      className="btn-primary-sm disabled:opacity-50"
                     >
                       読み始める
                     </button>
                     <button
                       onClick={() => handleAddBook(book, i, "COMPLETED")}
                       disabled={addingIndex === i}
-                      className="rounded bg-green-100 px-3 py-1 text-xs font-medium text-green-700 hover:bg-green-200 disabled:opacity-50"
+                      className="border border-[rgb(184_71_60_/_0.4)] text-[var(--color-accent)] bg-transparent px-3 py-1 rounded text-xs tracking-[0.08em] hover:bg-[var(--color-accent-soft)] transition-colors disabled:opacity-50"
                     >
                       読了にする
                     </button>
@@ -368,9 +368,9 @@ export default function BookSearchPage() {
       )}
 
       {!loading && results.length === 0 && query && (
-        <div className="rounded-xl border bg-white p-8 text-center">
-          <p className="text-gray-500">「{query}」の検索結果がありません</p>
-          <p className="mt-2 text-sm text-gray-400">
+        <div className="card-base p-8 text-center">
+          <p className="text-[var(--color-ink-muted)]">「{query}」の検索結果がありません</p>
+          <p className="mt-2 text-sm text-[var(--color-ink-faint)]">
             上の「手動で登録」から直接本を追加できます
           </p>
         </div>

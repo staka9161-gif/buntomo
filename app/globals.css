@@ -8,8 +8,29 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+
+  /* === Design tokens: Color === */
+  --color-bg-base: #F8F4EC;
+  --color-bg-elevated: #FBF8F1;
+  --color-ink-primary: #1F2A44;
+  --color-ink-muted: rgb(31 42 68 / 0.65);
+  --color-ink-faint: rgb(31 42 68 / 0.5);
+  --color-accent: #B8473C;
+  --color-accent-strong: #A23E34;
+  --color-accent-soft: rgb(184 71 60 / 0.08);
+  --color-border-subtle: rgb(31 42 68 / 0.08);
+  --color-border-faint: rgb(31 42 68 / 0.05);
+  --color-status-success: #2D6A4F;
+
+  /* === Design tokens: Font === */
+  --font-sans: "Hiragino Kaku Gothic ProN", "Yu Gothic", "YuGothic", "游ゴシック", "Meiryo", system-ui, sans-serif;
+  --font-serif: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "游明朝", serif;
   --font-mono: var(--font-geist-mono);
+
+  /* === Design tokens: Shadow === */
+  --shadow-card: 0 2px 14px rgb(31 42 68 / 0.05);
+  --shadow-cover: 0 4px 14px rgb(31 42 68 / 0.25);
+  --shadow-cta: 0 2px 8px rgb(184 71 60 / 0.18);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -20,7 +41,98 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  background: var(--color-bg-base);
+  color: var(--color-ink-primary);
+  line-height: 1.7;
+}
+
+@utility btn-primary {
+  background-color: var(--color-accent);
+  color: var(--color-bg-elevated);
+  padding: 11px 26px;
+  border-radius: 4px;
+  letter-spacing: 0.1em;
+  font-size: 13px;
+  box-shadow: var(--shadow-cta);
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+@utility btn-primary-sm {
+  background-color: var(--color-accent);
+  color: var(--color-bg-elevated);
+  padding: 6px 16px;
+  border-radius: 4px;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  transition: background-color 0.15s ease;
+}
+@utility btn-secondary {
+  background-color: transparent;
+  color: var(--color-ink-primary);
+  border: 1px solid rgb(31 42 68 / 0.25);
+  padding: 11px 26px;
+  border-radius: 4px;
+  letter-spacing: 0.1em;
+  font-size: 13px;
+  transition: background-color 0.15s ease;
+}
+@utility btn-secondary-sm {
+  background-color: transparent;
+  color: var(--color-ink-primary);
+  border: 1px solid rgb(31 42 68 / 0.25);
+  padding: 6px 14px;
+  border-radius: 4px;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+}
+@utility btn-dark {
+  background-color: var(--color-ink-primary);
+  color: var(--color-bg-elevated);
+  padding: 6px 16px;
+  border-radius: 4px;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+}
+@utility card-base {
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-faint);
+  border-radius: 14px;
+  box-shadow: var(--shadow-card);
+}
+@utility badge-reading {
+  display: inline-block;
+  background-color: var(--color-accent);
+  color: var(--color-bg-elevated);
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+@utility badge-completed {
+  display: inline-block;
+  background-color: var(--color-status-success);
+  color: var(--color-bg-elevated);
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+
+@layer components {
+  .btn-primary:hover { background-color: var(--color-accent-strong); }
+  .btn-primary-sm:hover { background-color: var(--color-accent-strong); }
+  .btn-secondary:hover { background-color: rgb(31 42 68 / 0.04); }
+  .btn-secondary-sm:hover { background-color: rgb(31 42 68 / 0.04); }
+  .btn-dark:hover { background-color: rgb(31 42 68 / 0.85); }
+}
+
+@layer base {
+  h1, h2, h3 {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    color: var(--color-ink-primary);
+  }
+  h1 { letter-spacing: 0.06em; line-height: 1.5; }
+  h2 { letter-spacing: 0.08em; line-height: 1.4; }
+  h3 { letter-spacing: 0.05em; line-height: 1.4; }
 }

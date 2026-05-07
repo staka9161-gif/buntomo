@@ -85,7 +85,7 @@ export default function UserProfilePage() {
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <p className="text-gray-400">読み込み中...</p>
+        <p className="text-[var(--color-ink-faint)]">読み込み中...</p>
       </div>
     );
   }
@@ -93,7 +93,7 @@ export default function UserProfilePage() {
   if (!user) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <p className="text-gray-500">ユーザーが見つかりませんでした</p>
+        <p className="text-[var(--color-ink-muted)]">ユーザーが見つかりませんでした</p>
       </div>
     );
   }
@@ -104,49 +104,49 @@ export default function UserProfilePage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
       {/* プロフィールカード */}
-      <div className="rounded-xl border bg-white p-6 shadow-sm">
+      <div className="card-base p-6">
         <div className="flex items-start gap-5">
           {user.avatarUrl ? (
             <img
               src={user.avatarUrl}
               alt={user.displayName}
-              className="h-20 w-20 shrink-0 rounded-full object-cover border-2 border-gray-200"
+              className="h-20 w-20 shrink-0 rounded-full object-cover shadow-[var(--shadow-cover)]"
               onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
             />
           ) : (
-            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-amber-200 text-2xl font-bold text-amber-800">
+            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-2xl font-bold text-[var(--color-accent)]">
               {user.displayName.charAt(0)}
             </div>
           )}
 
           <div className="flex-1 min-w-0">
-            <h1 className="text-xl font-bold text-gray-900">{user.displayName}</h1>
+            <h1 className="font-serif text-xl font-medium tracking-[0.05em] text-[var(--color-ink-primary)] md:text-2xl">{user.displayName}</h1>
             {user.area && (
-              <p className="mt-0.5 text-sm text-gray-500">📍 {user.area}</p>
+              <p className="mt-0.5 text-xs text-[var(--color-ink-muted)]">📍 {user.area}</p>
             )}
             {user.bio && (
-              <p className="mt-1 text-sm text-gray-600">{user.bio}</p>
+              <p className="mt-1 text-sm text-[var(--color-ink-primary)] leading-relaxed">{user.bio}</p>
             )}
 
             {/* SNSリンク */}
             <div className="mt-2 flex flex-wrap gap-3">
               {user.linkX && (
-                <a href={`https://x.com/${user.linkX}`} target="_blank" rel="noopener noreferrer" className="text-xs text-gray-400 hover:text-gray-600">
+                <a href={`https://x.com/${user.linkX}`} target="_blank" rel="noopener noreferrer" className="text-sm text-[var(--color-accent)] hover:underline">
                   X: @{user.linkX}
                 </a>
               )}
               {user.linkInstagram && (
-                <a href={`https://instagram.com/${user.linkInstagram}`} target="_blank" rel="noopener noreferrer" className="text-xs text-gray-400 hover:text-gray-600">
+                <a href={`https://instagram.com/${user.linkInstagram}`} target="_blank" rel="noopener noreferrer" className="text-sm text-[var(--color-accent)] hover:underline">
                   IG: @{user.linkInstagram}
                 </a>
               )}
               {user.linkWebsite && (
-                <a href={user.linkWebsite} target="_blank" rel="noopener noreferrer" className="text-xs text-gray-400 hover:text-gray-600">
+                <a href={user.linkWebsite} target="_blank" rel="noopener noreferrer" className="text-sm text-[var(--color-accent)] hover:underline">
                   🔗 Web
                 </a>
               )}
               {user.customLinks.map((link, i) => (
-                <a key={i} href={link.url} target="_blank" rel="noopener noreferrer" className="text-xs text-gray-400 hover:text-gray-600">
+                <a key={i} href={link.url} target="_blank" rel="noopener noreferrer" className="text-sm text-[var(--color-accent)] hover:underline">
                   🔗 {link.label}
                 </a>
               ))}
@@ -165,7 +165,7 @@ export default function UserProfilePage() {
                   {friendshipStatus === "friends" && (
                     <Link
                       href={`/mypage/messages/${userId}`}
-                      className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200"
+                      className="btn-secondary-sm"
                     >
                       メッセージ
                     </Link>
@@ -173,7 +173,7 @@ export default function UserProfilePage() {
                 </div>
                 <button
                   onClick={handleBlock}
-                  className="text-xs text-gray-400 hover:text-red-500"
+                  className="text-xs text-[var(--color-ink-faint)] hover:text-[var(--color-accent)]"
                 >
                   このユーザーをブロック
                 </button>
@@ -183,7 +183,7 @@ export default function UserProfilePage() {
               <div className="mt-4">
                 <Link
                   href="/mypage/profile"
-                  className="text-sm text-amber-600 hover:underline"
+                  className="text-sm text-[var(--color-accent)] hover:underline"
                 >
                   プロフィールを編集
                 </Link>
@@ -196,25 +196,25 @@ export default function UserProfilePage() {
       {/* 読書中 */}
       {!hiddenFields.readings && readingBooks.length > 0 && (
         <section className="mt-6">
-          <h2 className="mb-3 text-sm font-semibold text-gray-700">読書中の本</h2>
+          <h2 className="mb-3 font-serif text-base font-medium text-[var(--color-ink-primary)]">読書中の本</h2>
           <div className="space-y-2">
             {readingBooks.map((r) => (
               <Link
                 key={r.id}
                 href={`/books/${r.book.id}`}
-                className="flex items-center gap-3 rounded-lg border bg-white p-3 shadow-sm hover:shadow-md transition"
+                className="card-base flex items-center gap-3 p-3 transition hover:shadow-md"
               >
                 {r.book.coverImageUrl ? (
                   <img src={r.book.coverImageUrl} alt="" className="h-12 w-8 shrink-0 rounded object-cover" />
                 ) : (
-                  <div className="flex h-12 w-8 shrink-0 items-center justify-center rounded bg-gray-100 text-[9px] text-gray-400">No Image</div>
+                  <div className="flex h-12 w-8 shrink-0 items-center justify-center rounded-sm bg-[rgb(31_42_68_/_0.05)] text-[9px] text-[var(--color-ink-faint)]">No Image</div>
                 )}
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-gray-900">{r.book.title}</p>
-                  <p className="truncate text-xs text-gray-400">{r.book.author}</p>
+                  <p className="truncate font-serif text-sm font-medium text-[var(--color-ink-primary)]">{r.book.title}</p>
+                  <p className="truncate text-xs text-[var(--color-ink-muted)]">{r.book.author}</p>
                 </div>
                 {r.book.totalPages > 0 && (
-                  <span className="shrink-0 text-xs text-gray-400">
+                  <span className="shrink-0 text-xs font-mono text-[var(--color-ink-faint)]">
                     {r.currentPage}/{r.book.totalPages}p
                   </span>
                 )}
@@ -227,22 +227,22 @@ export default function UserProfilePage() {
       {/* 読了 */}
       {!hiddenFields.readings && completedBooks.length > 0 && (
         <section className="mt-6">
-          <h2 className="mb-3 text-sm font-semibold text-gray-700">読了した本</h2>
+          <h2 className="mb-3 font-serif text-base font-medium text-[var(--color-ink-primary)]">読了した本</h2>
           <div className="space-y-2">
             {completedBooks.map((r) => (
               <Link
                 key={r.id}
                 href={`/books/${r.book.id}`}
-                className="flex items-center gap-3 rounded-lg border bg-white p-3 shadow-sm hover:shadow-md transition"
+                className="card-base flex items-center gap-3 p-3 transition hover:shadow-md"
               >
                 {r.book.coverImageUrl ? (
                   <img src={r.book.coverImageUrl} alt="" className="h-12 w-8 shrink-0 rounded object-cover" />
                 ) : (
-                  <div className="flex h-12 w-8 shrink-0 items-center justify-center rounded bg-gray-100 text-[9px] text-gray-400">No Image</div>
+                  <div className="flex h-12 w-8 shrink-0 items-center justify-center rounded-sm bg-[rgb(31_42_68_/_0.05)] text-[9px] text-[var(--color-ink-faint)]">No Image</div>
                 )}
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-gray-900">{r.book.title}</p>
-                  <p className="truncate text-xs text-gray-400">{r.book.author}</p>
+                  <p className="truncate font-serif text-sm font-medium text-[var(--color-ink-primary)]">{r.book.title}</p>
+                  <p className="truncate text-xs text-[var(--color-ink-muted)]">{r.book.author}</p>
                 </div>
               </Link>
             ))}
@@ -251,7 +251,7 @@ export default function UserProfilePage() {
       )}
 
       {hiddenFields.readings && !isMe && (
-        <div className="mt-6 rounded-xl border bg-white p-6 text-center text-sm text-gray-400">
+        <div className="mt-6 card-base p-6 text-center text-sm text-[var(--color-ink-faint)] italic">
           読書記録は友だちにのみ公開されています
         </div>
       )}

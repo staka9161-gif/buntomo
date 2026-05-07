@@ -33,24 +33,24 @@ export default function BookChatPage() {
         <div className="mb-6">
           <Link
             href={`/books/${book.id}`}
-            className="text-sm text-amber-600 hover:underline"
+            className="text-sm text-[var(--color-accent)] hover:underline"
           >
             ← 本の詳細に戻る
           </Link>
           <div className="mt-2 flex items-center gap-3">
-            <h1 className="text-xl font-bold text-gray-900">{book.title}</h1>
+            <h1 className="font-serif text-xl font-medium text-[var(--color-ink-primary)]">{book.title}</h1>
             <Link
               href={`/books/${book.id}#events`}
               className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${
                 eventCount > 0
-                  ? "bg-blue-100 text-blue-700 hover:bg-blue-200"
-                  : "bg-gray-100 text-gray-400"
+                  ? "bg-[var(--color-accent-soft)] text-[var(--color-accent)] hover:bg-[var(--color-accent-soft)]"
+                  : "bg-[rgb(31_42_68_/_0.04)] text-[var(--color-ink-faint)]"
               }`}
             >
               📅 読書会 {eventCount}件
             </Link>
           </div>
-          <p className="text-sm text-gray-500">{book.author}</p>
+          <p className="text-sm text-[var(--color-ink-muted)]">{book.author}</p>
         </div>
       )}
 

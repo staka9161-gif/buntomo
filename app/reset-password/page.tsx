@@ -58,17 +58,17 @@ function ResetPasswordContent() {
   if (done) {
     return (
       <div className="flex min-h-[80vh] items-center justify-center px-4">
-        <div className="w-full max-w-md rounded-xl border bg-white p-8 shadow-sm text-center">
+        <div className="w-full max-w-md card-base p-6 text-center md:p-8">
           <div className="mb-4 text-4xl">&#x2705;</div>
-          <h1 className="mb-2 text-xl font-bold text-gray-900">
+          <h1 className="mb-2 font-serif text-xl font-medium text-[var(--color-ink-primary)]">
             パスワードを変更しました
           </h1>
-          <p className="mb-6 text-sm text-gray-500">
+          <p className="mb-6 text-sm text-[var(--color-ink-muted)]">
             新しいパスワードでログインしてください。
           </p>
           <Link
             href="/login"
-            className="inline-block rounded-lg bg-amber-600 px-6 py-2.5 font-semibold text-white hover:bg-amber-700"
+            className="inline-block btn-primary"
           >
             ログインページへ
           </Link>
@@ -80,15 +80,15 @@ function ResetPasswordContent() {
   if (!token) {
     return (
       <div className="flex min-h-[80vh] items-center justify-center px-4">
-        <div className="w-full max-w-md rounded-xl border bg-white p-8 shadow-sm text-center">
+        <div className="w-full max-w-md card-base p-6 text-center md:p-8">
           <div className="mb-4 text-4xl">&#x26A0;&#xFE0F;</div>
-          <h1 className="mb-2 text-xl font-bold text-gray-900">無効なリンク</h1>
-          <p className="mb-6 text-sm text-gray-500">
+          <h1 className="mb-2 font-serif text-xl font-medium text-[var(--color-ink-primary)]">無効なリンク</h1>
+          <p className="mb-6 text-sm text-[var(--color-ink-muted)]">
             パスワードリセット用のリンクが無効か、有効期限が切れています。
           </p>
           <Link
             href="/forgot-password"
-            className="inline-block rounded-lg bg-amber-600 px-6 py-2.5 font-semibold text-white hover:bg-amber-700"
+            className="inline-block btn-primary"
           >
             再度申請する
           </Link>
@@ -99,23 +99,23 @@ function ResetPasswordContent() {
 
   return (
     <div className="flex min-h-[80vh] items-center justify-center px-4">
-      <div className="w-full max-w-md rounded-xl border bg-white p-8 shadow-sm">
-        <h1 className="mb-2 text-center text-2xl font-bold text-gray-900">
+      <div className="w-full max-w-md card-base p-6 md:p-8">
+        <h1 className="mb-2 text-center font-serif text-xl font-medium tracking-[0.06em] text-[var(--color-ink-primary)] md:text-2xl">
           新しいパスワードを設定
         </h1>
-        <p className="mb-6 text-center text-sm text-gray-500">
+        <p className="mb-6 text-center text-sm text-[var(--color-ink-muted)]">
           新しいパスワードを入力してください
         </p>
 
         {error && (
-          <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">
+          <div className="mb-4 rounded bg-[var(--color-accent-soft)] p-3 text-sm text-[var(--color-accent)]">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label className="mb-1.5 block text-sm font-medium text-[var(--color-ink-primary)]">
               新しいパスワード
             </label>
             <input
@@ -124,12 +124,12 @@ function ResetPasswordContent() {
               onChange={(e) => setNewPassword(e.target.value)}
               required
               minLength={8}
-              className="w-full rounded-lg border px-3 py-2 focus:border-amber-400 focus:outline-none"
+              className="w-full rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-3 py-2.5 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
               placeholder="8文字以上"
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label className="mb-1.5 block text-sm font-medium text-[var(--color-ink-primary)]">
               新しいパスワード（確認）
             </label>
             <input
@@ -138,14 +138,14 @@ function ResetPasswordContent() {
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
               minLength={8}
-              className="w-full rounded-lg border px-3 py-2 focus:border-amber-400 focus:outline-none"
+              className="w-full rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-3 py-2.5 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
               placeholder="もう一度入力"
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-amber-600 py-2.5 font-semibold text-white hover:bg-amber-700 disabled:opacity-50"
+            className="btn-primary w-full disabled:opacity-50"
           >
             {loading ? "変更中..." : "パスワードを変更する"}
           </button>

@@ -93,22 +93,22 @@ export default function EventsPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">読書会を探す</h1>
+      <h1 className="mb-6 font-serif text-xl font-medium tracking-[0.05em] text-[var(--color-ink-primary)] md:text-2xl">読書会を探す</h1>
 
       {/* フィルタ */}
-      <div className="mb-6 rounded-xl border bg-white p-4 shadow-sm">
+      <div className="mb-6 card-base p-4">
         <div className="flex flex-col gap-3 sm:flex-row">
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="書名・著者・キーワードで検索"
-            className="flex-1 rounded-lg border px-3 py-2 text-sm focus:border-amber-400 focus:outline-none"
+            className="flex-1 rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-3 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
           />
           <select
             value={prefecture}
             onChange={(e) => setPrefecture(e.target.value)}
-            className="rounded-lg border px-3 py-2 text-sm focus:border-amber-400 focus:outline-none"
+            className="rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-3 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
           >
             <option value="">全国</option>
             {PREFECTURES.map((p) => (
@@ -120,7 +120,7 @@ export default function EventsPage() {
           <select
             value={month}
             onChange={(e) => setMonth(e.target.value)}
-            className="rounded-lg border px-3 py-2 text-sm focus:border-amber-400 focus:outline-none"
+            className="rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-3 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
           >
             <option value="">全期間</option>
             {monthOptions.map((m) => (
@@ -134,11 +134,11 @@ export default function EventsPage() {
 
       {/* 結果 */}
       {loading ? (
-        <p className="py-12 text-center text-gray-400">読み込み中...</p>
+        <p className="py-12 text-center text-sm text-[var(--color-ink-faint)]">読み込み中...</p>
       ) : events.length === 0 ? (
-        <div className="rounded-xl border bg-white p-12 text-center">
-          <p className="text-gray-500">該当する読書会が見つかりません</p>
-          <p className="mt-1 text-sm text-gray-400">
+        <div className="card-base p-12 text-center">
+          <p className="text-[var(--color-ink-muted)]">該当する読書会が見つかりません</p>
+          <p className="mt-1 text-sm text-[var(--color-ink-faint)]">
             条件を変えて検索するか、本の詳細ページから読書会を登録できます
           </p>
         </div>
@@ -147,7 +147,7 @@ export default function EventsPage() {
           {events.map((event) => (
             <div
               key={event.id}
-              className="rounded-xl border bg-white shadow-sm transition hover:shadow-md"
+              className="card-base transition hover:shadow-md"
             >
               <div className="flex gap-4 p-5">
                 {/* 書影（複数冊の場合は重ねて表示） */}
@@ -161,7 +161,7 @@ export default function EventsPage() {
                           {b.coverImageUrl ? (
                             <img src={b.coverImageUrl} alt={b.title} className="h-24 w-16 rounded object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                           ) : (
-                            <div className="flex h-24 w-16 items-center justify-center rounded bg-gray-100 text-[10px] text-gray-400">No Image</div>
+                            <div className="flex h-24 w-16 items-center justify-center rounded-sm bg-[rgb(31_42_68_/_0.05)] text-[10px] text-[var(--color-ink-faint)]">No Image</div>
                           )}
                         </Link>
                       );
@@ -174,7 +174,7 @@ export default function EventsPage() {
                             {b.coverImageUrl ? (
                               <img src={b.coverImageUrl} alt={b.title} className="h-24 w-16 rounded object-cover border-2 border-white shadow-sm" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                             ) : (
-                              <div className="flex h-24 w-16 items-center justify-center rounded bg-gray-100 text-[10px] text-gray-400 border-2 border-white shadow-sm">No Image</div>
+                              <div className="flex h-24 w-16 items-center justify-center rounded-sm bg-[rgb(31_42_68_/_0.05)] text-[10px] text-[var(--color-ink-faint)] border-2 border-white shadow-sm">No Image</div>
                             )}
                           </Link>
                         ))}
@@ -186,8 +186,8 @@ export default function EventsPage() {
                 {/* 内容 */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-semibold text-gray-900">{event.title}</h3>
-                    <span className="shrink-0 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
+                    <h3 className="font-serif text-base font-medium text-[var(--color-ink-primary)]">{event.title}</h3>
+                    <span className="shrink-0 rounded-full bg-[var(--color-accent-soft)] px-2 py-0.5 text-xs font-medium text-[var(--color-accent)]">
                       {daysUntil(event.eventDate)}
                     </span>
                   </div>
@@ -195,20 +195,20 @@ export default function EventsPage() {
                   {/* 対象書籍 */}
                   <Link
                     href={`/books/${event.book.id}`}
-                    className="mt-0.5 block text-sm text-amber-600 hover:underline"
+                    className="mt-0.5 block text-sm text-[var(--color-accent)] hover:underline"
                   >
                     {event.book.title}
-                    <span className="ml-1 text-gray-400">/ {event.book.author}</span>
+                    <span className="ml-1 text-[var(--color-ink-muted)]">/ {event.book.author}</span>
                   </Link>
 
-                  <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-600">
+                  <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-[var(--color-ink-muted)]">
                     <span>📅 {formatDate(event.eventDate)}</span>
                     <span>📍 {event.prefecture} {event.location}</span>
-                    <a href={`/users/${event.organizer.id}`} className="text-amber-700 hover:underline">👤 {event.organizer.displayName}</a>
+                    <a href={`/users/${event.organizer.id}`} className="text-[var(--color-accent)] hover:underline">👤 {event.organizer.displayName}</a>
                   </div>
 
                   {event.description && (
-                    <p className="mt-2 text-xs text-gray-500 line-clamp-2">
+                    <p className="mt-2 text-xs text-[var(--color-ink-faint)] line-clamp-2">
                       {event.description}
                     </p>
                   )}
@@ -221,7 +221,7 @@ export default function EventsPage() {
                       href={event.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="rounded bg-blue-600 px-3 py-1 text-xs font-semibold text-white hover:bg-blue-700"
+                      className="btn-primary-sm"
                     >
                       詳細・申込
                     </a>

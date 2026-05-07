@@ -148,7 +148,7 @@ export default function WorkPage() {
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <p className="text-gray-400">読み込み中...</p>
+        <p className="text-[var(--color-ink-faint)]">読み込み中...</p>
       </div>
     );
   }
@@ -156,7 +156,7 @@ export default function WorkPage() {
   if (!data) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <p className="text-gray-500">作品が見つかりませんでした</p>
+        <p className="text-[var(--color-ink-muted)]">作品が見つかりませんでした</p>
       </div>
     );
   }
@@ -166,7 +166,7 @@ export default function WorkPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
       {/* 1. 作品ヘッダー */}
-      <div className="rounded-xl border bg-white p-6 shadow-sm">
+      <div className="card-base p-6">
         <WorkHeader
           title={data.work.title}
           author={data.work.author}
@@ -178,7 +178,7 @@ export default function WorkPage() {
 
       {/* 2. 版セレクター */}
       {data.editions.length > 0 && (
-        <div className="mt-6 rounded-xl border bg-white p-6 shadow-sm">
+        <div className="mt-5 card-base p-5">
           <EditionSelector
             editions={data.editions}
             translationGroups={data.translation_groups}
@@ -192,7 +192,7 @@ export default function WorkPage() {
 
       {/* 3. 版固有情報パネル */}
       {selectedEdition && (
-        <div className="mt-4">
+        <div className="mt-5">
           <EditionDetailPanel
             edition={selectedEdition}
             onAddToBookshelf={handleAddToBookshelf}
@@ -204,7 +204,7 @@ export default function WorkPage() {
 
       {/* 4. 版の分布 */}
       {data.edition_distribution.length > 0 && (
-        <div className="mt-6 rounded-xl border bg-white p-6 shadow-sm">
+        <div className="mt-5 card-base p-5">
           <EditionDistributionBar
             distribution={data.edition_distribution}
             editions={data.editions}
@@ -213,7 +213,7 @@ export default function WorkPage() {
       )}
 
       {/* 5. レビュー一覧 */}
-      <div className="mt-6 rounded-xl border bg-white p-6 shadow-sm">
+      <div className="mt-5 card-base p-5">
         <ReviewList reviews={reviews} editionFilter={selectedEditionId} />
         <ReviewForm
           workId={data.work.id}

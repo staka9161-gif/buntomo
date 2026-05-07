@@ -77,17 +77,17 @@ export default function ReadingPage() {
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <p className="text-gray-400">読み込み中...</p>
+        <p className="text-[var(--color-ink-faint)]">読み込み中...</p>
       </div>
     );
   }
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">読みかけの本</h1>
+      <h1 className="mb-6 font-serif text-xl font-medium tracking-[0.05em] text-[var(--color-ink-primary)] md:text-2xl">読みかけの本</h1>
 
       {readings.length === 0 ? (
-        <p className="text-gray-500">読みかけの本はありません</p>
+        <p className="text-sm text-[var(--color-ink-faint)] text-center py-8">読みかけの本はありません</p>
       ) : (
         <div className="space-y-4">
           {readings.map((r) => (

@@ -41,42 +41,42 @@ export default function ForgotPasswordPage() {
   if (sent) {
     return (
       <div className="flex min-h-[80vh] items-center justify-center px-4">
-        <div className="w-full max-w-md rounded-xl border bg-white p-8 shadow-sm text-center">
+        <div className="w-full max-w-md card-base p-6 text-center md:p-8">
           {resetUrl ? (
             <>
               <div className="mb-4 text-4xl">🔗</div>
-              <h1 className="mb-2 text-xl font-bold text-gray-900">リセットリンク</h1>
-              <p className="mb-4 text-sm text-gray-500">
+              <h1 className="mb-2 font-serif text-xl font-medium text-[var(--color-ink-primary)]">リセットリンク</h1>
+              <p className="mb-4 text-sm text-[var(--color-ink-muted)]">
                 SMTP未設定のため、リンクを直接表示しています。
               </p>
               <a
                 href={resetUrl}
-                className="inline-block rounded-lg bg-amber-600 px-6 py-2.5 font-semibold text-white hover:bg-amber-700"
+                className="inline-block btn-primary"
               >
                 パスワードを再設定する
               </a>
-              <p className="mt-4 text-xs text-gray-400">
+              <p className="mt-4 text-xs text-[var(--color-ink-faint)]">
                 有効期限は1時間です。
               </p>
             </>
           ) : (
             <>
               <div className="mb-4 text-4xl">📧</div>
-              <h1 className="mb-2 text-xl font-bold text-gray-900">メールを送信しました</h1>
-              <p className="mb-2 text-sm text-gray-600">
+              <h1 className="mb-2 font-serif text-xl font-medium text-[var(--color-ink-primary)]">メールを送信しました</h1>
+              <p className="mb-2 text-sm text-[var(--color-ink-primary)]">
                 <strong>{email}</strong> 宛にパスワード再設定用のリンクを送信しました。
               </p>
-              <p className="mb-6 text-sm text-gray-500">
+              <p className="mb-6 text-sm text-[var(--color-ink-muted)]">
                 メールが届かない場合は、迷惑メールフォルダを確認するか、
                 登録時のメールアドレスが正しいかご確認ください。
               </p>
-              <p className="text-sm text-gray-400">
+              <p className="text-xs text-[var(--color-ink-faint)]">
                 リンクの有効期限は1時間です。
               </p>
             </>
           )}
           <div className="mt-6">
-            <Link href="/login" className="text-amber-600 hover:underline text-sm">
+            <Link href="/login" className="text-sm text-[var(--color-accent)] hover:underline">
               ログインに戻る
             </Link>
           </div>
@@ -87,23 +87,23 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="flex min-h-[80vh] items-center justify-center px-4">
-      <div className="w-full max-w-md rounded-xl border bg-white p-8 shadow-sm">
-        <h1 className="mb-2 text-center text-2xl font-bold text-gray-900">
+      <div className="w-full max-w-md card-base p-6 md:p-8">
+        <h1 className="mb-2 text-center font-serif text-xl font-medium tracking-[0.06em] text-[var(--color-ink-primary)] md:text-2xl">
           パスワードをお忘れですか？
         </h1>
-        <p className="mb-6 text-center text-sm text-gray-500">
+        <p className="mb-6 text-center text-sm text-[var(--color-ink-muted)]">
           登録済みのメールアドレスを入力してください。パスワード再設定用のリンクをお送りします。
         </p>
 
         {error && (
-          <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">
+          <div className="mb-4 rounded bg-[var(--color-accent-soft)] p-3 text-sm text-[var(--color-accent)]">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label className="mb-1.5 block text-sm font-medium text-[var(--color-ink-primary)]">
               メールアドレス
             </label>
             <input
@@ -111,21 +111,21 @@ export default function ForgotPasswordPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full rounded-lg border px-3 py-2 focus:border-amber-400 focus:outline-none"
+              className="w-full rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-3 py-2.5 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
               placeholder="example@mail.com"
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-amber-600 py-2.5 font-semibold text-white hover:bg-amber-700 disabled:opacity-50"
+            className="btn-primary w-full disabled:opacity-50"
           >
             {loading ? "送信中..." : "再設定メールを送信"}
           </button>
         </form>
 
-        <p className="mt-4 text-center text-sm text-gray-500">
-          <Link href="/login" className="text-amber-600 hover:underline">
+        <p className="mt-4 text-center text-sm text-[var(--color-ink-muted)]">
+          <Link href="/login" className="text-[var(--color-accent)] hover:underline">
             ログインに戻る
           </Link>
         </p>

@@ -214,33 +214,33 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
   // ---- compact モード ----
   if (compact) {
     return (
-      <div className="rounded-lg border bg-white p-3 shadow-sm">
-        <h3 className="mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-          読書会 {events.length > 0 && <span className="ml-1 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] text-amber-700 normal-case">{events.length}</span>}
+      <div className="card-base p-3">
+        <h3 className="mb-2 font-serif text-xs font-medium text-[var(--color-ink-muted)] uppercase tracking-wide">
+          読書会 {events.length > 0 && <span className="ml-1 rounded-full bg-[var(--color-accent-soft)] px-1.5 py-0.5 text-[10px] text-[var(--color-accent)] normal-case">{events.length}</span>}
         </h3>
         {events.length === 0 ? (
-          <p className="text-xs text-gray-400">予定なし</p>
+          <p className="text-xs text-[var(--color-ink-faint)]">予定なし</p>
         ) : (
           <div className="space-y-2">
             {events.map((event) => (
-              <div key={event.id} className="rounded border border-blue-100 bg-blue-50 p-2.5">
+              <div key={event.id} className="rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] p-2.5">
                 {event.books && event.books.length > 0 && (
-                  <p className="text-[10px] text-amber-700 mb-0.5 truncate">
+                  <p className="text-[10px] text-[var(--color-accent)] mb-0.5 truncate">
                     📖 {event.books[0].title}
                   </p>
                 )}
-                <p className="text-xs font-semibold text-gray-800 leading-tight">{event.title}</p>
-                <div className="mt-1.5 space-y-0.5 text-[11px] text-gray-500">
+                <p className="text-xs font-semibold text-[var(--color-ink-primary)] leading-tight">{event.title}</p>
+                <div className="mt-1.5 space-y-0.5 text-[11px] text-[var(--color-ink-muted)]">
                   <p>📅 {formatDate(event.eventDate)}</p>
                   <p>📍 {event.prefecture} {event.location}</p>
-                  <p><a href={`/users/${event.organizer.id}`} className="text-amber-700 hover:underline">👤 {event.organizer.displayName}</a></p>
+                  <p><a href={`/users/${event.organizer.id}`} className="text-[var(--color-accent)] hover:underline">👤 {event.organizer.displayName}</a></p>
                 </div>
                 {event.url && (
                   <a
                     href={event.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-2 block rounded bg-blue-600 px-2 py-0.5 text-center text-[11px] font-semibold text-white hover:bg-blue-700"
+                    className="mt-2 block btn-primary-sm text-center text-[11px]"
                   >
                     詳細・申込
                   </a>
@@ -258,51 +258,51 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
   // 対象の本セレクタ（別版がある場合のみ表示）
   const bookSelector = editions.length > 0 && (
     <div className="mb-3">
-      <label className="mb-1.5 flex items-center justify-between text-xs font-medium text-gray-700">
+      <label className="mb-1.5 flex items-center justify-between text-sm font-medium text-[var(--color-ink-primary)]">
         <span>対象の本</span>
-        <span className="text-gray-400">{selectedBookIds.size}冊選択中</span>
+        <span className="text-xs text-[var(--color-ink-faint)]">{selectedBookIds.size}冊選択中</span>
       </label>
       <div className="space-y-1.5 max-h-48 overflow-y-auto">
         {/* 現在の本（常に選択、外せない） */}
-        <label className="flex items-center gap-2.5 rounded-lg border border-amber-400 bg-amber-50 p-2 cursor-default">
+        <label className="flex items-center gap-2.5 rounded border border-[var(--color-accent)] bg-[var(--color-accent-soft)] p-2 cursor-default">
           <input
             type="checkbox"
             checked={true}
             disabled
-            className="accent-amber-600"
+            className="accent-[var(--color-accent)]"
           />
-          <span className="text-sm text-gray-800 truncate">この本（現在のページ）</span>
+          <span className="text-sm text-[var(--color-ink-primary)] truncate">この本（現在のページ）</span>
         </label>
         {/* 別版（チェックボックス） */}
         {editions.map((ed) => (
           <label
             key={ed.id}
-            className={`flex items-center gap-2.5 rounded-lg border p-2 cursor-pointer transition ${
+            className={`flex items-center gap-2.5 rounded border p-2 cursor-pointer transition ${
               selectedBookIds.has(ed.id)
-                ? "border-amber-400 bg-amber-50"
-                : "border-gray-200 hover:border-gray-300"
+                ? "border-[var(--color-accent)] bg-[var(--color-accent-soft)]"
+                : "border-[var(--color-border-subtle)] hover:border-[var(--color-border-faint)]"
             }`}
           >
             <input
               type="checkbox"
               checked={selectedBookIds.has(ed.id)}
               onChange={() => toggleBook(ed.id)}
-              className="accent-amber-600"
+              className="accent-[var(--color-accent)]"
             />
             <div className="flex items-center gap-2 min-w-0">
               {ed.coverImageUrl ? (
                 <img
                   src={ed.coverImageUrl}
                   alt=""
-                  className="h-8 w-6 shrink-0 rounded object-cover"
+                  className="h-8 w-6 shrink-0 rounded-sm object-cover"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                 />
               ) : (
-                <div className="h-8 w-6 shrink-0 rounded bg-gray-100" />
+                <div className="h-8 w-6 shrink-0 rounded-sm bg-[rgb(31_42_68_/_0.05)]" />
               )}
               <div className="min-w-0">
-                <p className="text-sm text-gray-800 truncate">{ed.title}</p>
-                <p className="text-[11px] text-gray-400 truncate">{ed.author}{ed.isbn ? ` / ${ed.isbn}` : ""}</p>
+                <p className="text-sm text-[var(--color-ink-primary)] truncate">{ed.title}</p>
+                <p className="text-[11px] text-[var(--color-ink-faint)] truncate">{ed.author}{ed.isbn ? ` / ${ed.isbn}` : ""}</p>
               </div>
             </div>
           </label>
@@ -312,12 +312,12 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
   );
 
   const formUI = showForm && (
-    <form onSubmit={handleSubmit} className="mb-5 space-y-3 rounded-lg border border-amber-200 bg-amber-50 p-4">
+    <form onSubmit={handleSubmit} className="mb-5 space-y-3 card-base p-4">
       {bookSelector}
       <div>
-        <label className="mb-1 flex items-center justify-between text-xs font-medium text-gray-700">
-          <span>読書会タイトル <span className="text-red-500">*</span></span>
-          <span className="text-gray-400">{form.title.length}/20</span>
+        <label className="mb-1.5 flex items-center justify-between text-sm font-medium text-[var(--color-ink-primary)]">
+          <span>読書会タイトル <span className="text-[var(--color-accent)]">*</span></span>
+          <span className="text-xs text-[var(--color-ink-faint)]">{form.title.length}/20</span>
         </label>
         <input
           type="text"
@@ -325,13 +325,13 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
           onChange={(e) => setForm((prev) => ({ ...prev, title: e.target.value }))}
           maxLength={20}
           placeholder="例: 『人間失格』を語る会"
-          className="w-full rounded border bg-white px-3 py-1.5 text-sm focus:border-amber-400 focus:outline-none"
+          className="w-full rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-3 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
           required
         />
       </div>
       <div>
-        <label className="mb-1 block text-xs font-medium text-gray-700">
-          日時 <span className="text-red-500">*</span>
+        <label className="mb-1.5 block text-sm font-medium text-[var(--color-ink-primary)]">
+          日時 <span className="text-[var(--color-accent)]">*</span>
         </label>
         <input
           type="datetime-local"
@@ -343,18 +343,18 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
               setFormTime(v.slice(11, 16));
             }
           }}
-          className="w-full rounded border bg-white px-3 py-1.5 text-sm focus:border-amber-400 focus:outline-none"
+          className="w-full rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-3 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
           required
         />
       </div>
       <div>
-        <label className="mb-1 block text-xs font-medium text-gray-700">
-          都道府県 <span className="text-red-500">*</span>
+        <label className="mb-1.5 block text-sm font-medium text-[var(--color-ink-primary)]">
+          都道府県 <span className="text-[var(--color-accent)]">*</span>
         </label>
         <select
           value={form.prefecture}
           onChange={(e) => setForm((prev) => ({ ...prev, prefecture: e.target.value }))}
-          className="w-full rounded border bg-white px-3 py-1.5 text-sm focus:border-amber-400 focus:outline-none"
+          className="w-full rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-3 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
           required
         >
           {PREFECTURES.map((p) => (
@@ -363,9 +363,9 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
         </select>
       </div>
       <div>
-        <label className="mb-1 flex items-center justify-between text-xs font-medium text-gray-700">
-          <span>場所の詳細 <span className="text-red-500">*</span></span>
-          <span className="text-gray-400">{form.location.length}/25</span>
+        <label className="mb-1.5 flex items-center justify-between text-sm font-medium text-[var(--color-ink-primary)]">
+          <span>場所の詳細 <span className="text-[var(--color-accent)]">*</span></span>
+          <span className="text-xs text-[var(--color-ink-faint)]">{form.location.length}/25</span>
         </label>
         <input
           type="text"
@@ -373,39 +373,39 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
           onChange={(e) => setForm((prev) => ({ ...prev, location: e.target.value }))}
           maxLength={25}
           placeholder="例: 渋谷 TSUTAYA カフェ"
-          className="w-full rounded border bg-white px-3 py-1.5 text-sm focus:border-amber-400 focus:outline-none"
+          className="w-full rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-3 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
           required
         />
       </div>
       <div>
-        <label className="mb-1 block text-xs font-medium text-gray-700">参加リンク <span className="text-red-500">*</span></label>
+        <label className="mb-1.5 block text-sm font-medium text-[var(--color-ink-primary)]">参加リンク <span className="text-[var(--color-accent)]">*</span></label>
         <input
           type="url"
           value={form.url}
           onChange={(e) => setForm((prev) => ({ ...prev, url: e.target.value }))}
           placeholder="https://..."
-          className="w-full rounded border bg-white px-3 py-1.5 text-sm focus:border-amber-400 focus:outline-none"
+          className="w-full rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-3 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
           required
         />
       </div>
       <div>
-        <label className="mb-1 flex items-center justify-between text-xs font-medium text-gray-700">
+        <label className="mb-1.5 flex items-center justify-between text-sm font-medium text-[var(--color-ink-primary)]">
           <span>備考（任意）</span>
-          <span className="text-gray-400">{form.description.length}/40</span>
+          <span className="text-xs text-[var(--color-ink-faint)]">{form.description.length}/40</span>
         </label>
         <textarea
           value={form.description}
           onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
           maxLength={40}
           rows={1}
-          className="w-full rounded border bg-white px-3 py-1.5 text-sm focus:border-amber-400 focus:outline-none"
+          className="w-full rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-3 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
         />
       </div>
-      <div className="flex gap-2">
+      <div className="flex gap-2 justify-end mt-4">
         <button
           type="submit"
           disabled={submitting}
-          className="rounded bg-amber-600 px-4 py-1.5 text-sm font-semibold text-white hover:bg-amber-700 disabled:opacity-50"
+          className="btn-primary-sm disabled:opacity-50"
         >
           {submitting ? "処理中..." : editingId ? "更新する" : "読書会を登録"}
         </button>
@@ -413,7 +413,7 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
           <button
             type="button"
             onClick={handleCancel}
-            className="rounded bg-gray-200 px-4 py-1.5 text-sm text-gray-600 hover:bg-gray-300"
+            className="btn-secondary-sm"
           >
             キャンセル
           </button>
@@ -423,24 +423,24 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
   );
 
   return (
-    <div className="rounded-xl border bg-white p-6 shadow-sm">
+    <div className="card-base p-6">
       {bookTitle && (
-        <p className="mb-2 text-sm font-semibold text-gray-900">📖 {bookTitle}</p>
+        <p className="mb-2 text-sm font-medium text-[var(--color-ink-primary)]">📖 {bookTitle}</p>
       )}
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-gray-700">
-          読書会の予定 {events.length > 0 && <span className="ml-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700">{events.length}</span>}
+        <h3 className="font-serif text-sm font-medium text-[var(--color-ink-primary)]">
+          読書会の予定 {events.length > 0 && <span className="ml-1 rounded-full bg-[var(--color-accent-soft)] px-2 py-0.5 text-xs text-[var(--color-accent)]">{events.length}</span>}
         </h3>
         {session && !showForm && (
           <button
             onClick={() => { setEditingId(null); setForm({ ...EMPTY_FORM }); setSelectedBookIds(new Set([bookId])); setShowForm(true); }}
-            className="text-xs text-amber-600 hover:underline"
+            className="text-xs text-[var(--color-accent)] hover:underline"
           >
             + 読書会を登録
           </button>
         )}
         {showForm && !editingId && (
-          <button onClick={handleCancel} className="text-xs text-gray-400 hover:underline">
+          <button onClick={handleCancel} className="text-xs text-[var(--color-ink-faint)] hover:underline">
             閉じる
           </button>
         )}
@@ -449,7 +449,7 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
       {formUI}
 
       {events.length === 0 ? (
-        <p className="text-sm text-gray-400">開催予定の読書会はありません</p>
+        <p className="text-sm text-[var(--color-ink-faint)]">開催予定の読書会はありません</p>
       ) : (
         <div className="space-y-2">
           {events.map((event) => (
@@ -457,47 +457,47 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
               key={event.id}
               className={`rounded border px-3 py-2 ${
                 event.isOtherEdition
-                  ? "border-purple-100 bg-purple-50"
-                  : "border-blue-100 bg-blue-50"
+                  ? "border-[var(--color-border-subtle)] bg-[rgb(31_42_68_/_0.03)]"
+                  : "border-[var(--color-border-subtle)] bg-[var(--color-bg-base)]"
               }`}
             >
               <div className="flex items-center justify-between gap-2">
                 <div className="flex-1 min-w-0">
                   {event.books && event.books.length > 0 && (
-                    <p className="text-[11px] text-amber-700 truncate mb-0.5">
+                    <p className="text-[11px] text-[var(--color-accent)] truncate mb-0.5">
                       📖 {event.books[0].title}
                     </p>
                   )}
                   <div className="flex items-center gap-1.5">
-                    <h4 className="text-sm font-semibold text-gray-900 truncate">{event.title}</h4>
-                    <span className="shrink-0 rounded-full bg-blue-200 px-1.5 py-0.5 text-[10px] font-medium text-blue-800">
+                    <h4 className="text-sm font-semibold text-[var(--color-ink-primary)] truncate">{event.title}</h4>
+                    <span className="shrink-0 rounded-full bg-[var(--color-accent-soft)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--color-accent)]">
                       {daysUntil(event.eventDate)}
                     </span>
                     {event.isOtherEdition && (
-                      <span className="shrink-0 rounded-full bg-purple-200 px-1.5 py-0.5 text-[10px] font-medium text-purple-800">
+                      <span className="shrink-0 rounded-full bg-[rgb(31_42_68_/_0.08)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--color-ink-muted)]">
                         別版
                       </span>
                     )}
                   </div>
-                  <div className="mt-1 flex flex-wrap gap-x-3 text-xs text-gray-500">
+                  <div className="mt-1 flex flex-wrap gap-x-3 text-xs text-[var(--color-ink-muted)]">
                     <span>📅 {formatDate(event.eventDate)}</span>
                     <span>📍 {event.prefecture} {event.location}</span>
-                    <a href={`/users/${event.organizer.id}`} className="text-amber-700 hover:underline">👤 {event.organizer.displayName}</a>
+                    <a href={`/users/${event.organizer.id}`} className="text-[var(--color-accent)] hover:underline">👤 {event.organizer.displayName}</a>
                   </div>
                   {event.description && (
-                    <p className="mt-1 text-xs text-gray-400">{event.description}</p>
+                    <p className="mt-1 text-xs text-[var(--color-ink-faint)]">{event.description}</p>
                   )}
                   {isMyEvent(event) && (
                     <div className="mt-1 flex gap-2">
                       <button
                         onClick={() => handleEdit(event)}
-                        className="rounded bg-white px-1.5 py-0.5 text-[11px] text-gray-500 border border-gray-200 hover:bg-gray-50"
+                        className="btn-secondary-sm text-[11px]"
                       >
                         編集
                       </button>
                       <button
                         onClick={() => handleDelete(event.id)}
-                        className="rounded bg-white px-1.5 py-0.5 text-[11px] text-red-500 border border-red-200 hover:bg-red-50"
+                        className="btn-secondary-sm text-[var(--color-accent)] border-[rgb(184_71_60_/_0.4)] hover:bg-[var(--color-accent-soft)] text-[11px]"
                       >
                         削除
                       </button>
@@ -509,7 +509,7 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
                     href={event.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="shrink-0 rounded bg-blue-600 px-2.5 py-1 text-[11px] font-semibold text-white hover:bg-blue-700"
+                    className="shrink-0 btn-primary-sm text-[11px]"
                   >
                     詳細・申込
                   </a>
