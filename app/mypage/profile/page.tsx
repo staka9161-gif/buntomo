@@ -106,7 +106,7 @@ export default function ProfileEditPage() {
       img.onload = () => {
         URL.revokeObjectURL(blobUrl);
         const canvas = document.createElement("canvas");
-        const size = 200;
+        const size = 256;
         canvas.width = size;
         canvas.height = size;
         const ctx = canvas.getContext("2d")!;
@@ -115,7 +115,15 @@ export default function ProfileEditPage() {
         const sx = (img.width - min) / 2;
         const sy = (img.height - min) / 2;
         ctx.drawImage(img, sx, sy, min, min, 0, 0, size, size);
-        resolve(canvas.toDataURL("image/jpeg", 0.85));
+        // WebP優先、非対応ブラウザはJPEGフォールバック
+        const supportsWebP = (() => {
+          const c = document.createElement("canvas");
+          c.width = 1; c.height = 1;
+          return c.toDataURL("image/webp").startsWith("data:image/webp");
+        })();
+        const mimeType = supportsWebP ? "image/webp" : "image/jpeg";
+        const quality = supportsWebP ? 0.82 : 0.85;
+        resolve(canvas.toDataURL(mimeType, quality));
       };
       img.onerror = () => {
         URL.revokeObjectURL(blobUrl);
