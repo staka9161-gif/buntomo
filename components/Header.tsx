@@ -18,12 +18,6 @@ export default function Header() {
         </Link>
 
         <nav className="flex items-center gap-4 text-sm">
-          <a
-            href="https://bunkare.jp/"
-            className="text-xs text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)] transition-colors"
-          >
-            文学カレンダー
-          </a>
           {session ? (
             <>
               <Link href="/books/search" className="text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)] transition-colors">
