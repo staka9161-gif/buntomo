@@ -375,28 +375,28 @@ export default function ProfileEditPage() {
 
           <div>
             <label className="mb-1 block text-xs text-[var(--color-ink-muted)]">X（Twitter）</label>
-            <div className="flex items-center gap-1">
-              <span className="text-sm text-[var(--color-ink-faint)]">x.com/</span>
+            <div className="flex items-center rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] focus-within:border-[var(--color-accent)] transition-colors">
+              <span className="select-none pl-3 pr-1 text-sm text-[var(--color-ink-faint)]">@</span>
               <input
                 type="text"
                 value={form.linkX}
                 onChange={(e) => setForm({ ...form, linkX: e.target.value })}
                 placeholder="username"
-                className="flex-1 rounded-lg border px-3 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
+                className="flex-1 bg-transparent py-2 pr-3 text-sm focus:outline-none"
               />
             </div>
           </div>
 
           <div>
             <label className="mb-1 block text-xs text-[var(--color-ink-muted)]">Instagram</label>
-            <div className="flex items-center gap-1">
-              <span className="text-sm text-[var(--color-ink-faint)]">instagram.com/</span>
+            <div className="flex items-center rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] focus-within:border-[var(--color-accent)] transition-colors">
+              <span className="select-none pl-3 pr-1 text-sm text-[var(--color-ink-faint)]">@</span>
               <input
                 type="text"
                 value={form.linkInstagram}
                 onChange={(e) => setForm({ ...form, linkInstagram: e.target.value })}
                 placeholder="username"
-                className="flex-1 rounded-lg border px-3 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
+                className="flex-1 bg-transparent py-2 pr-3 text-sm focus:outline-none"
               />
             </div>
           </div>
