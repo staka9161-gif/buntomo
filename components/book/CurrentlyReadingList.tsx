@@ -16,7 +16,7 @@ interface Reader {
   progressPercent: number;
 }
 
-export default function CurrentlyReadingList({ bookId }: { bookId: string }) {
+export default function CurrentlyReadingList({ bookId, refreshKey }: { bookId: string; refreshKey?: number }) {
   const [readers, setReaders] = useState<Reader[]>([]);
   const [loading, setLoading] = useState(true);
   const [visibleCount, setVisibleCount] = useState(BASE_COUNT);
@@ -30,7 +30,7 @@ export default function CurrentlyReadingList({ bookId }: { bookId: string }) {
       .then((data) => setReaders(data.users || []))
       .catch(() => setReaders([]))
       .finally(() => setLoading(false));
-  }, [bookId]);
+  }, [bookId, refreshKey]);
 
   if (loading) return <p className="text-sm text-[var(--color-ink-faint)]">読み込み中...</p>;
   if (readers.length === 0) return <p className="text-sm text-[var(--color-ink-faint)]">今読んでいる人はいません</p>;

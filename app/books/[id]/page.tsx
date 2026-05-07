@@ -37,6 +37,7 @@ export default function BookDetailPage() {
   const [completedCount, setCompletedCount] = useState(0);
   const [eventCount, setEventCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [readersRefreshKey, setReadersRefreshKey] = useState(0);
   const [pageInput, setPageInput] = useState(0);
   const [totalPagesInput, setTotalPagesInput] = useState(0);
   const [updating, setUpdating] = useState(false);
@@ -122,6 +123,7 @@ export default function BookDetailPage() {
       body: JSON.stringify({ status: "COMPLETED" }),
     });
     await refreshAll();
+    setReadersRefreshKey((k) => k + 1);
   };
 
   const handleUpdatePage = async () => {
@@ -143,6 +145,7 @@ export default function BookDetailPage() {
         body: JSON.stringify({ currentPage: pageInput }),
       });
       await refreshAll();
+      setReadersRefreshKey((k) => k + 1);
     } finally {
       setUpdating(false);
     }
@@ -156,6 +159,7 @@ export default function BookDetailPage() {
       body: JSON.stringify({ status: "READING" }),
     });
     await refreshAll();
+    setReadersRefreshKey((k) => k + 1);
   };
 
   if (loading) {
@@ -335,7 +339,7 @@ export default function BookDetailPage() {
 
       {/* 今読んでいる人 */}
       <div className="mt-5 card-base p-5">
-        <CurrentlyReadingList bookId={bookId} />
+        <CurrentlyReadingList bookId={bookId} refreshKey={readersRefreshKey} />
       </div>
 
       {/* 読書会の予定 */}
