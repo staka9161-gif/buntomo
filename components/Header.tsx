@@ -11,7 +11,7 @@ export default function Header() {
     <header className="border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)]">
       <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4">
         <Link href="/" className="flex items-center">
-          <Image src="/logo.png" alt="ブントモ" height={40} width={80} priority className="h-10 w-auto" />
+          <Image src="/logo.png" alt="ブントモ" height={48} width={96} priority className="h-12 w-auto" />
         </Link>
 
         <nav className="flex items-center gap-4 text-sm">
