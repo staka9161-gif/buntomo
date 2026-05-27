@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { apiUrl } from "@/lib/api";
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const status = searchParams.get("status");
   const [email, setEmail] = useState("");
@@ -101,5 +101,13 @@ export default function VerifyEmailPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-[80vh] items-center justify-center px-4"><p className="text-sm text-[var(--color-ink-muted)]">読み込み中...</p></div>}>
+      <VerifyEmailContent />
+    </Suspense>
   );
 }
