@@ -11,9 +11,10 @@ datasource db {
 model User {
   id            String          @id @default(cuid())
   email         String          @unique
-  passwordHash  String
-  displayName   String
-  avatarUrl     String?
+  passwordHash  String?
+  name          String
+  image         String?
+  emailVerified DateTime?
   bio           String?
   linkX         String?
   linkInstagram String?
@@ -37,7 +38,28 @@ model User {
   blockedUsers         Block[]              @relation("Blocker")
   blockedByUsers       Block[]              @relation("Blocked")
   reviews              Review[]
+  accounts             Account[]
+  emailVerificationTokens EmailVerificationToken[]
   mergeSuggestionsReported MergeSuggestion[] @relation("MergeSuggestionReporter")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
 }
 
 model Book {
@@ -307,6 +329,19 @@ model PasswordResetToken {
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])
+
+  @@index([token])
+  @@index([expiresAt])
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([token])
   @@index([expiresAt])

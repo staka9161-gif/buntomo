@@ -13,7 +13,7 @@ export async function GET() {
     const blocks = await prisma.block.findMany({
       where: { blockerId: session.user.id },
       include: {
-        blocked: { select: { id: true, displayName: true, avatarUrl: true } },
+        blocked: { select: { id: true, name: true, image: true } },
       },
       orderBy: { createdAt: "desc" },
     });

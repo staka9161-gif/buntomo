@@ -7,7 +7,7 @@ import Link from "next/link";
 import { apiUrl } from "@/lib/api";
 
 interface Conversation {
-  user: { id: string; displayName: string; avatarUrl: string | null };
+  user: { id: string; name: string; image: string | null };
   lastMessage: string;
   lastMessageAt: string;
   isMe: boolean;
@@ -80,21 +80,21 @@ export default function MessagesPage() {
               href={`/mypage/messages/${conv.user.id}`}
               className="card-base flex items-center gap-3 p-3 transition hover:shadow-md"
             >
-              {conv.user.avatarUrl ? (
+              {conv.user.image ? (
                 <img
-                  src={conv.user.avatarUrl}
+                  src={conv.user.image}
                   alt=""
                   className="h-12 w-12 shrink-0 rounded-full object-cover shadow-[var(--shadow-cover)]"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                 />
               ) : (
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-lg font-bold text-[var(--color-accent)]">
-                  {conv.user.displayName.charAt(0)}
+                  {conv.user.name.charAt(0)}
                 </div>
               )}
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between">
-                  <p className="font-serif text-sm font-medium text-[var(--color-ink-primary)] truncate">{conv.user.displayName}</p>
+                  <p className="font-serif text-sm font-medium text-[var(--color-ink-primary)] truncate">{conv.user.name}</p>
                   <span className="shrink-0 text-[10px] font-mono text-[var(--color-ink-faint)]">{formatRelativeTime(conv.lastMessageAt)}</span>
                 </div>
                 <p className="mt-0.5 truncate text-xs text-[var(--color-ink-muted)]">

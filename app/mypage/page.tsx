@@ -59,7 +59,8 @@ export default function MyPage() {
   const [friendCount, setFriendCount] = useState(0);
   const [pendingRequestCount, setPendingRequestCount] = useState(0);
   const [profile, setProfile] = useState<{
-    avatarUrl: string | null;
+    name: string | null;
+    image: string | null;
     bio: string | null;
     area: string | null;
   } | null>(null);
@@ -134,20 +135,20 @@ export default function MyPage() {
         href={`/users/${session.user?.id}`}
         className="mb-6 flex items-center gap-3 rounded-xl border border-[var(--color-border-faint)] bg-[var(--color-bg-elevated)] p-3 hover:bg-[var(--color-bg-base)] transition-colors"
       >
-        {(profile?.avatarUrl || session.user?.image) ? (
+        {(profile?.image || session.user?.image) ? (
           <img
-            src={profile?.avatarUrl || session.user?.image || ""}
+            src={profile?.image || session.user?.image || ""}
             alt=""
             className="h-10 w-10 rounded-full object-cover shadow-[var(--shadow-cover)]"
             onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
           />
         ) : (
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-sm font-bold text-[var(--color-accent)]">
-            {session.user?.name?.charAt(0) || "?"}
+            {profile?.name?.charAt(0) || session.user?.name?.charAt(0) || "?"}
           </div>
         )}
         <div className="flex-1 min-w-0">
-          <p className="font-serif text-sm font-medium text-[var(--color-ink-primary)] truncate">{session.user?.name}</p>
+          <p className="font-serif text-sm font-medium text-[var(--color-ink-primary)] truncate">{profile?.name || session.user?.name}</p>
           <p className="text-xs text-[var(--color-ink-muted)]">プロフィールを見る →</p>
         </div>
       </Link>

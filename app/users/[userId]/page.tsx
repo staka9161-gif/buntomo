@@ -9,8 +9,8 @@ import FriendRequestButton from "@/components/friends/FriendRequestButton";
 
 interface UserProfile {
   id: string;
-  displayName: string;
-  avatarUrl: string | null;
+  name: string;
+  image: string | null;
   bio: string | null;
   area: string | null;
   linkX: string | null;
@@ -51,7 +51,7 @@ export default function UserProfilePage() {
   const isMe = session?.user?.id === userId;
 
   const handleBlock = async () => {
-    if (!confirm(`${user?.displayName || "このユーザー"} をブロックしますか？\n友だち関係も解除されます。`)) return;
+    if (!confirm(`${user?.name || "このユーザー"} をブロックしますか？\n友だち関係も解除されます。`)) return;
     const res = await fetch(apiUrl(`/api/me/blocks/${userId}`), { method: "POST" });
     if (res.ok) {
       router.push("/mypage");
@@ -108,21 +108,21 @@ export default function UserProfilePage() {
       {/* プロフィールカード */}
       <div className="card-base p-6">
         <div className="flex items-start gap-5">
-          {user.avatarUrl ? (
+          {user.image ? (
             <img
-              src={user.avatarUrl}
-              alt={user.displayName}
+              src={user.image}
+              alt={user.name}
               className="h-20 w-20 shrink-0 rounded-full object-cover shadow-[var(--shadow-cover)]"
               onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
             />
           ) : (
             <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-2xl font-bold text-[var(--color-accent)]">
-              {user.displayName.charAt(0)}
+              {user.name.charAt(0)}
             </div>
           )}
 
           <div className="flex-1 min-w-0">
-            <h1 className="font-serif text-xl font-medium tracking-[0.05em] text-[var(--color-ink-primary)] md:text-2xl">{user.displayName}</h1>
+            <h1 className="font-serif text-xl font-medium tracking-[0.05em] text-[var(--color-ink-primary)] md:text-2xl">{user.name}</h1>
             {user.area && (
               <p className="mt-0.5 text-xs text-[var(--color-ink-muted)]">📍 {user.area}</p>
             )}

@@ -43,10 +43,10 @@ export async function POST(request: NextRequest) {
 
     await prisma.user.update({
       where: { id: session.user.id },
-      data: { avatarUrl: avatarDataUrl },
+      data: { image: avatarDataUrl },
     });
 
-    return NextResponse.json({ avatarUrl: avatarDataUrl });
+    return NextResponse.json({ image: avatarDataUrl });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     console.error("Avatar upload error:", msg);

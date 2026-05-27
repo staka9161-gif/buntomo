@@ -52,14 +52,14 @@ export async function GET(
       orderBy: { createdAt: "desc" },
       take: 50,
       include: {
-        sender: { select: { id: true, displayName: true, avatarUrl: true } },
+        sender: { select: { id: true, name: true, image: true } },
       },
     });
 
     // 相手の情報
     const partner = await prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, displayName: true, avatarUrl: true },
+      select: { id: true, name: true, image: true },
     });
 
     return NextResponse.json({
@@ -127,7 +127,7 @@ export async function POST(
         content: content.trim(),
       },
       include: {
-        sender: { select: { id: true, displayName: true, avatarUrl: true } },
+        sender: { select: { id: true, name: true, image: true } },
       },
     });
 

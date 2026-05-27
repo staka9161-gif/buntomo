@@ -10,8 +10,8 @@ import type { WindowType } from "@/types";
 interface Message {
   id: string;
   userId: string;
-  displayName: string;
-  avatarUrl: string | null;
+  name: string;
+  image: string | null;
   content: string;
   createdAt: string;
 }
@@ -106,10 +106,10 @@ export default function ChatRoom({ bookId }: { bookId: string }) {
               return (
                 <div key={msg.id} className={`flex gap-2 ${isMe ? "flex-row-reverse" : ""}`}>
                   <Link href={`/users/${msg.userId}`} className="shrink-0">
-                    {msg.avatarUrl ? (
+                    {msg.image ? (
                       <img
-                        src={msg.avatarUrl}
-                        alt={msg.displayName}
+                        src={msg.image}
+                        alt={msg.name}
                         className="h-8 w-8 rounded-full object-cover hover:ring-2 hover:ring-[var(--color-accent)] transition"
                         onError={(e) => {
                           (e.target as HTMLImageElement).style.display = "none";
@@ -117,12 +117,12 @@ export default function ChatRoom({ bookId }: { bookId: string }) {
                         }}
                       />
                     ) : null}
-                    <div className={`flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-xs font-bold text-[var(--color-accent)] hover:ring-2 hover:ring-[var(--color-accent)] transition ${msg.avatarUrl ? "hidden" : ""}`}>
-                      {msg.displayName.charAt(0)}
+                    <div className={`flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-xs font-bold text-[var(--color-accent)] hover:ring-2 hover:ring-[var(--color-accent)] transition ${msg.image ? "hidden" : ""}`}>
+                      {msg.name.charAt(0)}
                     </div>
                   </Link>
                   <div className={`max-w-[70%] ${isMe ? "text-right" : ""}`}>
-                    <Link href={`/users/${msg.userId}`} className="text-xs text-[var(--color-ink-muted)] hover:text-[var(--color-accent)] hover:underline">{msg.displayName}</Link>
+                    <Link href={`/users/${msg.userId}`} className="text-xs text-[var(--color-ink-muted)] hover:text-[var(--color-accent)] hover:underline">{msg.name}</Link>
                     <div
                       className={`mt-1 inline-block rounded-lg px-3 py-2 text-sm ${
                         isMe ? "bg-[var(--color-accent)] text-[var(--color-bg-elevated)]" : "bg-[var(--color-bg-elevated)] text-[var(--color-ink-primary)] border border-[var(--color-border-faint)]"

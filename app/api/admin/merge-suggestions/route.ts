@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
           },
         },
         reporter: {
-          select: { id: true, displayName: true },
+          select: { id: true, name: true },
         },
       },
       orderBy: { createdAt: "desc" },

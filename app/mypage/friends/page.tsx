@@ -8,8 +8,8 @@ import { apiUrl } from "@/lib/api";
 
 interface UserInfo {
   id: string;
-  displayName: string;
-  avatarUrl: string | null;
+  name: string;
+  image: string | null;
   bio: string | null;
   area: string | null;
 }
@@ -95,15 +95,15 @@ export default function FriendsPage() {
   const UserRow = ({ user, children }: { user: UserInfo; children: React.ReactNode }) => (
     <div className="card-base flex items-center gap-3 p-4">
       <Link href={`/users/${user.id}`} className="flex items-center gap-3 min-w-0 flex-1">
-        {user.avatarUrl ? (
-          <img src={user.avatarUrl} alt="" className="h-10 w-10 shrink-0 rounded-full object-cover shadow-[var(--shadow-cover)]" />
+        {user.image ? (
+          <img src={user.image} alt="" className="h-10 w-10 shrink-0 rounded-full object-cover shadow-[var(--shadow-cover)]" />
         ) : (
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-sm font-bold text-[var(--color-accent)]">
-            {user.displayName.charAt(0)}
+            {user.name.charAt(0)}
           </div>
         )}
         <div className="min-w-0">
-          <p className="truncate font-serif text-base font-medium text-[var(--color-ink-primary)]">{user.displayName}</p>
+          <p className="truncate font-serif text-base font-medium text-[var(--color-ink-primary)]">{user.name}</p>
           {user.area && <p className="text-xs text-[var(--color-ink-muted)]">📍 {user.area}</p>}
           {user.bio && <p className="truncate text-xs text-[var(--color-ink-muted)]">{user.bio}</p>}
         </div>

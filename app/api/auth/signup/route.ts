@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
+import { randomBytes } from "crypto";
 import bcryptjs from "bcryptjs";
 import { prisma } from "@/lib/db";
+import { sendVerificationEmail } from "@/lib/mail";
+
+const TOKEN_EXPIRY_HOURS = 24;
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password, displayName } = await request.json();
+    const { email, password, name } = await request.json();
 
-    if (!email || !password || !displayName) {
+    if (!email || !password || !name) {
       return NextResponse.json(
         { error: "メールアドレス、パスワード、表示名は必須です" },
         { status: 400 }
@@ -31,11 +35,26 @@ export async function POST(request: NextRequest) {
     const passwordHash = await bcryptjs.hash(password, 12);
 
     const user = await prisma.user.create({
-      data: { email, passwordHash, displayName },
+      data: { email, passwordHash, name },
     });
 
+    // メール確認トークンを発行
+    const token = randomBytes(32).toString("hex");
+    const expiresAt = new Date(Date.now() + TOKEN_EXPIRY_HOURS * 60 * 60 * 1000);
+
+    await prisma.emailVerificationToken.create({
+      data: { userId: user.id, token, expiresAt },
+    });
+
+    // 確認メール送信（失敗してもユーザー作成は成功扱い）
+    try {
+      await sendVerificationEmail(email, token);
+    } catch (e) {
+      console.error("Failed to send verification email:", e);
+    }
+
     return NextResponse.json(
-      { id: user.id, email: user.email, displayName: user.displayName },
+      { success: true, requiresVerification: true, email: user.email },
       { status: 201 }
     );
   } catch {

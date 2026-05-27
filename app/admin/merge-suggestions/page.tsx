@@ -20,7 +20,7 @@ interface Suggestion {
   createdAt: string;
   sourceWork: WorkSummary;
   targetWork: WorkSummary;
-  reporter: { id: string; displayName: string } | null;
+  reporter: { id: string; name: string } | null;
 }
 
 export default function MergeSuggestionsAdminPage() {
@@ -133,7 +133,7 @@ export default function MergeSuggestionsAdminPage() {
 
               {/* メタ情報 */}
               <div className="mt-3 flex flex-wrap items-center gap-3 border-t pt-3 text-xs text-gray-500">
-                {s.reporter && <span>報告者: {s.reporter.displayName}</span>}
+                {s.reporter && <span>報告者: {s.reporter.name}</span>}
                 {s.reason && <span>理由: {s.reason}</span>}
                 <span>{new Date(s.createdAt).toLocaleDateString("ja-JP")}</span>
               </div>

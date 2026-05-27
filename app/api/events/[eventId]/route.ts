@@ -76,7 +76,7 @@ export async function PATCH(
       where: { id: eventId },
       data: updateData,
       include: {
-        organizer: { select: { id: true, displayName: true, avatarUrl: true } },
+        organizer: { select: { id: true, name: true, image: true } },
         books: { select: { id: true, title: true, author: true, coverImageUrl: true } },
       },
     });
@@ -91,8 +91,8 @@ export async function PATCH(
       description: updated.description,
       organizer: {
         id: updated.organizer.id,
-        displayName: updated.organizer.displayName,
-        avatarUrl: updated.organizer.avatarUrl,
+        name: updated.organizer.name,
+        image: updated.organizer.image,
       },
       books: updated.books.map((b) => ({
         id: b.id,

@@ -35,7 +35,7 @@ export async function GET(
         window,
       },
       include: {
-        user: { select: { displayName: true, avatarUrl: true } },
+        user: { select: { name: true, image: true } },
       },
       orderBy: { createdAt: "asc" },
     });
@@ -55,8 +55,8 @@ export async function GET(
         .map((m) => ({
           id: m.id,
           userId: m.userId,
-          displayName: m.user.displayName,
-          avatarUrl: m.user.avatarUrl,
+          name: m.user.name,
+          image: m.user.image,
           content: m.content,
           createdAt: m.createdAt.toISOString(),
         })),
@@ -128,15 +128,15 @@ export async function POST(
         window,
       },
       include: {
-        user: { select: { displayName: true, avatarUrl: true } },
+        user: { select: { name: true, image: true } },
       },
     });
 
     return NextResponse.json({
       id: message.id,
       userId: message.userId,
-      displayName: message.user.displayName,
-      avatarUrl: message.user.avatarUrl,
+      name: message.user.name,
+      image: message.user.image,
       content: message.content,
       createdAt: message.createdAt.toISOString(),
     }, { status: 201 });

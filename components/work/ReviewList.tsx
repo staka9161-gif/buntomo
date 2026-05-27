@@ -9,8 +9,8 @@ interface Review {
   postedAt: string;
   user: {
     id: string;
-    displayName: string;
-    avatarUrl: string | null;
+    name: string;
+    image: string | null;
   };
   edition?: {
     id: string;
@@ -97,19 +97,19 @@ export default function ReviewList({ reviews, editionFilter }: ReviewListProps) 
         {filtered.map((review) => (
           <div key={review.id} className="card-base p-4">
             <div className="flex items-center gap-2">
-              {review.user.avatarUrl ? (
+              {review.user.image ? (
                 <img
-                  src={review.user.avatarUrl}
+                  src={review.user.image}
                   alt=""
                   className="h-6 w-6 rounded-full object-cover shadow-[var(--shadow-cover)]"
                 />
               ) : (
                 <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-xs text-[var(--color-accent)]">
-                  {review.user.displayName[0]}
+                  {review.user.name[0]}
                 </div>
               )}
               <span className="font-serif text-sm font-medium text-[var(--color-ink-primary)]">
-                {review.user.displayName}
+                {review.user.name}
               </span>
               {review.rating != null && (
                 <span className="text-xs text-[var(--color-accent)]">

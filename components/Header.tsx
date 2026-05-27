@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 
 export default function Header() {
@@ -9,12 +10,8 @@ export default function Header() {
   return (
     <header className="border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)]">
       <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-1.5 font-serif text-base tracking-[0.08em] text-[var(--color-ink-primary)]">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="1.6">
-            <path d="M2 4.5C2 3.67 2.67 3 3.5 3H11v18H3.5C2.67 21 2 20.33 2 19.5v-15z"/>
-            <path d="M22 4.5C22 3.67 21.33 3 20.5 3H13v18h7.5c.83 0 1.5-.67 1.5-1.5v-15z"/>
-          </svg>
-          文とも
+        <Link href="/" className="flex items-center">
+          <Image src="/logo.png" alt="ブントモ" height={40} width={80} priority className="h-10 w-auto" />
         </Link>
 
         <nav className="flex items-center gap-4 text-sm">

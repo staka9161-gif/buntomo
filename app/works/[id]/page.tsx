@@ -66,7 +66,7 @@ interface Review {
   body: string;
   rating: number | null;
   postedAt: string;
-  user: { id: string; displayName: string; avatarUrl: string | null };
+  user: { id: string; name: string; image: string | null };
   edition: { id: string; format: string; publisher: string | null } | null;
 }
 

@@ -5,8 +5,8 @@ import { parseVisibility } from "@/lib/visibility";
 
 const PROFILE_SELECT = {
   email: true,
-  displayName: true,
-  avatarUrl: true,
+  name: true,
+  image: true,
   bio: true,
   linkX: true,
   linkInstagram: true,
@@ -60,15 +60,15 @@ export async function PATCH(request: NextRequest) {
     const body = await request.json();
     const updateData: Record<string, unknown> = {};
 
-    if (body.displayName !== undefined) {
-      const name = body.displayName?.trim();
+    if (body.name !== undefined) {
+      const name = body.name?.trim();
       if (!name) {
         return NextResponse.json({ error: "名前は必須です" }, { status: 400 });
       }
       if (name.length > 20) {
         return NextResponse.json({ error: "名前は20文字以内にしてください" }, { status: 400 });
       }
-      updateData.displayName = name;
+      updateData.name = name;
     }
 
     if (body.bio !== undefined) {

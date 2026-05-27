@@ -24,8 +24,8 @@ interface EventItem {
   books?: BookInfo[];
   organizer: {
     id: string;
-    displayName: string;
-    avatarUrl: string | null;
+    name: string;
+    image: string | null;
   };
 }
 
@@ -204,7 +204,7 @@ export default function EventsPage() {
                   <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-[var(--color-ink-muted)]">
                     <span>📅 {formatDate(event.eventDate)}</span>
                     <span>📍 {event.prefecture} {event.location}</span>
-                    <a href={`/users/${event.organizer.id}`} className="text-[var(--color-accent)] hover:underline">👤 {event.organizer.displayName}</a>
+                    <a href={`/users/${event.organizer.id}`} className="text-[var(--color-accent)] hover:underline">👤 {event.organizer.name}</a>
                   </div>
 
                   {event.description && (

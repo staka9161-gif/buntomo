@@ -14,14 +14,14 @@ export async function GET() {
       prisma.friendship.findMany({
         where: { addresseeId: session.user.id, status: "PENDING" },
         include: {
-          requester: { select: { id: true, displayName: true, avatarUrl: true, bio: true, area: true } },
+          requester: { select: { id: true, name: true, image: true, bio: true, area: true } },
         },
         orderBy: { createdAt: "desc" },
       }),
       prisma.friendship.findMany({
         where: { requesterId: session.user.id, status: "PENDING" },
         include: {
-          addressee: { select: { id: true, displayName: true, avatarUrl: true, bio: true, area: true } },
+          addressee: { select: { id: true, name: true, image: true, bio: true, area: true } },
         },
         orderBy: { createdAt: "desc" },
       }),

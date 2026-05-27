@@ -51,3 +51,6 @@ scripts/.openbd-progress.json
 
 .vercel
 .env*.local
+
+# user avatars (uploaded at runtime)
+data/avatars/

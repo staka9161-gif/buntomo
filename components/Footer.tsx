@@ -1,12 +1,16 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Footer() {
   return (
     <footer className="w-full border-t border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-4 py-6">
       <div className="mx-auto flex max-w-5xl flex-col items-center gap-3 sm:flex-row sm:justify-between">
         <div className="flex items-center gap-4">
+          <Link href="/" className="flex items-center" aria-label="ホームに戻る">
+            <Image src="/logo.png" alt="ブントモ" height={20} width={40} className="h-5 w-auto opacity-60" />
+          </Link>
           <p className="text-[11px] text-[var(--color-ink-faint)]">
-            &copy; 2026 文とも
+            &copy; 2026
           </p>
           <a
             href="https://bunkare.jp/"

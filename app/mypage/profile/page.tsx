@@ -47,7 +47,7 @@ export default function ProfileEditPage() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [savingAccount, setSavingAccount] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState("");
+  const [image, setImage] = useState("");
   const [accountForm, setAccountForm] = useState({
     email: "",
     currentPassword: "",
@@ -56,7 +56,7 @@ export default function ProfileEditPage() {
   });
   const [accountMsg, setAccountMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [form, setForm] = useState({
-    displayName: "",
+    name: "",
     bio: "",
     area: "",
     linkX: "",
@@ -80,14 +80,14 @@ export default function ProfileEditPage() {
       .then((data) => {
         if (data.profile) {
           setForm({
-            displayName: data.profile.displayName || "",
+            name: data.profile.name || "",
             bio: data.profile.bio || "",
             area: data.profile.area || "",
             linkX: data.profile.linkX || "",
             linkInstagram: data.profile.linkInstagram || "",
             linkWebsite: data.profile.linkWebsite || "",
           });
-          setAvatarUrl(data.profile.avatarUrl || "");
+          setImage(data.profile.image || "");
           setCustomLinks(data.profile.customLinks || []);
           if (data.profile.visibility) setVisibility(data.profile.visibility);
           setAccountForm((prev) => ({ ...prev, email: data.profile.email || "" }));
@@ -154,7 +154,7 @@ export default function ProfileEditPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        setAvatarUrl(data.avatarUrl);
+        setImage(data.image);
         await updateSession().catch(() => {});
       } else {
         const err = await res.json().catch(() => null);
@@ -185,7 +185,7 @@ export default function ProfileEditPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.displayName.trim()) return;
+    if (!form.name.trim()) return;
     setSaving(true);
     try {
       const validCustomLinks = customLinks.filter((l) => l.label.trim() && l.url.trim());
@@ -199,7 +199,7 @@ export default function ProfileEditPage() {
         }),
       });
       if (res.ok) {
-        await updateSession().catch(() => {});
+        await updateSession();
         router.push("/mypage");
         return;
       } else {
@@ -282,16 +282,16 @@ export default function ProfileEditPage() {
             className="group relative shrink-0"
             disabled={uploading}
           >
-            {avatarUrl ? (
+            {image ? (
               <img
-                src={avatarUrl}
+                src={image}
                 alt="アイコン"
                 className="h-20 w-20 rounded-full object-cover shadow-[var(--shadow-cover)]"
                 onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
               />
             ) : (
               <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-2xl font-bold text-[var(--color-accent)]">
-                {form.displayName.charAt(0) || "?"}
+                {form.name.charAt(0) || "?"}
               </div>
             )}
             <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 text-xs text-white opacity-0 group-hover:opacity-100 transition">
@@ -323,12 +323,12 @@ export default function ProfileEditPage() {
         <div>
           <label className="mb-1 flex items-center justify-between text-sm text-[var(--color-ink-primary)] font-medium">
             <span>ハンドルネーム <span className="text-red-500">*</span></span>
-            <span className="text-[var(--color-ink-faint)]">{form.displayName.length}/20</span>
+            <span className="text-[var(--color-ink-faint)]">{form.name.length}/20</span>
           </label>
           <input
             type="text"
-            value={form.displayName}
-            onChange={(e) => setForm({ ...form, displayName: e.target.value })}
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
             maxLength={20}
             className="w-full rounded-lg border px-3 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
             required

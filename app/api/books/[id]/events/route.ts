@@ -64,7 +64,7 @@ export async function GET(
         eventDate: { gte: new Date() },
       },
       include: {
-        organizer: { select: { id: true, displayName: true, avatarUrl: true } },
+        organizer: { select: { id: true, name: true, image: true } },
         book: { select: { id: true, title: true, author: true, coverImageUrl: true } },
         books: { select: { id: true, title: true, author: true, coverImageUrl: true } },
       },
@@ -82,8 +82,8 @@ export async function GET(
         description: e.description,
         organizer: {
           id: e.organizer.id,
-          displayName: e.organizer.displayName,
-          avatarUrl: e.organizer.avatarUrl,
+          name: e.organizer.name,
+          image: e.organizer.image,
         },
         books: e.book
           ? [{ id: e.book.id, title: e.book.title, author: e.book.author, coverImageUrl: e.book.coverImageUrl }]
@@ -158,7 +158,7 @@ export async function POST(
         books: { connect: allBookIds.map((bid) => ({ id: bid })) },
       },
       include: {
-        organizer: { select: { id: true, displayName: true, avatarUrl: true } },
+        organizer: { select: { id: true, name: true, image: true } },
         books: { select: { id: true, title: true, author: true, coverImageUrl: true } },
       },
     });
@@ -174,8 +174,8 @@ export async function POST(
         description: event.description,
         organizer: {
           id: event.organizer.id,
-          displayName: event.organizer.displayName,
-          avatarUrl: event.organizer.avatarUrl,
+          name: event.organizer.name,
+          image: event.organizer.image,
         },
         books: event.books.map((b) => ({
           id: b.id,

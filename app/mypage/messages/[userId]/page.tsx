@@ -11,13 +11,13 @@ interface Message {
   senderId: string;
   content: string;
   createdAt: string;
-  sender: { id: string; displayName: string; avatarUrl: string | null };
+  sender: { id: string; name: string; image: string | null };
 }
 
 interface Partner {
   id: string;
-  displayName: string;
-  avatarUrl: string | null;
+  name: string;
+  image: string | null;
 }
 
 export default function DMChatPage() {
@@ -114,14 +114,14 @@ export default function DMChatPage() {
         </Link>
         {partner && (
           <Link href={`/users/${partner.id}`} className="flex items-center gap-2 min-w-0 hover:opacity-80">
-            {partner.avatarUrl ? (
-              <img src={partner.avatarUrl} alt="" className="h-9 w-9 shrink-0 rounded-full object-cover" />
+            {partner.image ? (
+              <img src={partner.image} alt="" className="h-9 w-9 shrink-0 rounded-full object-cover" />
             ) : (
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-sm font-bold text-[var(--color-accent)]">
-                {partner.displayName.charAt(0)}
+                {partner.name.charAt(0)}
               </div>
             )}
-            <h1 className="font-serif text-base font-medium text-[var(--color-ink-primary)] truncate">{partner.displayName}</h1>
+            <h1 className="font-serif text-base font-medium text-[var(--color-ink-primary)] truncate">{partner.name}</h1>
           </Link>
         )}
       </div>
@@ -140,11 +140,11 @@ export default function DMChatPage() {
                 return (
                   <div key={msg.id} className={`flex gap-2 ${isMe ? "flex-row-reverse" : ""}`}>
                     <Link href={`/users/${msg.sender.id}`} className="shrink-0">
-                      {msg.sender.avatarUrl ? (
-                        <img src={msg.sender.avatarUrl} alt="" className="h-8 w-8 rounded-full object-cover" />
+                      {msg.sender.image ? (
+                        <img src={msg.sender.image} alt="" className="h-8 w-8 rounded-full object-cover" />
                       ) : (
                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-xs font-bold text-[var(--color-accent)]">
-                          {msg.sender.displayName.charAt(0)}
+                          {msg.sender.name.charAt(0)}
                         </div>
                       )}
                     </Link>

@@ -1,9 +1,12 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import Google from "next-auth/providers/google";
+import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcryptjs from "bcryptjs";
 import { prisma } from "./db";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  adapter: PrismaAdapter(prisma),
   providers: [
     Credentials({
       name: "credentials",
@@ -20,6 +23,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         if (!user) return null;
 
+        if (!user.passwordHash) {
+          throw new Error("このメールアドレスはGoogleログインで登録されています。Googleでログインしてください。");
+        }
+
+        if (!user.emailVerified) {
+          throw new Error("メールアドレスの確認が完了していません。受信箱をご確認ください。");
+        }
+
         const isValid = await bcryptjs.compare(
           credentials.password as string,
           user.passwordHash
@@ -30,8 +41,26 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         return {
           id: user.id,
           email: user.email,
-          name: user.displayName,
-          image: user.avatarUrl,
+          name: user.name,
+          image: user.image?.startsWith("data:") ? null : user.image,
+        };
+      },
+    }),
+    Google({
+      authorization: {
+        params: {
+          prompt: "select_account",
+        },
+      },
+      allowDangerousEmailAccountLinking: true,
+      profile(profile) {
+        const randomSuffix = Math.random().toString(36).substring(2, 8);
+        return {
+          id: profile.sub,
+          name: `ユーザー${randomSuffix}`,
+          email: profile.email,
+          image: null,
+          emailVerified: profile.email_verified ? new Date() : null,
         };
       },
     }),
@@ -44,19 +73,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, user, trigger }) {
       if (user) {
         token.id = user.id;
+        token.name = user.name;
+        token.picture = user.image?.startsWith("data:") ? null : user.image;
       }
-      // セッション更新時にDBから最新情報を取得
-      if (token.id && typeof token.id === "string") {
-        const dbUser = await prisma.user.findUnique({
-          where: { id: token.id as string },
-          select: { displayName: true, avatarUrl: true },
-        });
-        if (dbUser) {
-          token.name = dbUser.displayName;
-          token.picture = dbUser.avatarUrl;
-        } else {
-          // ユーザーがDBに存在しない → セッション無効化
-          return { ...token, id: undefined };
+      // クライアントから useSession().update() が呼ばれた時のみ DB を参照
+      if (trigger === "update" && token.id && typeof token.id === "string") {
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: token.id as string },
+            select: { name: true, image: true },
+          });
+          if (dbUser) {
+            token.name = dbUser.name;
+            token.picture = dbUser.image?.startsWith("data:") ? null : dbUser.image;
+          }
+        } catch {
+          // DB エラー時はトークンをそのまま維持（強制ログアウトしない）
         }
       }
       return token;

@@ -15,8 +15,8 @@ export async function GET(
       where: { id: userId },
       select: {
         id: true,
-        displayName: true,
-        avatarUrl: true,
+        name: true,
+        image: true,
         bio: true,
         area: true,
         linkX: true,
@@ -107,8 +107,8 @@ export async function GET(
 
     const userResponse = {
       id: user.id,
-      displayName: user.displayName,
-      avatarUrl: user.avatarUrl,
+      name: user.name,
+      image: user.image,
       bio: canSee("bio") ? user.bio : null,
       area: canSee("area") ? user.area : null,
       linkX: canSee("links") ? user.linkX : null,

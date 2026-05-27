@@ -22,8 +22,8 @@ interface ReadingEvent {
   description: string | null;
   organizer: {
     id: string;
-    displayName: string;
-    avatarUrl: string | null;
+    name: string;
+    image: string | null;
   };
   books?: BookInfo[];
   isOtherEdition?: boolean;
@@ -233,7 +233,7 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
                 <div className="mt-1.5 space-y-0.5 text-[11px] text-[var(--color-ink-muted)]">
                   <p>📅 {formatDate(event.eventDate)}</p>
                   <p>📍 {event.prefecture} {event.location}</p>
-                  <p><a href={`/users/${event.organizer.id}`} className="text-[var(--color-accent)] hover:underline">👤 {event.organizer.displayName}</a></p>
+                  <p><a href={`/users/${event.organizer.id}`} className="text-[var(--color-accent)] hover:underline">👤 {event.organizer.name}</a></p>
                 </div>
                 {event.url && (
                   <a
@@ -482,7 +482,7 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
                   <div className="mt-1 flex flex-wrap gap-x-3 text-xs text-[var(--color-ink-muted)]">
                     <span>📅 {formatDate(event.eventDate)}</span>
                     <span>📍 {event.prefecture} {event.location}</span>
-                    <a href={`/users/${event.organizer.id}`} className="text-[var(--color-accent)] hover:underline">👤 {event.organizer.displayName}</a>
+                    <a href={`/users/${event.organizer.id}`} className="text-[var(--color-accent)] hover:underline">👤 {event.organizer.name}</a>
                   </div>
                   {event.description && (
                     <p className="mt-1 text-xs text-[var(--color-ink-faint)]">{event.description}</p>

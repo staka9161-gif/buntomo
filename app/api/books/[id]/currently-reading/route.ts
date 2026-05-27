@@ -18,7 +18,7 @@ export async function GET(
 
     const readings = await prisma.readingStatus.findMany({
       where: { bookId: id, status: "READING" },
-      include: { user: { select: { id: true, displayName: true, avatarUrl: true } } },
+      include: { user: { select: { id: true, name: true, image: true } } },
     });
 
     // ブロック関係のユーザーを除外
@@ -29,8 +29,8 @@ export async function GET(
       .filter((r) => !blockedIds.has(r.user.id))
       .map((r) => ({
         userId: r.user.id,
-        displayName: r.user.displayName,
-        avatarUrl: r.user.avatarUrl,
+        name: r.user.name,
+        image: r.user.image,
         currentPage: r.currentPage,
         progressPercent: calculateProgress(r.currentPage, book.totalPages),
       }));

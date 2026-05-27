@@ -18,8 +18,8 @@ export async function GET() {
         ],
       },
       include: {
-        requester: { select: { id: true, displayName: true, avatarUrl: true, bio: true, area: true } },
-        addressee: { select: { id: true, displayName: true, avatarUrl: true, bio: true, area: true } },
+        requester: { select: { id: true, name: true, image: true, bio: true, area: true } },
+        addressee: { select: { id: true, name: true, image: true, bio: true, area: true } },
       },
       orderBy: { updatedAt: "desc" },
     });

@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
       include: {
         book: { select: { id: true, title: true, author: true, coverImageUrl: true } },
         books: { select: { id: true, title: true, author: true, coverImageUrl: true } },
-        organizer: { select: { id: true, displayName: true, avatarUrl: true } },
+        organizer: { select: { id: true, name: true, image: true } },
       },
       orderBy: { eventDate: "asc" },
       take: 50,
@@ -66,8 +66,8 @@ export async function GET(request: NextRequest) {
           : e.books.slice(0, 1).map(b => ({ id: b.id, title: b.title, author: b.author, coverImageUrl: b.coverImageUrl })),
         organizer: {
           id: e.organizer.id,
-          displayName: e.organizer.displayName,
-          avatarUrl: e.organizer.avatarUrl,
+          name: e.organizer.name,
+          image: e.organizer.image,
         },
       })),
     });

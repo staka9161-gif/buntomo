@@ -14,7 +14,7 @@ export async function GET(
       where: { workId: id },
       include: {
         user: {
-          select: { id: true, displayName: true, avatarUrl: true },
+          select: { id: true, name: true, image: true },
         },
         edition: {
           select: { id: true, format: true, publisher: true },
@@ -85,7 +85,7 @@ export async function POST(
           editionId: edition_id ?? existing.editionId,
         },
         include: {
-          user: { select: { id: true, displayName: true, avatarUrl: true } },
+          user: { select: { id: true, name: true, image: true } },
           edition: { select: { id: true, format: true, publisher: true } },
         },
       });
@@ -99,7 +99,7 @@ export async function POST(
           rating: rating ?? null,
         },
         include: {
-          user: { select: { id: true, displayName: true, avatarUrl: true } },
+          user: { select: { id: true, name: true, image: true } },
           edition: { select: { id: true, format: true, publisher: true } },
         },
       });

@@ -27,6 +27,13 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "ユーザーが見つかりません" }, { status: 404 });
     }
 
+    if (!user.passwordHash) {
+      return NextResponse.json(
+        { error: "このアカウントはGoogleログインで作成されています。パスワードやメールアドレスの変更はできません。" },
+        { status: 400 }
+      );
+    }
+
     const isValid = await bcryptjs.compare(currentPassword, user.passwordHash);
     if (!isValid) {
       return NextResponse.json(

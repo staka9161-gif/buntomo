@@ -8,7 +8,7 @@ import { apiUrl } from "@/lib/api";
 
 interface BlockedUser {
   id: string;
-  user: { id: string; displayName: string; avatarUrl: string | null };
+  user: { id: string; name: string; image: string | null };
   createdAt: string;
 }
 
@@ -63,15 +63,15 @@ export default function BlockListPage() {
         <div className="space-y-2">
           {blocks.map((b) => (
             <div key={b.id} className="card-base flex items-center gap-3 p-4">
-              {b.user.avatarUrl ? (
-                <img src={b.user.avatarUrl} alt="" className="h-10 w-10 shrink-0 rounded-full object-cover shadow-[var(--shadow-cover)]" />
+              {b.user.image ? (
+                <img src={b.user.image} alt="" className="h-10 w-10 shrink-0 rounded-full object-cover shadow-[var(--shadow-cover)]" />
               ) : (
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-sm font-bold text-[var(--color-accent)]">
-                  {b.user.displayName.charAt(0)}
+                  {b.user.name.charAt(0)}
                 </div>
               )}
               <div className="min-w-0 flex-1">
-                <p className="font-serif text-sm font-medium text-[var(--color-ink-primary)] truncate">{b.user.displayName}</p>
+                <p className="font-serif text-sm font-medium text-[var(--color-ink-primary)] truncate">{b.user.name}</p>
               </div>
               <button
                 onClick={() => handleUnblock(b.user.id)}

@@ -20,14 +20,14 @@ export async function GET() {
       },
       orderBy: { createdAt: "desc" },
       include: {
-        sender: { select: { id: true, displayName: true, avatarUrl: true } },
-        recipient: { select: { id: true, displayName: true, avatarUrl: true } },
+        sender: { select: { id: true, name: true, image: true } },
+        recipient: { select: { id: true, name: true, image: true } },
       },
     });
 
     // 相手ごとにグルーピングして最新メッセージだけ取得
     const conversationMap = new Map<string, {
-      user: { id: string; displayName: string; avatarUrl: string | null };
+      user: { id: string; name: string; image: string | null };
       lastMessage: string;
       lastMessageAt: string;
       isMe: boolean;

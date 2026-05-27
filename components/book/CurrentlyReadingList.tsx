@@ -10,8 +10,8 @@ const STEP = 20;
 
 interface Reader {
   userId: string;
-  displayName: string;
-  avatarUrl: string | null;
+  name: string;
+  image: string | null;
   currentPage: number;
   progressPercent: number;
 }
@@ -67,10 +67,10 @@ export default function CurrentlyReadingList({ bookId, refreshKey }: { bookId: s
 
       {shown.map((reader) => (
         <Link key={reader.userId} href={`/users/${reader.userId}`} className="flex items-center gap-3 rounded-lg bg-[var(--color-bg-elevated)] p-3 hover:bg-[var(--color-bg-base)] transition">
-          {reader.avatarUrl ? (
+          {reader.image ? (
             <img
-              src={reader.avatarUrl}
-              alt={reader.displayName}
+              src={reader.image}
+              alt={reader.name}
               className="h-8 w-8 shrink-0 rounded-full object-cover"
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = "none";
@@ -78,11 +78,11 @@ export default function CurrentlyReadingList({ bookId, refreshKey }: { bookId: s
               }}
             />
           ) : null}
-          <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-sm font-bold text-[var(--color-accent)] ${reader.avatarUrl ? "hidden" : ""}`}>
-            {reader.displayName.charAt(0)}
+          <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-sm font-bold text-[var(--color-accent)] ${reader.image ? "hidden" : ""}`}>
+            {reader.name.charAt(0)}
           </div>
           <div className="flex-1">
-            <p className="text-sm font-medium">{reader.displayName}</p>
+            <p className="text-sm font-medium">{reader.name}</p>
             <ProgressBar percent={reader.progressPercent} />
           </div>
         </Link>
