@@ -11,6 +11,7 @@ interface Message {
   id: string;
   userId: string;
   name: string;
+  displayName?: string;
   image: string | null;
   content: string;
   createdAt: string;
@@ -122,7 +123,7 @@ export default function ChatRoom({ bookId }: { bookId: string }) {
                     </div>
                   </Link>
                   <div className={`max-w-[70%] ${isMe ? "text-right" : ""}`}>
-                    <Link href={`/users/${msg.userId}`} className="text-xs text-[var(--color-ink-muted)] hover:text-[var(--color-accent)] hover:underline">{msg.name}</Link>
+                    <Link href={`/users/${msg.userId}`} className="text-xs text-[var(--color-ink-muted)] hover:text-[var(--color-accent)] hover:underline">{msg.displayName ?? msg.name}</Link>
                     <div
                       className={`mt-1 inline-block rounded-lg px-3 py-2 text-sm ${
                         isMe ? "bg-[var(--color-accent)] text-[var(--color-bg-elevated)]" : "bg-[var(--color-bg-elevated)] text-[var(--color-ink-primary)] border border-[var(--color-border-faint)]"

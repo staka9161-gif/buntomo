@@ -62,9 +62,17 @@ export async function GET(
       select: { id: true, name: true, image: true },
     });
 
+    const { getDisplayNames } = await import("@/lib/user-display");
+    const allIds = [...new Set([...messages.map((m) => m.sender.id), ...(partner ? [partner.id] : [])])];
+    const dn = await getDisplayNames(allIds);
+    const enrichedMessages = messages.reverse().map((m) => ({
+      ...m,
+      sender: { ...m.sender, displayName: dn.get(m.sender.id) ?? m.sender.name },
+    }));
+    const enrichedPartner = partner ? { ...partner, displayName: dn.get(partner.id) ?? partner.name } : null;
     return NextResponse.json({
-      messages: messages.reverse(),
-      partner,
+      messages: enrichedMessages,
+      partner: enrichedPartner,
       hasMore: messages.length === 50,
     });
   } catch (e) {

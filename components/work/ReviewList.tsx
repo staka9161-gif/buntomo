@@ -10,6 +10,7 @@ interface Review {
   user: {
     id: string;
     name: string;
+    displayName?: string;
     image: string | null;
   };
   edition?: {
@@ -109,7 +110,7 @@ export default function ReviewList({ reviews, editionFilter }: ReviewListProps) 
                 </div>
               )}
               <span className="font-serif text-sm font-medium text-[var(--color-ink-primary)]">
-                {review.user.name}
+                {review.user.displayName ?? review.user.name}
               </span>
               {review.rating != null && (
                 <span className="text-xs text-[var(--color-accent)]">

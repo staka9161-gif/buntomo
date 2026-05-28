@@ -29,7 +29,11 @@ export async function GET() {
       return { ...friend, friendshipId: f.id, since: f.updatedAt };
     });
 
-    return NextResponse.json({ friends });
+    const { getDisplayNames } = await import("@/lib/user-display");
+    const dn = await getDisplayNames(friends.map((f) => f.id));
+    const enriched = friends.map((f) => ({ ...f, displayName: dn.get(f.id) ?? f.name }));
+
+    return NextResponse.json({ friends: enriched });
   } catch (e) {
     console.error("Friends GET error:", e);
     return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });

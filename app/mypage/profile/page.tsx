@@ -65,6 +65,20 @@ export default function ProfileEditPage() {
   });
   const [customLinks, setCustomLinks] = useState<CustomLink[]>([]);
   const [visibility, setVisibility] = useState<Visibility>({ ...DEFAULT_VIS });
+  const [nameCollision, setNameCollision] = useState<number | null>(null);
+  const nameDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (nameDebounceRef.current) clearTimeout(nameDebounceRef.current);
+    if (!form.name.trim()) { setNameCollision(null); return; }
+    nameDebounceRef.current = setTimeout(() => {
+      fetch(apiUrl(`/api/users/check-name?name=${encodeURIComponent(form.name.trim())}`))
+        .then((r) => r.json())
+        .then((data) => setNameCollision(data.count ?? 0))
+        .catch(() => setNameCollision(null));
+    }, 300);
+    return () => { if (nameDebounceRef.current) clearTimeout(nameDebounceRef.current); };
+  }, [form.name]);
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/login");
@@ -322,7 +336,7 @@ export default function ProfileEditPage() {
         {/* 名前 */}
         <div>
           <label className="mb-1 flex items-center justify-between text-sm text-[var(--color-ink-primary)] font-medium">
-            <span>ハンドルネーム <span className="text-red-500">*</span></span>
+            <span>ユーザーネーム <span className="text-red-500">*</span></span>
             <span className="text-[var(--color-ink-faint)]">{form.name.length}/20</span>
           </label>
           <input
@@ -333,6 +347,11 @@ export default function ProfileEditPage() {
             className="w-full rounded-lg border px-3 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
             required
           />
+          {nameCollision != null && nameCollision > 0 && (
+            <p className="mt-1 text-xs text-amber-600">
+              ※同じユーザーネームのユーザーがいるため、番号「#{nameCollision + 1}」が付与されます。
+            </p>
+          )}
         </div>
 
         {/* 一言 */}

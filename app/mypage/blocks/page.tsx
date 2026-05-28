@@ -8,7 +8,7 @@ import { apiUrl } from "@/lib/api";
 
 interface BlockedUser {
   id: string;
-  user: { id: string; name: string; image: string | null };
+  user: { id: string; name: string; displayName?: string; image: string | null };
   createdAt: string;
 }
 
@@ -71,7 +71,7 @@ export default function BlockListPage() {
                 </div>
               )}
               <div className="min-w-0 flex-1">
-                <p className="font-serif text-sm font-medium text-[var(--color-ink-primary)] truncate">{b.user.name}</p>
+                <p className="font-serif text-sm font-medium text-[var(--color-ink-primary)] truncate">{b.user.displayName ?? b.user.name}</p>
               </div>
               <button
                 onClick={() => handleUnblock(b.user.id)}

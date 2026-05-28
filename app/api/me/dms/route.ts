@@ -50,8 +50,14 @@ export async function GET() {
     }
 
     const conversations = [...conversationMap.values()];
+    const { getDisplayNames } = await import("@/lib/user-display");
+    const dn = await getDisplayNames(conversations.map((c) => c.user.id));
+    const enriched = conversations.map((c) => ({
+      ...c,
+      user: { ...c.user, displayName: dn.get(c.user.id) ?? c.user.name },
+    }));
 
-    return NextResponse.json({ conversations });
+    return NextResponse.json({ conversations: enriched });
   } catch (e) {
     console.error("DMs GET error:", e);
     return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });

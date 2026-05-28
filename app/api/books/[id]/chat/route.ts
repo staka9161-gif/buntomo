@@ -48,14 +48,16 @@ export async function GET(
       canPost = userIds.includes(session.user.id);
     }
 
+    const filteredMsgs = messages.filter((m) => !blockedIds.has(m.userId));
+    const { getDisplayNames } = await import("@/lib/user-display");
+    const chatDisplayNames = await getDisplayNames(filteredMsgs.map((m) => m.userId));
     return NextResponse.json({
       window,
-      messages: messages
-        .filter((m) => !blockedIds.has(m.userId))
-        .map((m) => ({
+      messages: filteredMsgs.map((m) => ({
           id: m.id,
           userId: m.userId,
           name: m.user.name,
+          displayName: chatDisplayNames.get(m.userId) ?? m.user.name,
           image: m.user.image,
           content: m.content,
           createdAt: m.createdAt.toISOString(),
@@ -132,10 +134,13 @@ export async function POST(
       },
     });
 
+    const { getDisplayName } = await import("@/lib/user-display");
+    const postDisplayName = await getDisplayName(message.userId);
     return NextResponse.json({
       id: message.id,
       userId: message.userId,
       name: message.user.name,
+      displayName: postDisplayName ?? message.user.name,
       image: message.user.image,
       content: message.content,
       createdAt: message.createdAt.toISOString(),

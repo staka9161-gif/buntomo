@@ -11,6 +11,7 @@ const STEP = 20;
 interface Reader {
   userId: string;
   name: string;
+  displayName?: string;
   image: string | null;
   currentPage: number;
   progressPercent: number;
@@ -82,7 +83,7 @@ export default function CurrentlyReadingList({ bookId, refreshKey }: { bookId: s
             {reader.name.charAt(0)}
           </div>
           <div className="flex-1">
-            <p className="text-sm font-medium">{reader.name}</p>
+            <p className="text-sm font-medium">{reader.displayName ?? reader.name}</p>
             <ProgressBar percent={reader.progressPercent} />
           </div>
         </Link>

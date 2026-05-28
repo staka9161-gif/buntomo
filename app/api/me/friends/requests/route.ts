@@ -27,15 +27,18 @@ export async function GET() {
       }),
     ]);
 
+    const { getDisplayNames } = await import("@/lib/user-display");
+    const allUserIds = [...received.map((r) => r.requester.id), ...sent.map((s) => s.addressee.id)];
+    const dn = await getDisplayNames(allUserIds);
     return NextResponse.json({
       received: received.map((r) => ({
         id: r.id,
-        user: r.requester,
+        user: { ...r.requester, displayName: dn.get(r.requester.id) ?? r.requester.name },
         createdAt: r.createdAt,
       })),
       sent: sent.map((s) => ({
         id: s.id,
-        user: s.addressee,
+        user: { ...s.addressee, displayName: dn.get(s.addressee.id) ?? s.addressee.name },
         createdAt: s.createdAt,
       })),
     });

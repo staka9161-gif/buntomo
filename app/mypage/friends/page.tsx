@@ -9,6 +9,7 @@ import { apiUrl } from "@/lib/api";
 interface UserInfo {
   id: string;
   name: string;
+  displayName?: string;
   image: string | null;
   bio: string | null;
   area: string | null;
@@ -103,7 +104,7 @@ export default function FriendsPage() {
           </div>
         )}
         <div className="min-w-0">
-          <p className="truncate font-serif text-base font-medium text-[var(--color-ink-primary)]">{user.name}</p>
+          <p className="truncate font-serif text-base font-medium text-[var(--color-ink-primary)]">{user.displayName ?? user.name}</p>
           {user.area && <p className="text-xs text-[var(--color-ink-muted)]">📍 {user.area}</p>}
           {user.bio && <p className="truncate text-xs text-[var(--color-ink-muted)]">{user.bio}</p>}
         </div>

@@ -23,7 +23,13 @@ export async function GET(
       orderBy: { postedAt: "desc" },
     });
 
-    return NextResponse.json({ reviews });
+    const { getDisplayNames } = await import("@/lib/user-display");
+    const reviewDisplayNames = await getDisplayNames(reviews.map((r) => r.user.id));
+    const enriched = reviews.map((r) => ({
+      ...r,
+      user: { ...r.user, displayName: reviewDisplayNames.get(r.user.id) ?? r.user.name },
+    }));
+    return NextResponse.json({ reviews: enriched });
   } catch (e) {
     console.error("Reviews GET error:", e);
     return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });

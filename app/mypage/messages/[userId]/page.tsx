@@ -11,12 +11,13 @@ interface Message {
   senderId: string;
   content: string;
   createdAt: string;
-  sender: { id: string; name: string; image: string | null };
+  sender: { id: string; name: string; displayName?: string; image: string | null };
 }
 
 interface Partner {
   id: string;
   name: string;
+  displayName?: string;
   image: string | null;
 }
 
@@ -121,7 +122,7 @@ export default function DMChatPage() {
                 {partner.name.charAt(0)}
               </div>
             )}
-            <h1 className="font-serif text-base font-medium text-[var(--color-ink-primary)] truncate">{partner.name}</h1>
+            <h1 className="font-serif text-base font-medium text-[var(--color-ink-primary)] truncate">{partner.displayName ?? partner.name}</h1>
           </Link>
         )}
       </div>

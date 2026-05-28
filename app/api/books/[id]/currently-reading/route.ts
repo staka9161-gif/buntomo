@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { calculateProgress } from "@/types";
 import { getBlockedUserIds } from "@/lib/block";
+import { getDisplayNames } from "@/lib/user-display";
 
 export async function GET(
   _request: Request,
@@ -25,11 +26,12 @@ export async function GET(
     const session = await auth();
     const blockedIds = session?.user?.id ? await getBlockedUserIds(session.user.id) : new Set<string>();
 
-    const users = readings
-      .filter((r) => !blockedIds.has(r.user.id))
-      .map((r) => ({
+    const filtered = readings.filter((r) => !blockedIds.has(r.user.id));
+    const displayNames = await getDisplayNames(filtered.map((r) => r.user.id));
+    const users = filtered.map((r) => ({
         userId: r.user.id,
         name: r.user.name,
+        displayName: displayNames.get(r.user.id) ?? r.user.name,
         image: r.user.image,
         currentPage: r.currentPage,
         progressPercent: calculateProgress(r.currentPage, book.totalPages),

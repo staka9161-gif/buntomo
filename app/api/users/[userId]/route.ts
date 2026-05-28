@@ -105,9 +105,11 @@ export async function GET(
       try { customLinks = JSON.parse(user.customLinks); } catch { /* */ }
     }
 
+    const displayName = await (await import("@/lib/user-display")).getDisplayName(user.id);
     const userResponse = {
       id: user.id,
       name: user.name,
+      displayName: displayName ?? user.name,
       image: user.image,
       bio: canSee("bio") ? user.bio : null,
       area: canSee("area") ? user.area : null,

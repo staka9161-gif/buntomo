@@ -18,10 +18,12 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
     });
 
+    const { getDisplayNames } = await import("@/lib/user-display");
+    const dn = await getDisplayNames(blocks.map((b) => b.blocked.id));
     return NextResponse.json({
       blocks: blocks.map((b) => ({
         id: b.id,
-        user: b.blocked,
+        user: { ...b.blocked, displayName: dn.get(b.blocked.id) ?? b.blocked.name },
         createdAt: b.createdAt,
       })),
     });

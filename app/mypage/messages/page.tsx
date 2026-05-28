@@ -7,7 +7,7 @@ import Link from "next/link";
 import { apiUrl } from "@/lib/api";
 
 interface Conversation {
-  user: { id: string; name: string; image: string | null };
+  user: { id: string; name: string; displayName?: string; image: string | null };
   lastMessage: string;
   lastMessageAt: string;
   isMe: boolean;
@@ -94,7 +94,7 @@ export default function MessagesPage() {
               )}
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between">
-                  <p className="font-serif text-sm font-medium text-[var(--color-ink-primary)] truncate">{conv.user.name}</p>
+                  <p className="font-serif text-sm font-medium text-[var(--color-ink-primary)] truncate">{conv.user.displayName ?? conv.user.name}</p>
                   <span className="shrink-0 text-[10px] font-mono text-[var(--color-ink-faint)]">{formatRelativeTime(conv.lastMessageAt)}</span>
                 </div>
                 <p className="mt-0.5 truncate text-xs text-[var(--color-ink-muted)]">

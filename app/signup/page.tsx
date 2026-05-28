@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { apiUrl } from "@/lib/api";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -12,6 +12,20 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [nameCollision, setNameCollision] = useState<number | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (!name.trim()) { setNameCollision(null); return; }
+    debounceRef.current = setTimeout(() => {
+      fetch(apiUrl(`/api/users/check-name?name=${encodeURIComponent(name.trim())}`))
+        .then((r) => r.json())
+        .then((data) => setNameCollision(data.count ?? 0))
+        .catch(() => setNameCollision(null));
+    }, 300);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, [name]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +64,7 @@ export default function SignupPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-[var(--color-ink-primary)]">ハンドルネーム</label>
+            <label className="mb-1.5 block text-sm font-medium text-[var(--color-ink-primary)]">ユーザーネーム</label>
             <input
               type="text"
               value={name}
@@ -59,9 +73,15 @@ export default function SignupPage() {
               className="w-full rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-3 py-2.5 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
               placeholder="ぶんちゃん"
             />
-            <p className="mt-1 text-xs text-[var(--color-ink-muted)]">
-              ※他のユーザーに公開されます。本名は使わないことを推奨。後から変更できます。
-            </p>
+            {nameCollision != null && nameCollision > 0 ? (
+              <p className="mt-1 text-xs text-amber-600">
+                ※同じユーザーネームのユーザーがいるため、番号「#{nameCollision + 1}」が自動付与されます。
+              </p>
+            ) : (
+              <p className="mt-1 text-xs text-[var(--color-ink-muted)]">
+                ※他のユーザーに公開されます。本名は使わないことを推奨。後から変更できます。
+              </p>
+            )}
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-medium text-[var(--color-ink-primary)]">メールアドレス</label>
