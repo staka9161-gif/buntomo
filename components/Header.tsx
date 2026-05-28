@@ -25,9 +25,9 @@ export default function Header() {
 
   return (
     <header className="border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)]">
-      <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4">
+      <div className="mx-auto flex h-20 max-w-5xl items-center justify-between px-4">
         <Link href="/" className="flex items-center">
-          <Image src="/logo.png" alt="ブントモ" height={56} width={112} priority className="h-14 w-auto" />
+          <Image src="/logo.png" alt="ブントモ" height={64} width={128} priority className="h-16 w-auto" />
         </Link>
 
         <nav className="flex items-center gap-4 text-sm">
