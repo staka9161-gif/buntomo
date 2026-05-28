@@ -50,15 +50,18 @@ export default function SignupPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-[var(--color-ink-primary)]">表示名</label>
+            <label className="mb-1.5 block text-sm font-medium text-[var(--color-ink-primary)]">ハンドルネーム</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
               className="w-full rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-3 py-2.5 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
-              placeholder="例: 山田太郎"
+              placeholder="ぶんちゃん"
             />
+            <p className="mt-1 text-xs text-[var(--color-ink-muted)]">
+              ※他のユーザーに公開されます。本名は使わないことを推奨。後から変更できます。
+            </p>
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-medium text-[var(--color-ink-primary)]">メールアドレス</label>
