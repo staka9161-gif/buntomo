@@ -128,16 +128,24 @@ export async function POST(
       return NextResponse.json({ error: "少し時間をおいてから送信してください" }, { status: 429 });
     }
 
+    // 通知チェックはメッセージ作成前に行う（未読の存在で判定するため）
+    const { notifyDMReceived } = await import("@/lib/notifications");
+    const trimmedContent = content.trim();
+    const shouldNotify = notifyDMReceived(myId, userId, trimmedContent);
+
     const message = await prisma.directMessage.create({
       data: {
         senderId: myId,
         recipientId: userId,
-        content: content.trim(),
+        content: trimmedContent,
       },
       include: {
         sender: { select: { id: true, name: true, image: true } },
       },
     });
+
+    // fire-and-forget: メール失敗が DM 操作を妨げない
+    shouldNotify.catch(() => {});
 
     return NextResponse.json(message, { status: 201 });
   } catch (e) {

@@ -103,6 +103,11 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // fire-and-forget notification
+    import("@/lib/notifications")
+      .then(({ notifyFriendRequest }) => notifyFriendRequest(session.user!.id, userId))
+      .catch(() => {});
+
     return NextResponse.json({ friendship }, { status: 201 });
   } catch (e) {
     console.error("Friend request POST error:", e);

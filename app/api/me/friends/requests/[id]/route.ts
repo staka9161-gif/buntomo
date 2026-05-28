@@ -35,6 +35,13 @@ export async function PATCH(
       data: { status: action === "accept" ? "ACCEPTED" : "REJECTED" },
     });
 
+    // 承認時のみ通知（fire-and-forget）
+    if (action === "accept") {
+      import("@/lib/notifications")
+        .then(({ notifyFriendAccepted }) => notifyFriendAccepted(session.user!.id, friendship.requesterId))
+        .catch(() => {});
+    }
+
     return NextResponse.json({ friendship: updated });
   } catch (e) {
     console.error("Friend request PATCH error:", e);

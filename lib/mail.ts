@@ -48,6 +48,55 @@ export async function sendPasswordResetEmail(to: string, token: string) {
   });
 }
 
+interface NotificationEmailOpts {
+  subject: string;
+  heading: string;
+  body: string;
+  detail?: string;
+  actionUrl: string;
+  actionLabel: string;
+  settingsUrl: string;
+}
+
+export async function sendNotificationEmail(to: string, opts: NotificationEmailOpts) {
+  const detailHtml = opts.detail
+    ? `<p style="background: #f5f5f4; padding: 12px; border-radius: 6px; color: #555; font-size: 14px; margin: 16px 0;">${opts.detail}</p>`
+    : "";
+  const detailText = opts.detail ? `\n「${opts.detail}」\n` : "";
+
+  await transporter.sendMail({
+    from: `ブントモ <${FROM}>`,
+    to,
+    subject: opts.subject,
+    text: [
+      opts.heading,
+      "",
+      opts.body,
+      detailText,
+      opts.actionUrl,
+      "",
+      "---",
+      `通知設定の変更: ${opts.settingsUrl}`,
+    ].join("\n"),
+    html: `
+      <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 24px;">
+        <h2 style="color: #d97706;">ブントモ</h2>
+        <p>${opts.body}</p>
+        ${detailHtml}
+        <p style="text-align: center; margin: 32px 0;">
+          <a href="${opts.actionUrl}"
+             style="background: #d97706; color: #fff; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: bold;">
+            ${opts.actionLabel}
+          </a>
+        </p>
+        <p style="color: #aaa; font-size: 11px; text-align: center; margin-top: 32px;">
+          <a href="${opts.settingsUrl}" style="color: #aaa;">通知設定を変更する</a>
+        </p>
+      </div>
+    `,
+  });
+}
+
 export async function sendVerificationEmail(to: string, token: string) {
   const baseUrl = process.env.AUTH_URL ?? process.env.NEXTAUTH_URL ?? "http://localhost:3000";
   const verifyUrl = `${baseUrl}/api/auth/verify-email?token=${token}`;
