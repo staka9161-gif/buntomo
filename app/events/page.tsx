@@ -113,7 +113,7 @@ export default function EventsPage() {
             <option value="">全国</option>
             {PREFECTURES_SEARCH.map((p) => (
               <option key={p} value={p}>
-                {p}
+                {p === "東京都" ? "東京都(全域)" : p}
               </option>
             ))}
           </select>
