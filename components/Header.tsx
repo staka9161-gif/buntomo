@@ -37,7 +37,7 @@ export default function Header() {
                 本を探す
               </Link>
               <Link href="/events" className="text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)] transition-colors">
-                読書会
+                読書会を探す
               </Link>
               <Link href="/mypage/notifications" className="relative text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)] transition-colors" aria-label="通知">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
