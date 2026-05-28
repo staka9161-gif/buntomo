@@ -690,7 +690,7 @@ function DeactivateSection() {
     <div className="mt-8 rounded-xl border border-red-200 bg-red-50/50 p-6">
       <h2 className="font-serif text-lg font-medium text-red-700">退会（アカウント削除）</h2>
       <p className="mt-2 text-xs leading-relaxed text-red-600/80">
-        退会すると、30日後にアカウントと全データ（プロフィール・レビュー・読書状況・DM・フレンド・あなたが作成した読書会など）が完全に削除されます。30日間はログインできません。気が変わった場合は運営（tamanakabook@metromonk.tokyo）までご連絡ください。
+        退会すると、30日後にアカウントと全データ（プロフィール・レビュー・読書状況・DM・フレンド・あなたが作成した読書会など）が完全に削除されます。退会後30日以内なら、もう一度ログインするだけで退会を取り消して元どおり利用できます。30日を過ぎると完全に削除され、元に戻せません。
       </p>
 
       {!showConfirm ? (

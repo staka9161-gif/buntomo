@@ -35,8 +35,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         if (!isValid) return null;
 
+        // 退会済みユーザーがログインした場合は退会を取り消して復活
         if (user.deactivatedAt) {
-          throw new Error("このアカウントは退会手続き済みです。復元をご希望の場合は運営までお問い合わせください。");
+          try {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { deactivatedAt: null, scheduledDeletionAt: null },
+            });
+          } catch {
+            // update 失敗してもログイン自体は通す
+          }
         }
 
         return {
