@@ -95,12 +95,16 @@ export default function EditionSelector({
                         src={edition.coverImageUrl}
                         alt={edition.titleOnCover}
                         className="h-24 w-16 rounded-sm object-cover shadow-[var(--shadow-cover)]"
+                        onError={(e) => {
+                          const el = e.target as HTMLImageElement;
+                          el.style.display = "none";
+                          el.nextElementSibling?.classList.remove("hidden");
+                        }}
                       />
-                    ) : (
-                      <div className="flex h-24 w-16 items-center justify-center rounded-sm bg-[rgb(31_42_68_/_0.05)] text-xs text-[var(--color-ink-faint)]">
-                        No Image
-                      </div>
-                    )}
+                    ) : null}
+                    <div className={`flex h-24 w-16 items-center justify-center rounded-sm bg-[rgb(31_42_68_/_0.05)] text-xs text-[var(--color-ink-faint)] ${edition.coverImageUrl ? "hidden" : ""}`}>
+                      No Image
+                    </div>
 
                     <div className="mt-1.5 w-full text-center">
                       <p className="truncate text-xs font-medium text-[var(--color-ink-primary)]">

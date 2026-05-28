@@ -54,12 +54,16 @@ export default function BookCard({
               src={coverImageUrl}
               alt={title}
               className="h-32 w-22 rounded-sm shadow-[var(--shadow-cover)] object-cover"
+              onError={(e) => {
+                const el = e.target as HTMLImageElement;
+                el.style.display = "none";
+                el.nextElementSibling?.classList.remove("hidden");
+              }}
             />
-          ) : (
-            <div className="flex h-32 w-22 items-center justify-center rounded-sm bg-[rgb(31_42_68_/_0.05)] text-xs text-[var(--color-ink-faint)]">
-              No Image
-            </div>
-          )}
+          ) : null}
+          <div className={`flex h-32 w-22 items-center justify-center rounded-sm bg-[rgb(31_42_68_/_0.05)] text-xs text-[var(--color-ink-faint)] ${coverImageUrl ? "hidden" : ""}`}>
+            No Image
+          </div>
         </Link>
 
         <div className="flex flex-1 flex-col">

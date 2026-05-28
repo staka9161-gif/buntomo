@@ -227,10 +227,9 @@ export default function UserProfilePage() {
                 className="card-base flex items-center gap-3 p-3 transition hover:shadow-md"
               >
                 {r.book.coverImageUrl ? (
-                  <img src={r.book.coverImageUrl} alt="" className="h-12 w-8 shrink-0 rounded object-cover" />
-                ) : (
-                  <div className="flex h-12 w-8 shrink-0 items-center justify-center rounded-sm bg-[rgb(31_42_68_/_0.05)] text-[9px] text-[var(--color-ink-faint)]">No Image</div>
-                )}
+                  <img src={r.book.coverImageUrl} alt="" className="h-12 w-8 shrink-0 rounded object-cover" onError={(e) => { const el = e.target as HTMLImageElement; el.style.display = "none"; el.nextElementSibling?.classList.remove("hidden"); }} />
+                ) : null}
+                <div className={`flex h-12 w-8 shrink-0 items-center justify-center rounded-sm bg-[rgb(31_42_68_/_0.05)] text-[9px] text-[var(--color-ink-faint)] ${r.book.coverImageUrl ? "hidden" : ""}`}>No Image</div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-serif text-sm font-medium text-[var(--color-ink-primary)]">{r.book.title}</p>
                   <p className="truncate text-xs text-[var(--color-ink-muted)]">{r.book.author}</p>
@@ -258,10 +257,9 @@ export default function UserProfilePage() {
                 className="card-base flex items-center gap-3 p-3 transition hover:shadow-md"
               >
                 {r.book.coverImageUrl ? (
-                  <img src={r.book.coverImageUrl} alt="" className="h-12 w-8 shrink-0 rounded object-cover" />
-                ) : (
-                  <div className="flex h-12 w-8 shrink-0 items-center justify-center rounded-sm bg-[rgb(31_42_68_/_0.05)] text-[9px] text-[var(--color-ink-faint)]">No Image</div>
-                )}
+                  <img src={r.book.coverImageUrl} alt="" className="h-12 w-8 shrink-0 rounded object-cover" onError={(e) => { const el = e.target as HTMLImageElement; el.style.display = "none"; el.nextElementSibling?.classList.remove("hidden"); }} />
+                ) : null}
+                <div className={`flex h-12 w-8 shrink-0 items-center justify-center rounded-sm bg-[rgb(31_42_68_/_0.05)] text-[9px] text-[var(--color-ink-faint)] ${r.book.coverImageUrl ? "hidden" : ""}`}>No Image</div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-serif text-sm font-medium text-[var(--color-ink-primary)]">{r.book.title}</p>
                   <p className="truncate text-xs text-[var(--color-ink-muted)]">{r.book.author}</p>

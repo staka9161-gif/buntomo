@@ -48,12 +48,16 @@ export default function EditionDetailPanel({
             src={edition.coverImageUrl}
             alt={edition.titleOnCover}
             className="h-36 w-24 shrink-0 rounded-sm object-cover shadow-[var(--shadow-cover)]"
+            onError={(e) => {
+              const el = e.target as HTMLImageElement;
+              el.style.display = "none";
+              el.nextElementSibling?.classList.remove("hidden");
+            }}
           />
-        ) : (
-          <div className="flex h-36 w-24 shrink-0 items-center justify-center rounded-sm bg-[rgb(31_42_68_/_0.05)] text-xs text-[var(--color-ink-faint)]">
-            No Image
-          </div>
-        )}
+        ) : null}
+        <div className={`flex h-36 w-24 shrink-0 items-center justify-center rounded-sm bg-[rgb(31_42_68_/_0.05)] text-xs text-[var(--color-ink-faint)] ${edition.coverImageUrl ? "hidden" : ""}`}>
+          No Image
+        </div>
 
         <div className="flex-1">
           <h3 className="font-serif text-base font-medium text-[var(--color-ink-primary)]">{edition.titleOnCover}</h3>

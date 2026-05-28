@@ -192,12 +192,16 @@ export default function BookDetailPage() {
               src={book.coverImageUrl}
               alt={book.title}
               className="h-48 w-32 shrink-0 rounded-sm object-cover shadow-[var(--shadow-cover)]"
+              onError={(e) => {
+                const el = e.target as HTMLImageElement;
+                el.style.display = "none";
+                el.nextElementSibling?.classList.remove("hidden");
+              }}
             />
-          ) : (
-            <div className="flex h-48 w-32 shrink-0 items-center justify-center rounded-sm bg-[rgb(31_42_68_/_0.05)] text-sm text-[var(--color-ink-faint)]">
-              No Image
-            </div>
-          )}
+          ) : null}
+          <div className={`flex h-48 w-32 shrink-0 items-center justify-center rounded-sm bg-[rgb(31_42_68_/_0.05)] text-sm text-[var(--color-ink-faint)] ${book.coverImageUrl ? "hidden" : ""}`}>
+            No Image
+          </div>
 
           <div className="flex-1">
             <h1 className="font-serif text-xl font-medium tracking-[0.06em] text-[var(--color-ink-primary)] md:text-2xl">{book.title}</h1>

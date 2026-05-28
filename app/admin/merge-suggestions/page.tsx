@@ -182,10 +182,9 @@ function WorkCard({ work, label }: { work: Suggestion["sourceWork"]; label: stri
   return (
     <div className="flex flex-1 items-start gap-3">
       {cover ? (
-        <img src={cover} alt="" className="h-16 w-11 shrink-0 rounded object-cover" />
-      ) : (
-        <div className="flex h-16 w-11 shrink-0 items-center justify-center rounded bg-gray-100 text-xs text-gray-400">?</div>
-      )}
+        <img src={cover} alt="" className="h-16 w-11 shrink-0 rounded object-cover" onError={(e) => { const el = e.target as HTMLImageElement; el.style.display = "none"; el.nextElementSibling?.classList.remove("hidden"); }} />
+      ) : null}
+      <div className={`flex h-16 w-11 shrink-0 items-center justify-center rounded bg-gray-100 text-xs text-gray-400 ${cover ? "hidden" : ""}`}>?</div>
       <div>
         <p className="text-xs text-gray-400">{label}</p>
         <Link

@@ -131,10 +131,9 @@ export default function MergeSuggestionForm({
               className="flex w-full items-center gap-3 border-b px-3 py-2 text-left text-sm hover:bg-amber-50 last:border-b-0"
             >
               {w.coverImageUrl ? (
-                <img src={w.coverImageUrl} alt="" className="h-10 w-7 rounded object-cover" />
-              ) : (
-                <div className="flex h-10 w-7 items-center justify-center rounded bg-gray-100 text-xs text-gray-400">?</div>
-              )}
+                <img src={w.coverImageUrl} alt="" className="h-10 w-7 rounded object-cover" onError={(e) => { const el = e.target as HTMLImageElement; el.style.display = "none"; el.nextElementSibling?.classList.remove("hidden"); }} />
+              ) : null}
+              <div className={`flex h-10 w-7 items-center justify-center rounded bg-gray-100 text-xs text-gray-400 ${w.coverImageUrl ? "hidden" : ""}`}>?</div>
               <div>
                 <p className="font-medium text-gray-700">{w.title}</p>
                 <p className="text-xs text-gray-500">{w.author}</p>
