@@ -12,6 +12,7 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [agreed, setAgreed] = useState(false);
   const [nameCollision, setNameCollision] = useState<number | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -107,9 +108,24 @@ export default function SignupPage() {
               className="w-full rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-3 py-2.5 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
             />
           </div>
+          <div className="rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] p-4 text-sm">
+            <p className="font-medium text-[var(--color-ink-primary)] mb-2">ブントモを使う前に</p>
+            <ul className="space-y-1 text-xs text-[var(--color-ink-muted)] list-disc list-inside">
+              <li>お互いを尊重しあう場所です。誹謗中傷や嫌がらせはご遠慮ください</li>
+              <li>13歳以上の方が利用できます</li>
+              <li>退会するとデータは30日後に完全に削除されます</li>
+              <li>くわしくは <Link href="/terms" className="text-[var(--color-accent)] underline" target="_blank">利用規約</Link> と <Link href="/privacy" className="text-[var(--color-accent)] underline" target="_blank">プライバシーポリシー</Link> をご覧ください</li>
+            </ul>
+          </div>
+
+          <label className="flex items-center gap-2 text-sm text-[var(--color-ink-primary)]">
+            <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="h-4 w-4 accent-[var(--color-accent)]" />
+            <span>上記に同意します</span>
+          </label>
+
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !agreed}
             className="btn-primary w-full disabled:opacity-50"
           >
             {loading ? "登録中..." : "登録する"}

@@ -136,3 +136,17 @@ body {
   h2 { letter-spacing: 0.08em; line-height: 1.4; }
   h3 { letter-spacing: 0.05em; line-height: 1.4; }
 }
+
+@layer components {
+  .prose-policy h1 { font-size: 1.5rem; margin-bottom: 1rem; }
+  .prose-policy h2 { font-size: 1.125rem; margin-top: 2rem; margin-bottom: 0.75rem; }
+  .prose-policy h3 { font-size: 0.95rem; margin-top: 1rem; margin-bottom: 0.5rem; color: rgb(31 42 68 / 0.75); }
+  .prose-policy p { font-size: 0.875rem; line-height: 1.8; color: rgb(31 42 68 / 0.8); margin-bottom: 0.75rem; }
+  .prose-policy ol, .prose-policy ul { font-size: 0.875rem; line-height: 1.8; color: rgb(31 42 68 / 0.8); padding-left: 1.5rem; margin-bottom: 0.75rem; }
+  .prose-policy ol { list-style-type: decimal; }
+  .prose-policy ul { list-style-type: disc; }
+  .prose-policy li { margin-bottom: 0.25rem; }
+  .prose-policy li > ul, .prose-policy li > ol { margin-top: 0.25rem; margin-bottom: 0; }
+  .prose-policy hr { margin: 2rem 0; border-color: rgb(31 42 68 / 0.1); }
+  .prose-policy a { color: var(--color-accent); text-decoration: underline; }
+}
