@@ -65,7 +65,7 @@ export default function NotificationsPage() {
     <div className="mx-auto max-w-2xl px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="font-serif text-xl font-medium tracking-[0.06em] text-[var(--color-ink-primary)]">通知</h1>
-        <Link href="/mypage/notifications-settings" className="text-xs text-[var(--color-ink-muted)] hover:text-[var(--color-accent)] hover:underline">
+        <Link href="/mypage/profile#notifications" className="text-xs text-[var(--color-ink-muted)] hover:text-[var(--color-accent)] hover:underline">
           通知設定
         </Link>
       </div>

@@ -55,6 +55,13 @@ export default function ProfileEditPage() {
     newPasswordConfirm: "",
   });
   const [accountMsg, setAccountMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [notifSettings, setNotifSettings] = useState({
+    emailNotifDM: true,
+    emailNotifFriendRequest: true,
+    emailNotifFriendAccepted: true,
+  });
+  const [savingNotif, setSavingNotif] = useState(false);
+  const [notifMsg, setNotifMsg] = useState("");
   const [form, setForm] = useState({
     name: "",
     bio: "",
@@ -111,6 +118,11 @@ export default function ProfileEditPage() {
         // network error
       })
       .finally(() => setLoading(false));
+    // 通知設定も並列で取得
+    fetch(apiUrl("/api/me/notification-settings"))
+      .then((r) => r.json())
+      .then((data) => { if (data.settings) setNotifSettings(data.settings); })
+      .catch(() => {});
   }, [status]);
 
   const toDataUrl = (file: File): Promise<string> => {
@@ -572,6 +584,79 @@ export default function ProfileEditPage() {
           </button>
         </div>
       </form>
+
+      {/* 通知設定 */}
+      <div id="notifications" className="card-base mt-8 space-y-5 p-6">
+        <h2 className="font-serif text-lg font-medium text-[var(--color-ink-primary)]">通知設定</h2>
+        <p className="text-xs text-[var(--color-ink-muted)]">メール通知の ON/OFF を設定できます。</p>
+
+        <label className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-[var(--color-ink-primary)]">ダイレクトメッセージ</p>
+            <p className="text-xs text-[var(--color-ink-muted)]">新しい DM が届いたときにメール通知</p>
+          </div>
+          <input
+            type="checkbox"
+            checked={notifSettings.emailNotifDM}
+            onChange={(e) => setNotifSettings({ ...notifSettings, emailNotifDM: e.target.checked })}
+            className="h-5 w-5 accent-[var(--color-accent)]"
+          />
+        </label>
+
+        <label className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-[var(--color-ink-primary)]">友だち申請</p>
+            <p className="text-xs text-[var(--color-ink-muted)]">友だち申請を受け取ったときにメール通知</p>
+          </div>
+          <input
+            type="checkbox"
+            checked={notifSettings.emailNotifFriendRequest}
+            onChange={(e) => setNotifSettings({ ...notifSettings, emailNotifFriendRequest: e.target.checked })}
+            className="h-5 w-5 accent-[var(--color-accent)]"
+          />
+        </label>
+
+        <label className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-[var(--color-ink-primary)]">友だち申請の承認</p>
+            <p className="text-xs text-[var(--color-ink-muted)]">友だち申請が承認されたときにメール通知</p>
+          </div>
+          <input
+            type="checkbox"
+            checked={notifSettings.emailNotifFriendAccepted}
+            onChange={(e) => setNotifSettings({ ...notifSettings, emailNotifFriendAccepted: e.target.checked })}
+            className="h-5 w-5 accent-[var(--color-accent)]"
+          />
+        </label>
+
+        {notifMsg && (
+          <p className="text-center text-sm text-[var(--color-accent)]">{notifMsg}</p>
+        )}
+
+        <button
+          type="button"
+          onClick={async () => {
+            setSavingNotif(true);
+            setNotifMsg("");
+            try {
+              const res = await fetch(apiUrl("/api/me/notification-settings"), {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(notifSettings),
+              });
+              setNotifMsg(res.ok ? "保存しました" : "保存に失敗しました");
+            } catch {
+              setNotifMsg("通信エラーが発生しました");
+            } finally {
+              setSavingNotif(false);
+            }
+          }}
+          disabled={savingNotif}
+          className="btn-primary w-full disabled:opacity-50"
+        >
+          {savingNotif ? "保存中..." : "通知設定を保存"}
+        </button>
+      </div>
     </div>
   );
 }

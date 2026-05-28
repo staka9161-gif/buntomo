@@ -41,7 +41,7 @@ export async function notifyDMReceived(
       detail: preview,
       actionUrl: `${BASE_URL()}/mypage/messages/${senderId}`,
       actionLabel: "メッセージを読む",
-      settingsUrl: `${BASE_URL()}/mypage/notifications-settings`,
+      settingsUrl: `${BASE_URL()}/mypage/profile#notifications`,
     });
   } catch (e) {
     console.error("notifyDMReceived error:", e);
@@ -72,7 +72,7 @@ export async function notifyFriendRequest(requesterId: string, addresseeId: stri
       body: `${requesterName}さんから友だち申請が届きました。`,
       actionUrl: `${BASE_URL()}/mypage/friends`,
       actionLabel: "申請を確認する",
-      settingsUrl: `${BASE_URL()}/mypage/notifications-settings`,
+      settingsUrl: `${BASE_URL()}/mypage/profile#notifications`,
     });
   } catch (e) {
     console.error("notifyFriendRequest error:", e);
@@ -103,7 +103,7 @@ export async function notifyFriendAccepted(accepterId: string, requesterId: stri
       body: `${accepterName}さんがあなたの友だち申請を承認しました。`,
       actionUrl: `${BASE_URL()}/users/${accepterId}`,
       actionLabel: "プロフィールを見る",
-      settingsUrl: `${BASE_URL()}/mypage/notifications-settings`,
+      settingsUrl: `${BASE_URL()}/mypage/profile#notifications`,
     });
   } catch (e) {
     console.error("notifyFriendAccepted error:", e);
