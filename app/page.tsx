@@ -1,6 +1,13 @@
 import Link from "next/link";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const session = await auth();
+  if (session?.user) {
+    redirect("/mypage");
+  }
+
   return (
     <div className="flex flex-col items-center">
       {/* Hero */}
