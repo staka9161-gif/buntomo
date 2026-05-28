@@ -7,7 +7,7 @@ export default function Footer() {
       <div className="mx-auto flex max-w-5xl flex-col items-center gap-3 sm:flex-row sm:justify-between">
         <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 sm:justify-start">
           <Link href="/" className="flex items-center" aria-label="ホームに戻る">
-            <Image src="/logo.png" alt="ブントモ" height={20} width={40} className="h-5 w-auto opacity-60" />
+            <Image src="/logo.png" alt="ブントモ" height={20} width={75} className="h-5 w-auto opacity-60" />
           </Link>
           <p className="text-[11px] text-[var(--color-ink-faint)]">
             &copy; 2026
