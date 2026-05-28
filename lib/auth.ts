@@ -35,6 +35,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         if (!isValid) return null;
 
+        if (user.deactivatedAt) {
+          throw new Error("このアカウントは退会手続き済みです。復元をご希望の場合は運営までお問い合わせください。");
+        }
+
         return {
           id: user.id,
           email: user.email,

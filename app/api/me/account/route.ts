@@ -3,6 +3,31 @@ import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import bcryptjs from "bcryptjs";
 
+export async function DELETE() {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
+    }
+
+    const now = new Date();
+    const deletionDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: {
+        deactivatedAt: now,
+        scheduledDeletionAt: deletionDate,
+      },
+    });
+
+    return NextResponse.json({ message: "退会手続きが完了しました。30日後にデータが完全に削除されます。" });
+  } catch (e) {
+    console.error("Account DELETE error:", e);
+    return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });
+  }
+}
+
 export async function PATCH(request: NextRequest) {
   try {
     const session = await auth();

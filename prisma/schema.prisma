@@ -28,6 +28,8 @@ model User {
   emailNotifFriendRequest Boolean @default(true)
   emailNotifFriendAccepted Boolean @default(true)
   notificationsLastSeenAt  DateTime?
+  deactivatedAt            DateTime?
+  scheduledDeletionAt      DateTime?
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 
@@ -229,7 +231,7 @@ model Review {
   postedAt  DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user    User     @relation(fields: [userId], references: [id])
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   work    Work     @relation(fields: [workId], references: [id])
   edition Edition? @relation(fields: [editionId], references: [id])
 
@@ -257,7 +259,7 @@ model MergeSuggestion {
 
   sourceWork Work  @relation("MergeSuggestionSource", fields: [sourceWorkId], references: [id])
   targetWork Work  @relation("MergeSuggestionTarget", fields: [targetWorkId], references: [id])
-  reporter   User? @relation("MergeSuggestionReporter", fields: [reporterUserId], references: [id])
+  reporter   User? @relation("MergeSuggestionReporter", fields: [reporterUserId], references: [id], onDelete: SetNull)
 
   @@index([status])
   @@index([sourceWorkId])
@@ -288,7 +290,7 @@ model ReadingStatus {
   completedAt DateTime?
   updatedAt   DateTime          @updatedAt
 
-  user    User     @relation(fields: [userId], references: [id])
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   book    Book?    @relation(fields: [bookId], references: [id])
   work    Work?    @relation(fields: [workId], references: [id])
   edition Edition? @relation(fields: [editionId], references: [id])
@@ -317,7 +319,7 @@ model ReadingEvent {
   book      Book?  @relation("PrimaryBook", fields: [bookId], references: [id])
   work      Work?  @relation("WorkReadingEvents", fields: [workId], references: [id])
   books     Book[] @relation("EventBooks")
-  organizer User   @relation(fields: [organizerId], references: [id])
+  organizer User   @relation(fields: [organizerId], references: [id], onDelete: Cascade)
 
   @@index([bookId, eventDate])
   @@index([workId, eventDate])
@@ -332,7 +334,7 @@ model PasswordResetToken {
   expiresAt DateTime
   createdAt DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([token])
   @@index([expiresAt])
@@ -359,8 +361,8 @@ model Friendship {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  requester User @relation("FriendshipsRequested", fields: [requesterId], references: [id])
-  addressee User @relation("FriendshipsReceived", fields: [addresseeId], references: [id])
+  requester User @relation("FriendshipsRequested", fields: [requesterId], references: [id], onDelete: Cascade)
+  addressee User @relation("FriendshipsReceived", fields: [addresseeId], references: [id], onDelete: Cascade)
 
   @@unique([requesterId, addresseeId])
   @@index([addresseeId, status])
@@ -378,7 +380,7 @@ model ChatMessage {
 
   book Book? @relation(fields: [bookId], references: [id])
   work Work? @relation(fields: [workId], references: [id])
-  user User  @relation(fields: [userId], references: [id])
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([bookId, window, createdAt])
   @@index([workId, window, createdAt])
@@ -392,8 +394,8 @@ model DirectMessage {
   read        Boolean  @default(false)
   createdAt   DateTime @default(now())
 
-  sender    User @relation("DMsSent", fields: [senderId], references: [id])
-  recipient User @relation("DMsReceived", fields: [recipientId], references: [id])
+  sender    User @relation("DMsSent", fields: [senderId], references: [id], onDelete: Cascade)
+  recipient User @relation("DMsReceived", fields: [recipientId], references: [id], onDelete: Cascade)
 
   @@index([senderId, recipientId, createdAt])
   @@index([recipientId, senderId, createdAt])
@@ -432,8 +434,8 @@ model Block {
   blockedId String
   createdAt DateTime @default(now())
 
-  blocker User @relation("Blocker", fields: [blockerId], references: [id])
-  blocked User @relation("Blocked", fields: [blockedId], references: [id])
+  blocker User @relation("Blocker", fields: [blockerId], references: [id], onDelete: Cascade)
+  blocked User @relation("Blocked", fields: [blockedId], references: [id], onDelete: Cascade)
 
   @@unique([blockerId, blockedId])
   @@index([blockedId])

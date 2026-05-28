@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { apiUrl } from "@/lib/api";
@@ -657,6 +657,80 @@ export default function ProfileEditPage() {
           {savingNotif ? "保存中..." : "通知設定を保存"}
         </button>
       </div>
+
+      {/* 退会 */}
+      <DeactivateSection />
+    </div>
+  );
+}
+
+function DeactivateSection() {
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [agreed, setAgreed] = useState(false);
+  const [processing, setProcessing] = useState(false);
+
+  const handleDeactivate = async () => {
+    setProcessing(true);
+    try {
+      const res = await fetch(apiUrl("/api/me/account"), { method: "DELETE" });
+      if (res.ok) {
+        signOut({ callbackUrl: "/" });
+      } else {
+        const data = await res.json().catch(() => null);
+        alert(data?.error || "退会処理に失敗しました");
+      }
+    } catch {
+      alert("通信エラーが発生しました");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  return (
+    <div className="mt-8 rounded-xl border border-red-200 bg-red-50/50 p-6">
+      <h2 className="font-serif text-lg font-medium text-red-700">退会（アカウント削除）</h2>
+      <p className="mt-2 text-xs leading-relaxed text-red-600/80">
+        退会すると、30日後にアカウントと全データ（プロフィール・レビュー・読書状況・DM・フレンド・あなたが作成した読書会など）が完全に削除されます。30日間はログインできません。気が変わった場合は運営（tamanakabook@metromonk.tokyo）までご連絡ください。
+      </p>
+
+      {!showConfirm ? (
+        <button
+          type="button"
+          onClick={() => setShowConfirm(true)}
+          className="mt-4 rounded border border-red-300 bg-white px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+        >
+          退会する
+        </button>
+      ) : (
+        <div className="mt-4 space-y-3 rounded-lg border border-red-200 bg-white p-4">
+          <label className="flex items-start gap-2 text-sm text-red-700">
+            <input
+              type="checkbox"
+              checked={agreed}
+              onChange={(e) => setAgreed(e.target.checked)}
+              className="mt-0.5 h-4 w-4 accent-red-600"
+            />
+            <span>上記を理解し、退会します</span>
+          </label>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={handleDeactivate}
+              disabled={!agreed || processing}
+              className="rounded bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
+            >
+              {processing ? "処理中..." : "退会を確定する"}
+            </button>
+            <button
+              type="button"
+              onClick={() => { setShowConfirm(false); setAgreed(false); }}
+              className="rounded border border-[var(--color-border-subtle)] px-4 py-2 text-sm text-[var(--color-ink-muted)] hover:bg-[var(--color-bg-base)] transition-colors"
+            >
+              キャンセル
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

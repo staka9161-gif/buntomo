@@ -24,10 +24,11 @@ export async function GET(
         linkWebsite: true,
         customLinks: true,
         visibility: true,
+        deactivatedAt: true,
       },
     });
 
-    if (!user) {
+    if (!user || user.deactivatedAt) {
       return NextResponse.json({ error: "ユーザーが見つかりません" }, { status: 404 });
     }
 
