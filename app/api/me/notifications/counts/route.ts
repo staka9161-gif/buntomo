@@ -11,12 +11,26 @@ export async function GET() {
 
     const myId = session.user.id;
 
+    const user = await prisma.user.findUnique({
+      where: { id: myId },
+      select: { notificationsLastSeenAt: true },
+    });
+    const lastSeen = user?.notificationsLastSeenAt;
+
     const [dmCount, friendRequestCount] = await Promise.all([
       prisma.directMessage.count({
-        where: { recipientId: myId, read: false },
+        where: {
+          recipientId: myId,
+          read: false,
+          ...(lastSeen ? { createdAt: { gt: lastSeen } } : {}),
+        },
       }),
       prisma.friendship.count({
-        where: { addresseeId: myId, status: "PENDING" },
+        where: {
+          addresseeId: myId,
+          status: "PENDING",
+          ...(lastSeen ? { createdAt: { gt: lastSeen } } : {}),
+        },
       }),
     ]);
 

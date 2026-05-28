@@ -27,6 +27,7 @@ model User {
   emailNotifDM            Boolean @default(true)
   emailNotifFriendRequest Boolean @default(true)
   emailNotifFriendAccepted Boolean @default(true)
+  notificationsLastSeenAt  DateTime?
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 

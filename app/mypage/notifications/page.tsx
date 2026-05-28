@@ -40,6 +40,10 @@ export default function NotificationsPage() {
       setConversations(dmData.conversations || []);
       setLoading(false);
     });
+    // 既読化
+    fetch(apiUrl("/api/me/notifications/mark-seen"), { method: "POST" })
+      .then(() => window.dispatchEvent(new Event("notifications-seen")))
+      .catch(() => {});
   }, [status]);
 
   const handleRequest = async (id: string, action: "accept" | "reject") => {

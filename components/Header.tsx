@@ -37,7 +37,8 @@ export default function Header() {
     };
     fetchCounts();
     const interval = setInterval(fetchCounts, 60000);
-    return () => clearInterval(interval);
+    window.addEventListener("notifications-seen", fetchCounts);
+    return () => { clearInterval(interval); window.removeEventListener("notifications-seen", fetchCounts); };
   }, [session?.user?.id]);
 
   // メニュー外クリックで閉じる
