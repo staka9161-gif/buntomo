@@ -1,6 +1,5 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import Google from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcryptjs from "bcryptjs";
 import { prisma } from "./db";
@@ -23,9 +22,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         if (!user) return null;
 
-        if (!user.passwordHash) {
-          throw new Error("このメールアドレスはGoogleログインで登録されています。Googleでログインしてください。");
-        }
+        if (!user.passwordHash) return null;
 
         if (!user.emailVerified) {
           throw new Error("メールアドレスの確認が完了していません。受信箱をご確認ください。");
@@ -43,24 +40,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           email: user.email,
           name: user.name,
           image: user.image?.startsWith("data:") ? null : user.image,
-        };
-      },
-    }),
-    Google({
-      authorization: {
-        params: {
-          prompt: "select_account",
-        },
-      },
-      allowDangerousEmailAccountLinking: true,
-      profile(profile) {
-        const randomSuffix = Math.random().toString(36).substring(2, 8);
-        return {
-          id: profile.sub,
-          name: `ユーザー${randomSuffix}`,
-          email: profile.email,
-          image: null,
-          emailVerified: profile.email_verified ? new Date() : null,
         };
       },
     }),

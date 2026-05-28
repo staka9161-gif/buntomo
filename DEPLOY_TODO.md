@@ -40,13 +40,14 @@
 
 ---
 
-## 3. Google OAuth 同意画面の公開
+## 3. ~~Google OAuth 同意画面の公開~~ → 廃止済み (2026-05-28)
 
-- [ ] Google Cloud Console > APIs & Services > OAuth consent screen
-- [ ] 公開ステータスを「テスト」から「本番」に変更
-- [ ] 現状: テストユーザーとして登録したアカウントしかログインできない
-- [ ] 公開後: Google アカウントを持つ誰でもログイン可能になる
-- [ ] 注意: Google の審査が必要な場合がある(スコープによる)
+Google OAuth は廃止。メール+パスワード認証のみに統一。
+理由: 一般公開に際し、未確認アプリ警告・検証申請の手間を回避するため。
+- [x] login/signup ページから Google ボタン削除
+- [x] lib/auth.ts から Google プロバイダー削除
+- [x] .env から AUTH_GOOGLE_ID/SECRET 削除
+- [ ] Vercel ダッシュボードから AUTH_GOOGLE_ID/SECRET 環境変数を削除(ユーザー作業)
 
 ---
 
