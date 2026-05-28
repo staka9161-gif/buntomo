@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { apiUrl } from "@/lib/api";
-import { PREFECTURES } from "@/lib/prefectures";
+import { PREFECTURES_SEARCH } from "@/lib/prefectures";
 
 interface BookInfo {
   id: string;
@@ -111,7 +111,7 @@ export default function EventsPage() {
             className="rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-3 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
           >
             <option value="">全国</option>
-            {PREFECTURES.map((p) => (
+            {PREFECTURES_SEARCH.map((p) => (
               <option key={p} value={p}>
                 {p}
               </option>

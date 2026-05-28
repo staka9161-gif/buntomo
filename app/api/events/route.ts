@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { TOKYO_AREAS } from "@/lib/prefectures";
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,9 +14,13 @@ export async function GET(request: NextRequest) {
       eventDate: { gte: new Date() },
     };
 
-    // 都道府県フィルタ
+    // 都道府県フィルタ（「東京都」は 23区+多摩地区 の両方を検索）
     if (prefecture) {
-      where.prefecture = prefecture;
+      if (prefecture === "東京都") {
+        where.prefecture = { in: [...TOKYO_AREAS] };
+      } else {
+        where.prefecture = prefecture;
+      }
     }
 
     // 月フィルタ

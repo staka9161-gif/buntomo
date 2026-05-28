@@ -40,7 +40,7 @@ interface Edition {
 const EMPTY_FORM = {
   title: "",
   eventDate: "",
-  prefecture: "東京都",
+  prefecture: "東京都(多摩地区)",
   location: "",
   url: "",
   description: "",
