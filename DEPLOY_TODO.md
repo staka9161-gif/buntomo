@@ -17,26 +17,20 @@
 
 ---
 
-## 2. 漏洩した秘密情報のローテーション
+## 2. 秘密情報ローテーション(公開前必須)
 
-以下の情報が git 履歴またはローカルに平文で存在するため、本番前にすべて再生成が必要。
-
-- [ ] **Neon DB パスワード** (現: npg_EFGLR4M6TtjU)
-  - Neon Console > Project > Roles > neondb_owner > Reset Password
-  - .env と Vercel 環境変数の両方を更新
-- [ ] **Gmail アプリパスワード** (SMTP_PASS)
+- [x] **Neon DB パスワード** — リセット済み、Vercel自動更新、ローカル.env更新、本番再デプロイ済み (2026-05-28)
+- [x] **AUTH_SECRET** — ローカル・本番Production更新済み、再デプロイ済み (2026-05-28)。※Preview環境は未設定(preview未使用のため当面放置可)
+- [ ] **Gmail アプリパスワード** (SMTP_PASS) — 未対応
   - Google アカウント > セキュリティ > アプリパスワード で再生成
   - .env の `SMTP_PASS` と Vercel 環境変数を更新
-- [ ] **Google Books API キー**
+- [ ] **Google Books API キー** — 未対応
   - Google Cloud Console > APIs & Services > Credentials で再生成
   - .env の該当キーと Vercel 環境変数を更新
-- [ ] **Rakuten API キー**
+- [ ] **Rakuten API キー** — 未対応
   - Rakuten Developers で再生成
   - .env の該当キーと Vercel 環境変数を更新
-- [ ] **AUTH_SECRET**
-  - ローカルと本番で別の値を使用中(正しい運用)
-  - 本番は Vercel に保存済み、ローカルは .env に記載
-  - 念のため `npx auth secret` で両方再生成を推奨
+- [ ] **旧 Google OAuth クレデンシャル** — コードからは削除済み、Google Cloud Console での失効は未対応
 
 ---
 
