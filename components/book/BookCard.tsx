@@ -39,11 +39,13 @@ export default function BookCard({
   onStatusChange,
   onDelete,
 }: BookCardProps) {
-  const [localPage, setLocalPage] = useState(currentPage ?? 0);
-  useEffect(() => { setLocalPage(currentPage ?? 0); }, [currentPage]);
+  const [localPageStr, setLocalPageStr] = useState(currentPage ? String(currentPage) : "");
+  useEffect(() => { setLocalPageStr(currentPage ? String(currentPage) : ""); }, [currentPage]);
+  const localPageNum = parseInt(localPageStr, 10) || 0;
   const progress = totalPages > 0 && currentPage !== undefined
     ? Math.floor((currentPage / totalPages) * 100)
     : 0;
+  const pageExceedsTotal = totalPages > 0 && localPageNum > totalPages;
 
   return (
     <div className="card-base p-5 transition hover:shadow-md">
@@ -88,31 +90,49 @@ export default function BookCard({
 
           {status === "READING" && (
             <div className="mt-2">
-              <ProgressBar percent={progress} />
-              <p className="mt-1 text-[11px] font-mono text-[var(--color-ink-faint)]">
-                {currentPage} / {totalPages} ページ
-              </p>
+              {totalPages > 0 ? (
+                <>
+                  <ProgressBar percent={progress} />
+                  <p className="mt-1 text-[11px] font-mono text-[var(--color-ink-faint)]">
+                    {currentPage} / {totalPages} ページ
+                  </p>
+                </>
+              ) : (
+                <p className="text-xs text-amber-600">
+                  総ページ数が未入力です。<Link href={`/books/${id}`} className="underline">本の詳細</Link>から入力すると進捗バーが表示されます。
+                </p>
+              )}
 
               {readingId && onUpdatePage && (
-                <div className="mt-2 flex items-center gap-2">
-                  <input
-                    type="number"
-                    min={0}
-                    max={totalPages || 99999}
-                    value={localPage}
-                    onChange={(e) => setLocalPage(Number(e.target.value))}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") onUpdatePage(readingId, localPage);
-                    }}
-                    className="w-20 rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-2 py-1 text-sm"
-                  />
-                  <button
-                    onClick={() => onUpdatePage(readingId, localPage)}
-                    className="btn-dark"
-                  >
-                    更新
-                  </button>
-                </div>
+                <>
+                  <div className="mt-2 flex items-center gap-2">
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      value={localPageStr}
+                      onChange={(e) => {
+                        const v = e.target.value.replace(/[^0-9]/g, "");
+                        setLocalPageStr(v);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !pageExceedsTotal) onUpdatePage(readingId, localPageNum);
+                      }}
+                      placeholder="0"
+                      className="w-20 rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-2 py-1 text-sm"
+                    />
+                    <button
+                      onClick={() => { if (!pageExceedsTotal) onUpdatePage(readingId, localPageNum); }}
+                      disabled={pageExceedsTotal}
+                      className="btn-dark disabled:opacity-50"
+                    >
+                      更新
+                    </button>
+                  </div>
+                  {pageExceedsTotal && (
+                    <p className="mt-1 text-xs text-red-600">総ページ数を超えた値が入力されています</p>
+                  )}
+                </>
               )}
 
               <div className="mt-2 flex gap-2">
