@@ -40,6 +40,7 @@ export default function BookCard({
   onDelete,
 }: BookCardProps) {
   const [localPageStr, setLocalPageStr] = useState(currentPage ? String(currentPage) : "");
+  const [showNoTotal, setShowNoTotal] = useState(false);
   useEffect(() => { setLocalPageStr(currentPage ? String(currentPage) : ""); }, [currentPage]);
   const localPageNum = parseInt(localPageStr, 10) || 0;
   const progress = totalPages > 0 && currentPage !== undefined
@@ -90,17 +91,13 @@ export default function BookCard({
 
           {status === "READING" && (
             <div className="mt-2">
-              {totalPages > 0 ? (
+              {totalPages > 0 && (
                 <>
                   <ProgressBar percent={progress} />
                   <p className="mt-1 text-[11px] font-mono text-[var(--color-ink-faint)]">
                     {currentPage} / {totalPages} ページ
                   </p>
                 </>
-              ) : (
-                <p className="text-xs text-amber-600">
-                  総ページ数が未入力です。<Link href={`/books/${id}`} className="underline">本の詳細</Link>から入力すると進捗バーが表示されます。
-                </p>
               )}
 
               {readingId && onUpdatePage && (
@@ -114,15 +111,22 @@ export default function BookCard({
                       onChange={(e) => {
                         const v = e.target.value.replace(/[^0-9]/g, "");
                         setLocalPageStr(v);
+                        setShowNoTotal(false);
                       }}
                       onKeyDown={(e) => {
-                        if (e.key === "Enter" && !pageExceedsTotal) onUpdatePage(readingId, localPageNum);
+                        if (e.key === "Enter") {
+                          if (totalPages === 0) { setShowNoTotal(true); return; }
+                          if (!pageExceedsTotal) onUpdatePage(readingId, localPageNum);
+                        }
                       }}
                       placeholder="0"
                       className="w-20 rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-2 py-1 text-sm"
                     />
                     <button
-                      onClick={() => { if (!pageExceedsTotal) onUpdatePage(readingId, localPageNum); }}
+                      onClick={() => {
+                        if (totalPages === 0) { setShowNoTotal(true); return; }
+                        if (!pageExceedsTotal) onUpdatePage(readingId, localPageNum);
+                      }}
                       disabled={pageExceedsTotal}
                       className="btn-dark disabled:opacity-50"
                     >
@@ -131,6 +135,9 @@ export default function BookCard({
                   </div>
                   {pageExceedsTotal && (
                     <p className="mt-1 text-xs text-red-600">総ページ数を超えた値が入力されています</p>
+                  )}
+                  {showNoTotal && (
+                    <p className="mt-1 text-xs text-amber-600">総ページ数が入力されていません</p>
                   )}
                 </>
               )}
