@@ -120,6 +120,9 @@ export default function FriendsPage() {
       </Link>
       <h1 className="mt-4 mb-6 font-serif text-xl font-medium tracking-[0.05em] text-[var(--color-ink-primary)] md:text-2xl">友だち</h1>
 
+      {/* IDで友だちを探す */}
+      <HandleSearch onRequestSent={fetchAll} />
+
       {/* 受信した申請 */}
       {received.length > 0 && (
         <section className="mb-8">
@@ -206,5 +209,124 @@ export default function FriendsPage() {
         </Link>
       </div>
     </div>
+  );
+}
+
+interface SearchResult {
+  id: string;
+  handle: string;
+  displayName: string;
+  image: string | null;
+}
+
+function HandleSearch({ onRequestSent }: { onRequestSent: () => void }) {
+  const [query, setQuery] = useState("");
+  const [searching, setSearching] = useState(false);
+  const [result, setResult] = useState<{ found: false } | { found: true; user: SearchResult; relation: string } | null>(null);
+  const [sending, setSending] = useState(false);
+
+  const doSearch = async () => {
+    if (!query.trim() || searching) return;
+    setSearching(true);
+    setResult(null);
+    try {
+      const res = await fetch(apiUrl(`/api/users/search-by-handle?handle=${encodeURIComponent(query.trim())}`));
+      const data = await res.json();
+      setResult(data);
+    } catch {
+      setResult({ found: false });
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const sendRequest = async (userId: string) => {
+    setSending(true);
+    try {
+      const res = await fetch(apiUrl("/api/me/friends/requests"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      });
+      if (res.ok) {
+        setResult((prev) =>
+          prev && "user" in prev && prev.found
+            ? { ...prev, relation: "pending-sent" }
+            : prev
+        );
+        onRequestSent();
+      }
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const relationButton = (relation: string, userId: string) => {
+    switch (relation) {
+      case "self":
+        return <span className="text-xs text-[var(--color-ink-faint)]">これはあなたです</span>;
+      case "friends":
+        return <span className="text-xs text-[var(--color-status-success)]">友だち</span>;
+      case "pending-sent":
+        return <span className="text-xs text-[var(--color-ink-muted)]">申請中</span>;
+      case "pending-received":
+        return <span className="text-xs text-amber-600">相手から申請が届いています</span>;
+      default:
+        return (
+          <button
+            onClick={() => sendRequest(userId)}
+            disabled={sending}
+            className="btn-primary-sm disabled:opacity-50"
+          >
+            {sending ? "送信中..." : "友だち申請する"}
+          </button>
+        );
+    }
+  };
+
+  return (
+    <section className="mb-8 card-base p-5">
+      <h2 className="mb-3 font-serif text-sm font-medium text-[var(--color-ink-primary)]">IDで友だちを探す</h2>
+      <div className="flex items-center gap-2">
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value.replace(/[^a-zA-Z0-9_]/g, "").toLowerCase())}
+          onKeyDown={(e) => { if (e.key === "Enter") doSearch(); }}
+          placeholder="my_id"
+          className="flex-1 rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-3 py-2 text-sm font-mono focus:border-[var(--color-accent)] focus:outline-none transition-colors"
+        />
+        <button
+          onClick={doSearch}
+          disabled={searching || !query.trim()}
+          className="btn-dark disabled:opacity-50"
+        >
+          {searching ? "検索中..." : "検索"}
+        </button>
+      </div>
+
+      {result && !result.found && (
+        <p className="mt-3 text-sm text-[var(--color-ink-muted)]">そのIDのユーザーは見つかりません</p>
+      )}
+
+      {result && result.found && (
+        <div className="mt-3 flex items-center gap-3 rounded-lg border border-[var(--color-border-faint)] bg-[var(--color-bg-base)] p-3">
+          <Link href={`/users/${result.user.id}`} className="flex items-center gap-3 min-w-0 flex-1">
+            {result.user.image ? (
+              <img src={result.user.image} alt="" className="h-10 w-10 shrink-0 rounded-full object-cover" />
+            ) : (
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--color-accent-soft)] text-sm font-bold text-[var(--color-accent)]">
+                {result.user.displayName.charAt(0)}
+              </div>
+            )}
+            <div className="min-w-0">
+              <p className="truncate font-serif text-sm font-medium text-[var(--color-ink-primary)]">{result.user.displayName}</p>
+              <p className="text-xs font-mono text-[var(--color-ink-faint)]">@{result.user.handle}</p>
+            </div>
+          </Link>
+          <div className="shrink-0">{relationButton(result.relation, result.user.id)}</div>
+        </div>
+      )}
+    </section>
   );
 }
