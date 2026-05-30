@@ -19,7 +19,8 @@ model User {
   bio           String?
   linkX         String?
   linkInstagram String?
-  linkWebsite   String?
+  linkWebsite      String?
+  linkWebsiteLabel String?
   area          String?
   customLinks   String?
   isPublic      Boolean         @default(true)

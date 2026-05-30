@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { apiUrl } from "@/lib/api";
 import FriendRequestButton from "@/components/friends/FriendRequestButton";
+import { FaXTwitter, FaInstagram } from "react-icons/fa6";
 
 interface UserProfile {
   id: string;
@@ -18,6 +19,7 @@ interface UserProfile {
   linkX: string | null;
   linkInstagram: string | null;
   linkWebsite: string | null;
+  linkWebsiteLabel: string | null;
   customLinks: { label: string; url: string }[];
   isPublic: boolean;
 }
@@ -126,7 +128,7 @@ export default function UserProfilePage() {
           <div className="flex-1 min-w-0">
             <h1 className="font-serif text-xl font-medium tracking-[0.05em] text-[var(--color-ink-primary)] md:text-2xl">{user.displayName ?? user.name}</h1>
             {user.handle && (
-              <p className="mt-0.5 text-xs font-mono text-[var(--color-ink-faint)]">@{user.handle}</p>
+              <p className="mt-0.5 text-sm font-mono text-[var(--color-ink-muted)]">@{user.handle}</p>
             )}
             {user.area && (
               <p className="mt-0.5 text-xs text-[var(--color-ink-muted)]">📍 {user.area}</p>
@@ -136,20 +138,20 @@ export default function UserProfilePage() {
             )}
 
             {/* SNSリンク */}
-            <div className="mt-2 flex flex-wrap gap-3">
+            <div className="mt-2 flex flex-wrap items-center gap-3">
               {user.linkX && (
-                <a href={`https://x.com/${user.linkX}`} target="_blank" rel="noopener noreferrer" className="text-sm text-[var(--color-accent)] hover:underline">
-                  X: @{user.linkX}
+                <a href={`https://x.com/${user.linkX}`} target="_blank" rel="noopener noreferrer" className="text-[#000] hover:opacity-70 transition-opacity" aria-label={`X (@${user.linkX})`} title={`@${user.linkX}`}>
+                  <FaXTwitter size={18} />
                 </a>
               )}
               {user.linkInstagram && (
-                <a href={`https://instagram.com/${user.linkInstagram}`} target="_blank" rel="noopener noreferrer" className="text-sm text-[var(--color-accent)] hover:underline">
-                  IG: @{user.linkInstagram}
+                <a href={`https://instagram.com/${user.linkInstagram}`} target="_blank" rel="noopener noreferrer" className="text-[#E4405F] hover:opacity-70 transition-opacity" aria-label={`Instagram (@${user.linkInstagram})`} title={`@${user.linkInstagram}`}>
+                  <FaInstagram size={20} />
                 </a>
               )}
               {user.linkWebsite && (
                 <a href={user.linkWebsite} target="_blank" rel="noopener noreferrer" className="text-sm text-[var(--color-accent)] hover:underline">
-                  🔗 Web
+                  🔗 {user.linkWebsiteLabel || "Web"}
                 </a>
               )}
               {user.customLinks.map((link, i) => (

@@ -23,6 +23,7 @@ export async function GET(
         linkX: true,
         linkInstagram: true,
         linkWebsite: true,
+        linkWebsiteLabel: true,
         customLinks: true,
         visibility: true,
         deactivatedAt: true,
@@ -119,6 +120,7 @@ export async function GET(
       linkX: canSee("links") ? user.linkX : null,
       linkInstagram: canSee("links") ? user.linkInstagram : null,
       linkWebsite: canSee("links") ? user.linkWebsite : null,
+      linkWebsiteLabel: canSee("links") ? user.linkWebsiteLabel : null,
       customLinks: canSee("links") ? customLinks : [],
       visibility: vis,
     };

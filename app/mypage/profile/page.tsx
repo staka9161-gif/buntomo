@@ -73,6 +73,7 @@ export default function ProfileEditPage() {
     linkX: "",
     linkInstagram: "",
     linkWebsite: "",
+    linkWebsiteLabel: "",
   });
   const [customLinks, setCustomLinks] = useState<CustomLink[]>([]);
   const [visibility, setVisibility] = useState<Visibility>({ ...DEFAULT_VIS });
@@ -127,6 +128,7 @@ export default function ProfileEditPage() {
             linkX: data.profile.linkX || "",
             linkInstagram: data.profile.linkInstagram || "",
             linkWebsite: data.profile.linkWebsite || "",
+            linkWebsiteLabel: data.profile.linkWebsiteLabel || "",
           });
           setImage(data.profile.image || "");
           setHandleInput(data.profile.handle || "");
@@ -484,13 +486,23 @@ export default function ProfileEditPage() {
 
           <div>
             <label className="mb-1 block text-xs text-[var(--color-ink-muted)]">Webサイト / HP</label>
-            <input
-              type="url"
-              value={form.linkWebsite}
-              onChange={(e) => setForm({ ...form, linkWebsite: e.target.value })}
-              placeholder="https://example.com"
-              className="w-full rounded-lg border px-3 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
-            />
+            <div className="space-y-1.5">
+              <input
+                type="url"
+                value={form.linkWebsite}
+                onChange={(e) => setForm({ ...form, linkWebsite: e.target.value })}
+                placeholder="https://example.com"
+                className="w-full rounded-lg border px-3 py-2 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
+              />
+              <input
+                type="text"
+                value={form.linkWebsiteLabel}
+                onChange={(e) => setForm({ ...form, linkWebsiteLabel: e.target.value })}
+                maxLength={20}
+                placeholder="ラベル（例: 公式サイト）"
+                className="w-full rounded-lg border px-3 py-1.5 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
+              />
+            </div>
           </div>
         </fieldset>
 

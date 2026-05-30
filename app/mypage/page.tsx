@@ -60,6 +60,7 @@ export default function MyPage() {
   const [pendingRequestCount, setPendingRequestCount] = useState(0);
   const [profile, setProfile] = useState<{
     name: string | null;
+    handle: string | null;
     image: string | null;
     bio: string | null;
     area: string | null;
@@ -149,6 +150,9 @@ export default function MyPage() {
         )}
         <div className="flex-1 min-w-0">
           <p className="font-serif text-sm font-medium text-[var(--color-ink-primary)] truncate">{profile?.name || session.user?.name}</p>
+          {profile?.handle && (
+            <p className="text-xs font-mono text-[var(--color-ink-faint)]">@{profile.handle}</p>
+          )}
           <p className="text-xs text-[var(--color-ink-muted)]">プロフィールを見る →</p>
         </div>
       </Link>

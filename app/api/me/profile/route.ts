@@ -13,6 +13,7 @@ const PROFILE_SELECT = {
   linkX: true,
   linkInstagram: true,
   linkWebsite: true,
+  linkWebsiteLabel: true,
   area: true,
   customLinks: true,
   visibility: true,
@@ -88,6 +89,13 @@ export async function PATCH(request: NextRequest) {
     }
     if (body.linkWebsite !== undefined) {
       updateData.linkWebsite = body.linkWebsite?.trim() || null;
+    }
+    if (body.linkWebsiteLabel !== undefined) {
+      const label = body.linkWebsiteLabel?.trim() || null;
+      if (label && label.length > 20) {
+        return NextResponse.json({ error: "Webサイトのラベルは20文字以内にしてください" }, { status: 400 });
+      }
+      updateData.linkWebsiteLabel = label;
     }
 
     if (body.area !== undefined) {
