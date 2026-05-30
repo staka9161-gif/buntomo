@@ -15,6 +15,7 @@ export async function GET(
       where: { id: userId },
       select: {
         id: true,
+        handle: true,
         name: true,
         image: true,
         bio: true,
@@ -109,6 +110,7 @@ export async function GET(
     const displayName = await (await import("@/lib/user-display")).getDisplayName(user.id);
     const userResponse = {
       id: user.id,
+      handle: user.handle,
       name: user.name,
       displayName: displayName ?? user.name,
       image: user.image,

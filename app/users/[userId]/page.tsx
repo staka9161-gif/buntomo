@@ -9,6 +9,7 @@ import FriendRequestButton from "@/components/friends/FriendRequestButton";
 
 interface UserProfile {
   id: string;
+  handle?: string | null;
   name: string;
   displayName?: string;
   image: string | null;
@@ -124,6 +125,9 @@ export default function UserProfilePage() {
 
           <div className="flex-1 min-w-0">
             <h1 className="font-serif text-xl font-medium tracking-[0.05em] text-[var(--color-ink-primary)] md:text-2xl">{user.displayName ?? user.name}</h1>
+            {user.handle && (
+              <p className="mt-0.5 text-xs font-mono text-[var(--color-ink-faint)]">@{user.handle}</p>
+            )}
             {user.area && (
               <p className="mt-0.5 text-xs text-[var(--color-ink-muted)]">📍 {user.area}</p>
             )}
