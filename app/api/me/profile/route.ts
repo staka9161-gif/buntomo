@@ -2,9 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { parseVisibility } from "@/lib/visibility";
+import { normalizeHandle, isValidHandle } from "@/lib/handle";
 
 const PROFILE_SELECT = {
   email: true,
+  handle: true,
   name: true,
   image: true,
   bio: true,
@@ -93,6 +95,18 @@ export async function PATCH(request: NextRequest) {
         return NextResponse.json({ error: "エリアは15文字以内にしてください" }, { status: 400 });
       }
       updateData.area = body.area?.trim() || null;
+    }
+
+    if (body.handle !== undefined) {
+      const handle = normalizeHandle(body.handle);
+      if (!isValidHandle(handle)) {
+        return NextResponse.json({ error: "IDの形式が正しくありません（半角英数字と_、3〜20文字）" }, { status: 400 });
+      }
+      const dup = await prisma.user.findUnique({ where: { handle } });
+      if (dup && dup.id !== session.user.id) {
+        return NextResponse.json({ error: "このIDは既に使われています" }, { status: 400 });
+      }
+      updateData.handle = handle;
     }
 
     if (body.visibility !== undefined) {

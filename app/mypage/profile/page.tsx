@@ -62,6 +62,10 @@ export default function ProfileEditPage() {
   });
   const [savingNotif, setSavingNotif] = useState(false);
   const [notifMsg, setNotifMsg] = useState("");
+  const [handleInput, setHandleInput] = useState("");
+  const [handleStatus, setHandleStatus] = useState<"idle" | "checking" | "available" | "taken" | "invalid">("idle");
+  const handleDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const [form, setForm] = useState({
     name: "",
     bio: "",
@@ -88,6 +92,22 @@ export default function ProfileEditPage() {
   }, [form.name]);
 
   useEffect(() => {
+    if (handleDebounceRef.current) clearTimeout(handleDebounceRef.current);
+    if (!handleInput.trim()) { setHandleStatus("idle"); return; }
+    setHandleStatus("checking");
+    handleDebounceRef.current = setTimeout(() => {
+      fetch(apiUrl(`/api/users/check-handle?handle=${encodeURIComponent(handleInput.trim())}`))
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.available) setHandleStatus("available");
+          else setHandleStatus(data.reason === "taken" ? "taken" : "invalid");
+        })
+        .catch(() => setHandleStatus("idle"));
+    }, 300);
+    return () => { if (handleDebounceRef.current) clearTimeout(handleDebounceRef.current); };
+  }, [handleInput]);
+
+  useEffect(() => {
     if (status === "unauthenticated") router.push("/login");
   }, [status, router]);
 
@@ -109,6 +129,7 @@ export default function ProfileEditPage() {
             linkWebsite: data.profile.linkWebsite || "",
           });
           setImage(data.profile.image || "");
+          setHandleInput(data.profile.handle || "");
           setCustomLinks(data.profile.customLinks || []);
           if (data.profile.visibility) setVisibility(data.profile.visibility);
           setAccountForm((prev) => ({ ...prev, email: data.profile.email || "" }));
@@ -220,6 +241,7 @@ export default function ProfileEditPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...form,
+          handle: handleInput.trim(),
           customLinks: validCustomLinks,
           visibility,
         }),
@@ -363,6 +385,34 @@ export default function ProfileEditPage() {
             <p className="mt-1 text-xs text-amber-600">
               ※同じユーザーネームのユーザーがいるため、番号「#{nameCollision + 1}」が付与されます。
             </p>
+          )}
+        </div>
+
+        {/* ID（検索用） */}
+        <div>
+          <label className="mb-1 flex items-center justify-between text-sm text-[var(--color-ink-primary)] font-medium">
+            <span>ID（検索用）</span>
+            <span className="text-[var(--color-ink-faint)]">{handleInput.length}/20</span>
+          </label>
+          <input
+            type="text"
+            value={handleInput}
+            onChange={(e) => setHandleInput(e.target.value.replace(/[^a-zA-Z0-9_]/g, "").toLowerCase())}
+            maxLength={20}
+            className="w-full rounded-lg border px-3 py-2 text-sm font-mono focus:border-[var(--color-accent)] focus:outline-none transition-colors"
+            placeholder="my_id"
+          />
+          <p className="mt-1 text-xs text-[var(--color-ink-faint)]">
+            半角英数字とアンダースコア(_)、3〜20文字。他の人はこのIDであなたを検索できます。
+          </p>
+          {handleStatus === "available" && (
+            <p className="mt-1 text-xs text-[var(--color-status-success)]">このIDは使えます</p>
+          )}
+          {handleStatus === "taken" && (
+            <p className="mt-1 text-xs text-red-600">このIDは既に使われています</p>
+          )}
+          {handleStatus === "invalid" && handleInput.length > 0 && (
+            <p className="mt-1 text-xs text-red-600">半角英数字とアンダースコア、3〜20文字で入力してください</p>
           )}
         </div>
 

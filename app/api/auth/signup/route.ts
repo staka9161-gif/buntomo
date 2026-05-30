@@ -3,6 +3,7 @@ import { randomBytes } from "crypto";
 import bcryptjs from "bcryptjs";
 import { prisma } from "@/lib/db";
 import { sendVerificationEmail } from "@/lib/mail";
+import { generateRandomHandle } from "@/lib/handle";
 
 const TOKEN_EXPIRY_HOURS = 24;
 
@@ -34,8 +35,17 @@ export async function POST(request: NextRequest) {
 
     const passwordHash = await bcryptjs.hash(password, 12);
 
+    // ユニークな handle を生成
+    let handle: string;
+    for (let i = 0; ; i++) {
+      handle = generateRandomHandle();
+      const dup = await prisma.user.findUnique({ where: { handle } });
+      if (!dup) break;
+      if (i > 10) throw new Error("handle generation failed");
+    }
+
     const user = await prisma.user.create({
-      data: { email, passwordHash, name },
+      data: { email, passwordHash, name, handle },
     });
 
     // メール確認トークンを発行
