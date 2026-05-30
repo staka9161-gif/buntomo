@@ -147,10 +147,10 @@ export default function EventsPage() {
           {events.map((event) => (
             <div
               key={event.id}
-              className="card-base transition hover:shadow-md"
+              className="card-base p-4 transition hover:shadow-md"
             >
-              <div className="flex gap-4 p-5">
-                {/* 書影（複数冊の場合は重ねて表示） */}
+              {/* 上段: 書影 + タイトル + バッジ */}
+              <div className="flex gap-3">
                 <div className="shrink-0">
                   {(() => {
                     const displayBooks = event.books && event.books.length > 0 ? event.books : [event.book];
@@ -159,22 +159,21 @@ export default function EventsPage() {
                       return (
                         <Link href={`/books/${b.id}`}>
                           {b.coverImageUrl ? (
-                            <img src={b.coverImageUrl} alt={b.title} className="h-24 w-16 rounded object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                            <img src={b.coverImageUrl} alt={b.title} className="h-18 w-12 rounded object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                           ) : (
-                            <div className="flex h-24 w-16 items-center justify-center rounded-sm bg-[rgb(31_42_68_/_0.05)] text-[10px] text-[var(--color-ink-faint)]">No Image</div>
+                            <div className="flex h-18 w-12 items-center justify-center rounded-sm bg-[rgb(31_42_68_/_0.05)] text-[9px] text-[var(--color-ink-faint)]">No Image</div>
                           )}
                         </Link>
                       );
                     }
-                    // 複数冊: 重ねて表示
                     return (
-                      <div className="relative" style={{ width: `${16 + (displayBooks.length - 1) * 10}px`, height: "96px" }}>
+                      <div className="relative" style={{ width: `${48 + (displayBooks.length - 1) * 10}px`, height: "72px" }}>
                         {displayBooks.slice(0, 3).map((b, i) => (
                           <Link key={b.id} href={`/books/${b.id}`} className="absolute" style={{ left: `${i * 10}px`, zIndex: displayBooks.length - i }}>
                             {b.coverImageUrl ? (
-                              <img src={b.coverImageUrl} alt={b.title} className="h-24 w-16 rounded object-cover border-2 border-white shadow-sm" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
+                              <img src={b.coverImageUrl} alt={b.title} className="h-18 w-12 rounded object-cover border-2 border-white shadow-sm" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                             ) : (
-                              <div className="flex h-24 w-16 items-center justify-center rounded-sm bg-[rgb(31_42_68_/_0.05)] text-[10px] text-[var(--color-ink-faint)] border-2 border-white shadow-sm">No Image</div>
+                              <div className="flex h-18 w-12 items-center justify-center rounded-sm bg-[rgb(31_42_68_/_0.05)] text-[9px] text-[var(--color-ink-faint)] border-2 border-white shadow-sm">No Image</div>
                             )}
                           </Link>
                         ))}
@@ -182,52 +181,48 @@ export default function EventsPage() {
                     );
                   })()}
                 </div>
-
-                {/* 内容 */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-serif text-base font-medium text-[var(--color-ink-primary)]">{event.title}</h3>
-                    <span className="shrink-0 rounded-full bg-[var(--color-accent-soft)] px-2 py-0.5 text-xs font-medium text-[var(--color-accent)]">
+                  <div className="flex items-start gap-2">
+                    <h3 className="font-serif text-sm font-medium text-[var(--color-ink-primary)] line-clamp-2 md:text-base">{event.title}</h3>
+                    <span className="mt-0.5 shrink-0 rounded-full bg-[var(--color-accent-soft)] px-2 py-0.5 text-[10px] font-medium text-[var(--color-accent)]">
                       {daysUntil(event.eventDate)}
                     </span>
                   </div>
-
-                  {/* 対象書籍 */}
                   <Link
                     href={`/books/${event.book.id}`}
-                    className="mt-0.5 block text-sm text-[var(--color-accent)] hover:underline"
+                    className="mt-0.5 block truncate text-xs text-[var(--color-accent)] hover:underline"
                   >
-                    {event.book.title}
-                    <span className="ml-1 text-[var(--color-ink-muted)]">/ {event.book.author}</span>
+                    {event.book.title}<span className="ml-1 text-[var(--color-ink-faint)]">/ {event.book.author}</span>
                   </Link>
-
-                  <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-[var(--color-ink-muted)]">
-                    <span>📅 {formatDate(event.eventDate)}</span>
-                    <span>📍 {event.prefecture} {event.location}</span>
-                    <a href={`/users/${event.organizer.id}`} className="text-[var(--color-accent)] hover:underline">👤 {event.organizer.name}</a>
-                  </div>
-
-                  {event.description && (
-                    <p className="mt-2 text-xs text-[var(--color-ink-faint)] line-clamp-2">
-                      {event.description}
-                    </p>
-                  )}
                 </div>
-
-                {/* 参加ボタン */}
-                {event.url && (
-                  <div className="flex shrink-0 items-center">
-                    <a
-                      href={event.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn-primary-sm"
-                    >
-                      詳細・申込
-                    </a>
-                  </div>
-                )}
               </div>
+
+              {/* メタ情報 */}
+              <div className="mt-2 space-y-0.5 text-xs text-[var(--color-ink-muted)]">
+                <p>📅 {formatDate(event.eventDate)}</p>
+                <p className="line-clamp-2">📍 {event.prefecture} {event.location}</p>
+                <p className="truncate">
+                  <a href={`/users/${event.organizer.id}`} className="text-[var(--color-accent)] hover:underline">👤 {event.organizer.name}</a>
+                </p>
+              </div>
+
+              {event.description && (
+                <p className="mt-1.5 text-xs text-[var(--color-ink-faint)] line-clamp-2">
+                  {event.description}
+                </p>
+              )}
+
+              {/* 参加ボタン（全幅） */}
+              {event.url && (
+                <a
+                  href={event.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 block w-full text-center btn-primary-sm"
+                >
+                  詳細・申込
+                </a>
+              )}
             </div>
           ))}
         </div>
