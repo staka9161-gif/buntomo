@@ -204,22 +204,22 @@ export default function UserProfilePage() {
 
       {/* 数字グリッド */}
       <div className="mt-5 grid grid-cols-3 gap-3">
-        <div className="card-base p-4 text-center md:p-5">
+        <Link href={`/users/${userId}/reading`} className="card-base p-4 text-center transition hover:shadow-md md:p-5">
           <p className="font-serif text-2xl font-medium leading-none text-[var(--color-accent)] md:text-3xl">
             {hiddenFields.readings && !isMe ? "—" : stats.readingCount}
           </p>
           <p className="mt-2 text-[11px] tracking-[0.05em] text-[var(--color-ink-muted)] md:text-xs">読みかけの本</p>
-        </div>
-        <div className="card-base p-4 text-center md:p-5">
+        </Link>
+        <Link href={`/users/${userId}/completed`} className="card-base p-4 text-center transition hover:shadow-md md:p-5">
           <p className="font-serif text-2xl font-medium leading-none text-[var(--color-accent)] md:text-3xl">
             {hiddenFields.readings && !isMe ? "—" : stats.completedCount}
           </p>
           <p className="mt-2 text-[11px] tracking-[0.05em] text-[var(--color-ink-muted)] md:text-xs">読了した本</p>
-        </div>
-        <div className="card-base p-4 text-center md:p-5">
+        </Link>
+        <Link href={`/users/${userId}/friends`} className="card-base p-4 text-center transition hover:shadow-md md:p-5">
           <p className="font-serif text-2xl font-medium leading-none text-[var(--color-accent)] md:text-3xl">{stats.friendCount}</p>
           <p className="mt-2 text-[11px] tracking-[0.05em] text-[var(--color-ink-muted)] md:text-xs">友だち</p>
-        </div>
+        </Link>
       </div>
 
       {/* 読書中 */}
