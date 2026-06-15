@@ -62,20 +62,6 @@ export default function CompletedPage() {
     }
   };
 
-  const handleCompletedDateChange = async (readingId: string, completedAt: string) => {
-    const res = await fetch(apiUrl(`/api/me/readings/${readingId}`), {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ completedAt }),
-    });
-    if (!res.ok) {
-      const data = await res.json().catch(() => null);
-      alert(data?.error || "読了日の更新に失敗しました");
-      throw new Error(data?.error || "Failed to update completed date");
-    }
-    fetchReadings();
-  };
-
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
@@ -106,7 +92,6 @@ export default function CompletedPage() {
               readingCount={r.readingCount}
               completedCount={r.completedCount}
               eventCount={r.eventCount}
-              onCompletedDateChange={handleCompletedDateChange}
               onStatusChange={handleStatusChange}
               onDelete={handleDelete}
             />
