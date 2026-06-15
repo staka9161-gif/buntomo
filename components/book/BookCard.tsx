@@ -19,7 +19,7 @@ interface BookCardProps {
   eventCount?: number;
   onUpdatePage?: (readingId: string, page: number) => void;
   onStatusChange?: (readingId: string, status: string) => void;
-  onCompletedDateChange?: (readingId: string, completedAt: string) => Promise<void> | void;
+  onCompletedDateChange?: (readingId: string, completedAt: string) => Promise<boolean | void> | boolean | void;
   onDelete?: (readingId: string) => void;
 }
 
@@ -28,6 +28,13 @@ function toDateInputValue(value?: string | null): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "";
   return date.toISOString().slice(0, 10);
+}
+
+function formatCompletedDate(value?: string | null): string {
+  if (!value) return "読了日未設定";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "読了日未設定";
+  return date.toLocaleDateString("ja-JP");
 }
 
 export default function BookCard({
@@ -63,8 +70,10 @@ export default function BookCard({
     if (!readingId || !onCompletedDateChange || !completedAtInput) return;
     setSavingCompletedAt(true);
     try {
-      await onCompletedDateChange(readingId, completedAtInput);
-      setIsEditingCompletedAt(false);
+      const saved = await onCompletedDateChange(readingId, completedAtInput);
+      if (saved !== false) {
+        setIsEditingCompletedAt(false);
+      }
     } finally {
       setSavingCompletedAt(false);
     }
@@ -193,7 +202,7 @@ export default function BookCard({
                 読了
               </span>
               <span className="ml-2 text-[11px] font-mono text-[var(--color-ink-faint)]">
-                {completedAt ? new Date(completedAt).toLocaleDateString("ja-JP") : "読了日未設定"}
+                {formatCompletedDate(completedAt)}
               </span>
               {readingId && onCompletedDateChange && (
                 <div className="mt-2">
