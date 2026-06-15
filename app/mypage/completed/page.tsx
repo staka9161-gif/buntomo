@@ -17,7 +17,7 @@ interface Reading {
     author: string;
     totalPages: number;
     coverImageUrl: string | null;
-  };
+  } | null;
   readingCount: number;
   completedCount: number;
   eventCount: number;
@@ -70,15 +70,19 @@ export default function CompletedPage() {
     );
   }
 
+  const validReadings = readings.filter(
+    (reading): reading is Reading & { book: NonNullable<Reading["book"]> } => !!reading.book?.id
+  );
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
       <h1 className="mb-6 font-serif text-xl font-medium tracking-[0.05em] text-[var(--color-ink-primary)] md:text-2xl">読んだ本</h1>
 
-      {readings.length === 0 ? (
+      {validReadings.length === 0 ? (
         <p className="text-sm text-[var(--color-ink-faint)] text-center py-8">読了した本はまだありません</p>
       ) : (
         <div className="space-y-4">
-          {readings.map((r) => (
+          {validReadings.map((r) => (
             <BookCard
               key={r.id}
               id={r.book.id}

@@ -18,7 +18,7 @@ interface Reading {
     author: string;
     totalPages: number;
     coverImageUrl: string | null;
-  };
+  } | null;
   readingCount: number;
   completedCount: number;
   eventCount: number;
@@ -130,6 +130,13 @@ export default function MyPage() {
 
   if (!session) return null;
 
+  const validReadingBooks = readingBooks.filter(
+    (reading): reading is Reading & { book: NonNullable<Reading["book"]> } => !!reading.book?.id
+  );
+  const validCompletedBooks = completedBooks.filter(
+    (reading): reading is Reading & { book: NonNullable<Reading["book"]> } => !!reading.book?.id
+  );
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
       <Link
@@ -162,14 +169,14 @@ export default function MyPage() {
           href="/mypage/reading"
           className="card-base p-4 text-center md:p-5"
         >
-          <p className="font-serif text-2xl font-medium leading-none text-[var(--color-accent)] md:text-3xl">{readingBooks.length}</p>
+          <p className="font-serif text-2xl font-medium leading-none text-[var(--color-accent)] md:text-3xl">{validReadingBooks.length}</p>
           <p className="mt-2 text-[11px] tracking-[0.05em] text-[var(--color-ink-muted)] md:text-xs">読みかけの本</p>
         </Link>
         <Link
           href="/mypage/completed"
           className="card-base p-4 text-center md:p-5"
         >
-          <p className="font-serif text-2xl font-medium leading-none text-[var(--color-accent)] md:text-3xl">{completedBooks.length}</p>
+          <p className="font-serif text-2xl font-medium leading-none text-[var(--color-accent)] md:text-3xl">{validCompletedBooks.length}</p>
           <p className="mt-2 text-[11px] tracking-[0.05em] text-[var(--color-ink-muted)] md:text-xs">読了した本</p>
         </Link>
         <Link
@@ -208,7 +215,7 @@ export default function MyPage() {
         </Link>
       </div>
 
-      {readingBooks.length > 0 && (
+      {validReadingBooks.length > 0 && (
         <section className="mb-8">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="font-serif text-base font-medium tracking-[0.05em] text-[var(--color-ink-primary)] md:text-lg">読みかけの本</h2>
@@ -217,7 +224,7 @@ export default function MyPage() {
             </Link>
           </div>
           <div className="space-y-3">
-            {readingBooks.slice(0, 3).map((r) => (
+            {validReadingBooks.slice(0, 3).map((r) => (
               <BookCard
                 key={r.id}
                 id={r.book.id}
@@ -240,7 +247,7 @@ export default function MyPage() {
         </section>
       )}
 
-      {completedBooks.length > 0 && (
+      {validCompletedBooks.length > 0 && (
         <section className="mb-8">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="font-serif text-base font-medium tracking-[0.05em] text-[var(--color-ink-primary)] md:text-lg">最近読了した本</h2>
@@ -249,7 +256,7 @@ export default function MyPage() {
             </Link>
           </div>
           <div className="space-y-3">
-            {completedBooks.slice(0, 3).map((r) => (
+            {validCompletedBooks.slice(0, 3).map((r) => (
               <BookCard
                 key={r.id}
                 id={r.book.id}
@@ -313,7 +320,7 @@ export default function MyPage() {
         </section>
       )}
 
-      {readingBooks.length === 0 && completedBooks.length === 0 && (
+      {validReadingBooks.length === 0 && validCompletedBooks.length === 0 && (
         <div className="card-base p-8 text-center">
           <p className="text-[var(--color-ink-muted)]">まだ本が登録されていません</p>
           <Link

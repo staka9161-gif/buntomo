@@ -19,9 +19,10 @@ export async function GET(request: NextRequest) {
       include: { book: true },
       orderBy: { updatedAt: "desc" },
     });
+    const validReadings = readings.filter((r) => r.book != null);
 
     // 各書籍の読書中・読了カウント＋読書会数を取得
-    const bookIds = readings.map((r) => r.bookId).filter((id): id is string => id != null);
+    const bookIds = validReadings.map((r) => r.bookId).filter((id): id is string => id != null);
     const counts = await prisma.readingStatus.groupBy({
       by: ["bookId", "status"],
       where: { bookId: { in: bookIds } },
@@ -67,7 +68,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const readingsWithCounts = readings.map((r) => ({
+    const readingsWithCounts = validReadings.map((r) => ({
       ...r,
       readingCount: (r.bookId ? countMap.get(r.bookId)?.reading : 0) ?? 0,
       completedCount: (r.bookId ? countMap.get(r.bookId)?.completed : 0) ?? 0,
