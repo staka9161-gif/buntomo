@@ -16,6 +16,7 @@ export default function FriendRequestButton({ userId, initialStatus, friendshipI
   const [status, setStatus] = useState<FriendshipStatus>(initialStatus);
   const [loading, setLoading] = useState(false);
   const [fId, setFId] = useState(friendshipId);
+  const [showFriendMenu, setShowFriendMenu] = useState(false);
 
   const handleRequest = async () => {
     setLoading(true);
@@ -92,7 +93,8 @@ export default function FriendRequestButton({ userId, initialStatus, friendshipI
   };
 
   const handleUnfriend = async () => {
-    if (!confirm("友だちを解除しますか？")) return;
+    if (!confirm("本当に友だちを解除しますか？")) return;
+    setShowFriendMenu(false);
     setLoading(true);
     try {
       const res = await fetch(apiUrl(`/api/me/friends/${userId}`), { method: "DELETE" });
@@ -153,12 +155,27 @@ export default function FriendRequestButton({ userId, initialStatus, friendshipI
 
   // friends
   return (
-    <button
-      onClick={handleUnfriend}
-      disabled={loading}
-      className="btn-secondary-sm disabled:opacity-50"
-    >
-      友だち
-    </button>
+    <div className="relative inline-block">
+      <button
+        type="button"
+        onClick={() => setShowFriendMenu((open) => !open)}
+        disabled={loading}
+        className="btn-secondary-sm disabled:opacity-50"
+      >
+        {loading ? "..." : "友だち"}
+      </button>
+      {showFriendMenu && (
+        <div className="absolute left-0 top-full z-10 mt-2 min-w-36 rounded-md border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-1 shadow-[var(--shadow-card)]">
+          <button
+            type="button"
+            onClick={handleUnfriend}
+            disabled={loading}
+            className="w-full rounded px-3 py-2 text-left text-sm text-[var(--color-ink-primary)] hover:bg-[var(--color-bg-base)] disabled:opacity-50"
+          >
+            友だちを解除
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
