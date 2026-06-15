@@ -2,6 +2,24 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 
+function parseDateOnly(value: unknown): Date | null {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return null;
+  }
+
+  const [year, month, day] = value.split("-").map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
+  ) {
+    return null;
+  }
+
+  return date;
+}
+
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -24,6 +42,19 @@ export async function PATCH(
 
     if (body.currentPage !== undefined) {
       updateData.currentPage = body.currentPage;
+    }
+
+    if (body.completedAt !== undefined) {
+      if (reading.status !== "COMPLETED") {
+        return NextResponse.json({ error: "読了済みの本のみ読了日を変更できます" }, { status: 400 });
+      }
+
+      const completedAt = parseDateOnly(body.completedAt);
+      if (!completedAt) {
+        return NextResponse.json({ error: "読了日は YYYY-MM-DD 形式で指定してください" }, { status: 400 });
+      }
+
+      updateData.completedAt = completedAt;
     }
 
     if (body.status) {

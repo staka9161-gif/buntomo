@@ -19,7 +19,15 @@ interface BookCardProps {
   eventCount?: number;
   onUpdatePage?: (readingId: string, page: number) => void;
   onStatusChange?: (readingId: string, status: string) => void;
+  onCompletedDateChange?: (readingId: string, completedAt: string) => Promise<void> | void;
   onDelete?: (readingId: string) => void;
+}
+
+function toDateInputValue(value?: string | null): string {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toISOString().slice(0, 10);
 }
 
 export default function BookCard({
@@ -37,16 +45,30 @@ export default function BookCard({
   eventCount = 0,
   onUpdatePage,
   onStatusChange,
+  onCompletedDateChange,
   onDelete,
 }: BookCardProps) {
   const [localPageStr, setLocalPageStr] = useState(currentPage ? String(currentPage) : "");
   const [showNoTotal, setShowNoTotal] = useState(false);
+  const [isEditingCompletedAt, setIsEditingCompletedAt] = useState(false);
+  const [completedAtInput, setCompletedAtInput] = useState(toDateInputValue(completedAt));
+  const [savingCompletedAt, setSavingCompletedAt] = useState(false);
   useEffect(() => { setLocalPageStr(currentPage ? String(currentPage) : ""); }, [currentPage]);
   const localPageNum = parseInt(localPageStr, 10) || 0;
   const progress = totalPages > 0 && currentPage !== undefined
     ? Math.floor((currentPage / totalPages) * 100)
     : 0;
   const pageExceedsTotal = totalPages > 0 && localPageNum > totalPages;
+  const handleSaveCompletedAt = async () => {
+    if (!readingId || !onCompletedDateChange || !completedAtInput) return;
+    setSavingCompletedAt(true);
+    try {
+      await onCompletedDateChange(readingId, completedAtInput);
+      setIsEditingCompletedAt(false);
+    } finally {
+      setSavingCompletedAt(false);
+    }
+  };
 
   return (
     <div className="card-base p-5 transition hover:shadow-md">
@@ -165,14 +187,58 @@ export default function BookCard({
             </div>
           )}
 
-          {status === "COMPLETED" && completedAt && (
+          {status === "COMPLETED" && (
             <div className="mt-2">
               <span className="badge-completed">
                 読了
               </span>
               <span className="ml-2 text-[11px] font-mono text-[var(--color-ink-faint)]">
-                {new Date(completedAt).toLocaleDateString("ja-JP")}
+                {completedAt ? new Date(completedAt).toLocaleDateString("ja-JP") : "読了日未設定"}
               </span>
+              {readingId && onCompletedDateChange && (
+                <div className="mt-2">
+                  {isEditingCompletedAt ? (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <input
+                        type="date"
+                        value={completedAtInput}
+                        onChange={(e) => setCompletedAtInput(e.target.value)}
+                        className="rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-2 py-1 text-xs"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleSaveCompletedAt}
+                        disabled={savingCompletedAt || !completedAtInput}
+                        className="btn-dark disabled:opacity-50"
+                      >
+                        {savingCompletedAt ? "保存中..." : "保存"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCompletedAtInput(toDateInputValue(completedAt));
+                          setIsEditingCompletedAt(false);
+                        }}
+                        disabled={savingCompletedAt}
+                        className="btn-secondary-sm disabled:opacity-50"
+                      >
+                        キャンセル
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCompletedAtInput(toDateInputValue(completedAt));
+                        setIsEditingCompletedAt(true);
+                      }}
+                      className="text-xs text-[var(--color-ink-faint)] hover:text-[var(--color-accent)]"
+                    >
+                      読了日を変更
+                    </button>
+                  )}
+                </div>
+              )}
               <div className="mt-1 flex items-center gap-3">
                 <Link
                   href={`/books/${id}/chat`}
