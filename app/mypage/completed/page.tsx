@@ -71,10 +71,9 @@ export default function CompletedPage() {
     if (!res.ok) {
       const data = await res.json().catch(() => null);
       alert(data?.error || "読了日の更新に失敗しました");
-      return false;
+      throw new Error(data?.error || "Failed to update completed date");
     }
     fetchReadings();
-    return true;
   };
 
   if (loading) {
