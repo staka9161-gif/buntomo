@@ -19,7 +19,22 @@ interface BookCardProps {
   eventCount?: number;
   onUpdatePage?: (readingId: string, page: number) => void;
   onStatusChange?: (readingId: string, status: string) => void;
+  onCompletedAtChange?: (readingId: string, completedAt: string) => Promise<boolean> | boolean;
   onDelete?: (readingId: string) => void;
+  showCompletedDate?: boolean;
+}
+
+function toDateInputValue(value?: string | Date | null): string {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toISOString().slice(0, 10);
+}
+
+function formatCompletedDate(value?: string | Date | null): string {
+  const inputValue = toDateInputValue(value);
+  if (!inputValue) return "読了日未設定";
+  return inputValue;
 }
 
 export default function BookCard({
@@ -37,16 +52,36 @@ export default function BookCard({
   eventCount = 0,
   onUpdatePage,
   onStatusChange,
+  onCompletedAtChange,
   onDelete,
+  showCompletedDate = false,
 }: BookCardProps) {
   const [localPageStr, setLocalPageStr] = useState(currentPage ? String(currentPage) : "");
   const [showNoTotal, setShowNoTotal] = useState(false);
+  const [isEditingCompletedAt, setIsEditingCompletedAt] = useState(false);
+  const [completedAtInput, setCompletedAtInput] = useState(toDateInputValue(completedAt));
+  const [isSavingCompletedAt, setIsSavingCompletedAt] = useState(false);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setLocalPageStr(currentPage ? String(currentPage) : ""); }, [currentPage]);
   const localPageNum = parseInt(localPageStr, 10) || 0;
   const progress = totalPages > 0 && currentPage !== undefined
     ? Math.floor((currentPage / totalPages) * 100)
     : 0;
   const pageExceedsTotal = totalPages > 0 && localPageNum > totalPages;
+  const canEditCompletedAt = !!readingId && !!onCompletedAtChange && status === "COMPLETED";
+
+  const handleSaveCompletedAt = async () => {
+    if (!readingId || !onCompletedAtChange || !completedAtInput) return;
+    setIsSavingCompletedAt(true);
+    try {
+      const saved = await onCompletedAtChange(readingId, completedAtInput);
+      if (saved) {
+        setIsEditingCompletedAt(false);
+      }
+    } finally {
+      setIsSavingCompletedAt(false);
+    }
+  };
 
   return (
     <div className="card-base p-5 transition hover:shadow-md">
@@ -165,14 +200,55 @@ export default function BookCard({
             </div>
           )}
 
-          {status === "COMPLETED" && completedAt && (
+          {status === "COMPLETED" && (completedAt || showCompletedDate) && (
             <div className="mt-2">
               <span className="badge-completed">
                 読了
               </span>
               <span className="ml-2 text-[11px] font-mono text-[var(--color-ink-faint)]">
-                {new Date(completedAt).toLocaleDateString("ja-JP")}
+                {formatCompletedDate(completedAt)}
               </span>
+              {canEditCompletedAt && (
+                <div className="mt-2">
+                  {isEditingCompletedAt ? (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <input
+                        type="date"
+                        value={completedAtInput}
+                        onChange={(e) => setCompletedAtInput(e.target.value)}
+                        className="rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-2 py-1 text-sm"
+                      />
+                      <button
+                        onClick={handleSaveCompletedAt}
+                        disabled={!completedAtInput || isSavingCompletedAt}
+                        className="btn-dark disabled:opacity-50"
+                      >
+                        {isSavingCompletedAt ? "保存中..." : "保存"}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setCompletedAtInput(toDateInputValue(completedAt));
+                          setIsEditingCompletedAt(false);
+                        }}
+                        disabled={isSavingCompletedAt}
+                        className="btn-secondary-sm disabled:opacity-50"
+                      >
+                        キャンセル
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setCompletedAtInput(toDateInputValue(completedAt));
+                        setIsEditingCompletedAt(true);
+                      }}
+                      className="text-xs text-[var(--color-accent)] hover:underline"
+                    >
+                      読了日を変更
+                    </button>
+                  )}
+                </div>
+              )}
               <div className="mt-1 flex items-center gap-3">
                 <Link
                   href={`/books/${id}/chat`}

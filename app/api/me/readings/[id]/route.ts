@@ -22,6 +22,28 @@ export async function PATCH(
 
     const updateData: Record<string, unknown> = {};
 
+    if (body.completedAt !== undefined) {
+      if (reading.status !== "COMPLETED" || !reading.bookId) {
+        return NextResponse.json({ error: "読了済みの本の読了日だけ更新できます" }, { status: 400 });
+      }
+
+      if (typeof body.completedAt !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(body.completedAt)) {
+        return NextResponse.json({ error: "completedAt は YYYY-MM-DD で指定してください" }, { status: 400 });
+      }
+
+      const [year, month, day] = body.completedAt.split("-").map(Number);
+      const completedAt = new Date(year, month - 1, day);
+      if (
+        completedAt.getFullYear() !== year ||
+        completedAt.getMonth() !== month - 1 ||
+        completedAt.getDate() !== day
+      ) {
+        return NextResponse.json({ error: "completedAt が正しい日付ではありません" }, { status: 400 });
+      }
+
+      updateData.completedAt = completedAt;
+    }
+
     if (body.currentPage !== undefined) {
       updateData.currentPage = body.currentPage;
     }

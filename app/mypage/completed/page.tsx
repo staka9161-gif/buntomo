@@ -62,6 +62,23 @@ export default function CompletedPage() {
     }
   };
 
+  const handleCompletedAtChange = async (readingId: string, completedAt: string) => {
+    const res = await fetch(apiUrl(`/api/me/readings/${readingId}`), {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ completedAt }),
+    });
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => null);
+      alert(error?.error || "読了日の更新に失敗しました");
+      return false;
+    }
+
+    fetchReadings();
+    return true;
+  };
+
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
@@ -97,7 +114,9 @@ export default function CompletedPage() {
               completedCount={r.completedCount}
               eventCount={r.eventCount}
               onStatusChange={handleStatusChange}
+              onCompletedAtChange={handleCompletedAtChange}
               onDelete={handleDelete}
+              showCompletedDate
             />
           ))}
         </div>
