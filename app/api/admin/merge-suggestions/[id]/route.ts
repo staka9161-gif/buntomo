@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { auth } from "@/lib/auth";
-import { isAdmin } from "@/lib/admin";
+import { requireAdmin } from "@/lib/admin";
 
 // PATCH /api/admin/merge-suggestions/:id
 // 承認（approve → merge 実行）または却下（reject）
@@ -10,13 +9,9 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
-    }
-
-    if (!(await isAdmin(session.user.id))) {
-      return NextResponse.json({ error: "管理者権限が必要です" }, { status: 403 });
+    const admin = await requireAdmin();
+    if (!admin.ok) {
+      return NextResponse.json({ error: admin.error }, { status: admin.status });
     }
 
     const { id } = await params;

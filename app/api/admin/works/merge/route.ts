@@ -1,20 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { auth } from "@/lib/auth";
-import { isAdmin } from "@/lib/admin";
+import { requireAdmin } from "@/lib/admin";
 
 // POST /api/admin/works/merge
 // 複数の Work を 1 つの target_work_id に統合
 // body: { source_work_ids: string[], target_work_id: string }
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
-    }
-
-    if (!(await isAdmin(session.user.id))) {
-      return NextResponse.json({ error: "管理者権限が必要です" }, { status: 403 });
+    const admin = await requireAdmin();
+    if (!admin.ok) {
+      return NextResponse.json({ error: admin.error }, { status: admin.status });
     }
 
     const body = await request.json();

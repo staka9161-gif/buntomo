@@ -1,19 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { auth } from "@/lib/auth";
-import { isAdmin } from "@/lib/admin";
+import { requireAdmin } from "@/lib/admin";
 
 // GET /api/admin/merge-suggestions?status=pending
 // MergeSuggestion 一覧取得
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
-    }
-
-    if (!(await isAdmin(session.user.id))) {
-      return NextResponse.json({ error: "管理者権限が必要です" }, { status: 403 });
+    const admin = await requireAdmin();
+    if (!admin.ok) {
+      return NextResponse.json({ error: admin.error }, { status: admin.status });
     }
 
     const status = request.nextUrl.searchParams.get("status") || "pending";
