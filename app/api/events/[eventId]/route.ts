@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { parseEventDate } from "@/lib/date-utils";
+import { requireActiveUser } from "@/lib/active-user";
 
 export async function PATCH(
   request: NextRequest,
@@ -13,12 +14,18 @@ export async function PATCH(
       return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
     }
 
+    const activeUser = await requireActiveUser();
+    if (!activeUser.ok) {
+      return NextResponse.json({ error: activeUser.error }, { status: activeUser.status });
+    }
+    const myId = activeUser.userId;
+
     const { eventId } = await params;
     const event = await prisma.readingEvent.findUnique({ where: { id: eventId } });
     if (!event) {
       return NextResponse.json({ error: "読書会が見つかりません" }, { status: 404 });
     }
-    if (event.organizerId !== session.user.id) {
+    if (event.organizerId !== myId) {
       return NextResponse.json({ error: "登録者のみ編集できます" }, { status: 403 });
     }
 
@@ -117,12 +124,18 @@ export async function DELETE(
       return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
     }
 
+    const activeUser = await requireActiveUser();
+    if (!activeUser.ok) {
+      return NextResponse.json({ error: activeUser.error }, { status: activeUser.status });
+    }
+    const myId = activeUser.userId;
+
     const { eventId } = await params;
     const event = await prisma.readingEvent.findUnique({ where: { id: eventId } });
     if (!event) {
       return NextResponse.json({ error: "読書会が見つかりません" }, { status: 404 });
     }
-    if (event.organizerId !== session.user.id) {
+    if (event.organizerId !== myId) {
       return NextResponse.json({ error: "登録者のみ削除できます" }, { status: 403 });
     }
 

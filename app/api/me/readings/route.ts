@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
+import { requireActiveUser } from "@/lib/active-user";
 
 export async function GET(request: NextRequest) {
   try {
@@ -89,6 +90,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
     }
 
+    const activeUser = await requireActiveUser();
+    if (!activeUser.ok) {
+      return NextResponse.json({ error: activeUser.error }, { status: activeUser.status });
+    }
+    const myId = activeUser.userId;
+
     const { bookId, status } = await request.json();
 
     if (!bookId || !status) {
@@ -101,7 +108,7 @@ export async function POST(request: NextRequest) {
     }
 
     const existing = await prisma.readingStatus.findUnique({
-      where: { userId_bookId: { userId: session.user.id, bookId } },
+      where: { userId_bookId: { userId: myId, bookId } },
     });
     if (existing) {
       return NextResponse.json({ error: "既にこの本は登録されています" }, { status: 409 });
@@ -109,7 +116,7 @@ export async function POST(request: NextRequest) {
 
     const reading = await prisma.readingStatus.create({
       data: {
-        userId: session.user.id,
+        userId: myId,
         bookId,
         status: status.toUpperCase(),
         startedAt: status.toUpperCase() === "READING" ? new Date() : null,

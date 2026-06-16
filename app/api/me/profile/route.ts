@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { parseVisibility } from "@/lib/visibility";
 import { normalizeHandle, isValidHandle } from "@/lib/handle";
+import { requireActiveUser } from "@/lib/active-user";
 
 const PROFILE_SELECT = {
   email: true,
@@ -60,6 +61,12 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
     }
 
+    const activeUser = await requireActiveUser();
+    if (!activeUser.ok) {
+      return NextResponse.json({ error: activeUser.error }, { status: activeUser.status });
+    }
+    const myId = activeUser.userId;
+
     const body = await request.json();
     const updateData: Record<string, unknown> = {};
 
@@ -111,7 +118,7 @@ export async function PATCH(request: NextRequest) {
         return NextResponse.json({ error: "IDの形式が正しくありません（半角英数字と_、3〜20文字）" }, { status: 400 });
       }
       const dup = await prisma.user.findUnique({ where: { handle } });
-      if (dup && dup.id !== session.user.id) {
+      if (dup && dup.id !== myId) {
         return NextResponse.json({ error: "このIDは既に使われています" }, { status: 400 });
       }
       updateData.handle = handle;
@@ -139,7 +146,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     const user = await prisma.user.update({
-      where: { id: session.user.id },
+      where: { id: myId },
       data: updateData,
       select: PROFILE_SELECT,
     });

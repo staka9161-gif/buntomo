@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { windowToMs, type WindowType } from "@/types";
 import { getBlockedUserIds } from "@/lib/block";
+import { requireActiveUser } from "@/lib/active-user";
 
 const VALID_WINDOWS: WindowType[] = ["1d", "1w", "all"];
 
@@ -82,6 +83,12 @@ export async function POST(
       return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
     }
 
+    const activeUser = await requireActiveUser();
+    if (!activeUser.ok) {
+      return NextResponse.json({ error: activeUser.error }, { status: activeUser.status });
+    }
+    const myId = activeUser.userId;
+
     const { id } = await params;
     const { content, window: windowParam } = await request.json();
 
@@ -95,7 +102,7 @@ export async function POST(
     // 投稿権限チェック
     const reading = await prisma.readingStatus.findFirst({
       where: {
-        userId: session.user.id,
+        userId: myId,
         bookId: id,
         user: { deactivatedAt: null },
       },
@@ -117,7 +124,7 @@ export async function POST(
     const recentMessage = await prisma.chatMessage.findFirst({
       where: {
         bookId: id,
-        userId: session.user.id,
+        userId: myId,
         createdAt: { gte: new Date(Date.now() - 10000) },
       },
     });
@@ -131,7 +138,7 @@ export async function POST(
     const message = await prisma.chatMessage.create({
       data: {
         bookId: id,
-        userId: session.user.id,
+        userId: myId,
         content: content.trim(),
         window,
       },

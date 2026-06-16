@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
+import { requireActiveUser } from "@/lib/active-user";
 
 // GET /api/works/:id/reviews
 export async function GET(
@@ -47,17 +48,15 @@ export async function POST(
       return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
     }
 
+    const activeUser = await requireActiveUser();
+    if (!activeUser.ok) {
+      return NextResponse.json({ error: activeUser.error }, { status: activeUser.status });
+    }
+    const myId = activeUser.userId;
+
     const { id: workId } = await params;
     const body = await request.json();
     const { edition_id, body: reviewBody, rating } = body;
-
-    const activeUser = await prisma.user.findFirst({
-      where: { id: session.user.id, deactivatedAt: null },
-      select: { id: true },
-    });
-    if (!activeUser) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
 
     if (!reviewBody || reviewBody.trim().length === 0) {
       return NextResponse.json({ error: "レビュー本文は必須です" }, { status: 400 });
@@ -86,7 +85,7 @@ export async function POST(
 
     // 既存レビューがあれば更新、なければ作成
     const existing = await prisma.review.findUnique({
-      where: { userId_workId: { userId: session.user.id, workId } },
+      where: { userId_workId: { userId: myId, workId } },
     });
 
     let review;
@@ -106,7 +105,7 @@ export async function POST(
     } else {
       review = await prisma.review.create({
         data: {
-          userId: session.user.id,
+          userId: myId,
           workId,
           editionId: edition_id ?? null,
           body: reviewBody.trim(),

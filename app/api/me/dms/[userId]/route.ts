@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { isBlocked } from "@/lib/block";
+import { requireActiveUser } from "@/lib/active-user";
 
 // 友だちチェック
 async function isFriend(userId1: string, userId2: string): Promise<boolean> {
@@ -98,8 +99,13 @@ export async function POST(
       return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
     }
 
+    const activeUser = await requireActiveUser();
+    if (!activeUser.ok) {
+      return NextResponse.json({ error: activeUser.error }, { status: activeUser.status });
+    }
+
     const { userId } = await params;
-    const myId = session.user.id;
+    const myId = activeUser.userId;
 
     if (myId === userId) {
       return NextResponse.json({ error: "自分にはメッセージを送れません" }, { status: 400 });

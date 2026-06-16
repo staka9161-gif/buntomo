@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { isBlocked } from "@/lib/block";
+import { requireActiveUser } from "@/lib/active-user";
 
 export async function GET() {
   try {
@@ -63,13 +64,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
     }
 
+    const activeUser = await requireActiveUser();
+    if (!activeUser.ok) {
+      return NextResponse.json({ error: activeUser.error }, { status: activeUser.status });
+    }
+    const myId = activeUser.userId;
+
     const { userId } = await request.json();
 
     if (!userId) {
       return NextResponse.json({ error: "ユーザーIDは必須です" }, { status: 400 });
     }
 
-    if (userId === session.user.id) {
+    if (userId === myId) {
       return NextResponse.json({ error: "自分自身には申請できません" }, { status: 400 });
     }
 
@@ -80,7 +87,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "ユーザーが見つかりません" }, { status: 404 });
     }
 
-    if (await isBlocked(session.user.id, userId)) {
+    if (await isBlocked(myId, userId)) {
       return NextResponse.json({ error: "このユーザーには申請できません" }, { status: 403 });
     }
 
@@ -88,8 +95,8 @@ export async function POST(request: NextRequest) {
     const existing = await prisma.friendship.findFirst({
       where: {
         OR: [
-          { requesterId: session.user.id, addresseeId: userId },
-          { requesterId: userId, addresseeId: session.user.id },
+          { requesterId: myId, addresseeId: userId },
+          { requesterId: userId, addresseeId: myId },
         ],
       },
     });
@@ -108,14 +115,14 @@ export async function POST(request: NextRequest) {
 
     const friendship = await prisma.friendship.create({
       data: {
-        requesterId: session.user.id,
+        requesterId: myId,
         addresseeId: userId,
       },
     });
 
     // fire-and-forget notification
     import("@/lib/notifications")
-      .then(({ notifyFriendRequest }) => notifyFriendRequest(session.user!.id, userId))
+      .then(({ notifyFriendRequest }) => notifyFriendRequest(myId, userId))
       .catch(() => {});
 
     return NextResponse.json({ friendship }, { status: 201 });

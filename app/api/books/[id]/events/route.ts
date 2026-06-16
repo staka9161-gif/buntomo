@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { normalizeText, katakanaToHiragana, removeSymbols } from "@/lib/normalize";
 import { parseEventDate } from "@/lib/date-utils";
+import { requireActiveUser } from "@/lib/active-user";
 
 // タイトルから巻数・版表記を除去して基本タイトルを抽出
 function extractBaseTitle(title: string): string {
@@ -109,6 +110,12 @@ export async function POST(
       return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
     }
 
+    const activeUser = await requireActiveUser();
+    if (!activeUser.ok) {
+      return NextResponse.json({ error: activeUser.error }, { status: activeUser.status });
+    }
+    const myId = activeUser.userId;
+
     const { id } = await params;
     const { title, eventDate, prefecture, location, url, description, bookIds } = await request.json();
 
@@ -149,7 +156,7 @@ export async function POST(
     const event = await prisma.readingEvent.create({
       data: {
         bookId: id,
-        organizerId: session.user.id,
+        organizerId: myId,
         title: title.trim(),
         eventDate: date,
         prefecture,

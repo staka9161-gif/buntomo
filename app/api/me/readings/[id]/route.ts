@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
+import { requireActiveUser } from "@/lib/active-user";
 
 export async function PATCH(
   request: NextRequest,
@@ -12,11 +13,17 @@ export async function PATCH(
       return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
     }
 
+    const activeUser = await requireActiveUser();
+    if (!activeUser.ok) {
+      return NextResponse.json({ error: activeUser.error }, { status: activeUser.status });
+    }
+    const myId = activeUser.userId;
+
     const { id } = await params;
     const body = await request.json();
 
     const reading = await prisma.readingStatus.findUnique({ where: { id } });
-    if (!reading || reading.userId !== session.user.id) {
+    if (!reading || reading.userId !== myId) {
       return NextResponse.json({ error: "読書ステータスが見つかりません" }, { status: 404 });
     }
 
@@ -84,10 +91,16 @@ export async function DELETE(
       return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
     }
 
+    const activeUser = await requireActiveUser();
+    if (!activeUser.ok) {
+      return NextResponse.json({ error: activeUser.error }, { status: activeUser.status });
+    }
+    const myId = activeUser.userId;
+
     const { id } = await params;
 
     const reading = await prisma.readingStatus.findUnique({ where: { id } });
-    if (!reading || reading.userId !== session.user.id) {
+    if (!reading || reading.userId !== myId) {
       return NextResponse.json({ error: "読書ステータスが見つかりません" }, { status: 404 });
     }
 
