@@ -54,6 +54,9 @@ model User {
   emailVerificationTokens EmailVerificationToken[]
   mergeSuggestionsReported MergeSuggestion[] @relation("MergeSuggestionReporter")
   adminAuditLogs       AdminAuditLog[]       @relation("AdminAuditLogs")
+  reportsSubmitted     Report[]              @relation("ReportsSubmitted")
+  reportsTargeted      Report[]              @relation("ReportsTargetUser")
+  reportsHandled       Report[]              @relation("ReportsHandled")
 }
 
 model AdminAuditLog {
@@ -75,6 +78,32 @@ model AdminAuditLog {
   @@index([targetType, targetId])
   @@index([targetUserId])
   @@index([action, createdAt])
+}
+
+model Report {
+  id           String    @id @default(cuid())
+  reporterId   String?
+  targetType   String
+  targetId     String
+  targetUserId String?
+  reason       String
+  detail       String?
+  status       String    @default("pending")
+  adminUserId  String?
+  adminNote    String?
+  resolvedAt   DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  reporter   User? @relation("ReportsSubmitted", fields: [reporterId], references: [id], onDelete: SetNull)
+  targetUser User? @relation("ReportsTargetUser", fields: [targetUserId], references: [id], onDelete: SetNull)
+  adminUser  User? @relation("ReportsHandled", fields: [adminUserId], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt])
+  @@index([targetType, targetId])
+  @@index([reporterId])
+  @@index([targetUserId])
+  @@index([adminUserId])
 }
 
 model Account {

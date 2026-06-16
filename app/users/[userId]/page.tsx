@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { apiUrl } from "@/lib/api";
 import FriendRequestButton from "@/components/friends/FriendRequestButton";
+import ReportUserButton from "@/components/reports/ReportUserButton";
 import { FaXTwitter, FaInstagram } from "react-icons/fa6";
 
 interface UserProfile {
@@ -183,12 +184,15 @@ export default function UserProfilePage() {
                     </Link>
                   )}
                 </div>
-                <button
-                  onClick={handleBlock}
-                  className="text-xs text-[var(--color-ink-faint)] hover:text-[var(--color-accent)]"
-                >
-                  このユーザーをブロック
-                </button>
+                <div className="flex flex-wrap items-start gap-3">
+                  <button
+                    onClick={handleBlock}
+                    className="text-xs text-[var(--color-ink-faint)] hover:text-[var(--color-accent)]"
+                  >
+                    このユーザーをブロック
+                  </button>
+                  <ReportUserButton targetUserId={userId} />
+                </div>
               </div>
             )}
             {isMe && (

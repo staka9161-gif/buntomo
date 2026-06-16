@@ -19,6 +19,11 @@ const menuItems = [
     description: "管理者操作の履歴を読み取り専用で確認します。",
   },
   {
+    href: "/admin/reports",
+    title: "通報確認",
+    description: "ユーザーから届いた通報を確認します。",
+  },
+  {
     href: "/admin/dashboard",
     title: "管理ダッシュボード",
     description: "Work / Edition の状態や統合候補の件数を確認します。",
@@ -30,7 +35,7 @@ const menuItems = [
   },
 ];
 
-const plannedItems = ["通報確認", "重要なお知らせ"];
+const plannedItems = ["重要なお知らせ"];
 
 export default async function AdminPage() {
   const session = await auth();

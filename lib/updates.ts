@@ -11,6 +11,14 @@ export type UpdateEntry = {
 // 実装と同じタイミングで、利用者にとって何が変わったかを追加する。
 export const updates: UpdateEntry[] = [
   {
+    id: "report-user-profiles-2026-06-16",
+    date: "2026-06-16",
+    type: "新機能",
+    title: "プロフィールを通報できるようにしました",
+    body: "不適切なプロフィールや迷惑行為が気になる場合に、運営へ知らせられるようになりました。安心して使える環境づくりに役立てていきます。",
+    href: "/updates",
+  },
+  {
     id: "completed-page-improvements",
     date: "2026-06-16",
     type: "改善",
