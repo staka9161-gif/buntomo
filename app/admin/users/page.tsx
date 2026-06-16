@@ -165,13 +165,13 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
                 {data.users.map((user) => (
                   <tr key={user.id} className="align-top">
                     <td className="px-4 py-3 font-medium text-gray-900">
-                      <Link href={`/users/${user.id}`} className="hover:text-amber-700 hover:underline">
+                      <Link href={`/admin/users/${user.id}`} className="hover:text-amber-700 hover:underline">
                         {user.name}
                       </Link>
                     </td>
                     <td className="px-4 py-3 font-mono text-xs text-gray-600">
                       {user.handle ? (
-                        <Link href={`/users/${user.id}`} className="hover:text-amber-700 hover:underline">
+                        <Link href={`/admin/users/${user.id}`} className="hover:text-amber-700 hover:underline">
                           @{user.handle}
                         </Link>
                       ) : (
