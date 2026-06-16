@@ -66,6 +66,12 @@ export default function Header() {
               <Link href="/events" className="text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)] transition-colors">
                 読書会を探す
               </Link>
+              <Link href="/rankings/reading" className="text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)] transition-colors">
+                読まれてる本トップ10
+              </Link>
+              <Link href="/rankings/completed" className="text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)] transition-colors">
+                読了者が多い本トップ10
+              </Link>
               <BellIcon count={notifTotal} />
               <Link href="/mypage" className="flex items-center gap-1.5 text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)] transition-colors">
                 {session.user?.image ? (
@@ -158,6 +164,20 @@ export default function Header() {
               className="block py-3 text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)] border-b border-[var(--color-border-subtle)] transition-colors"
             >
               マイページ
+            </Link>
+            <Link
+              href="/rankings/reading"
+              onClick={() => setMenuOpen(false)}
+              className="block py-3 text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)] border-b border-[var(--color-border-subtle)] transition-colors"
+            >
+              読まれてる本トップ10
+            </Link>
+            <Link
+              href="/rankings/completed"
+              onClick={() => setMenuOpen(false)}
+              className="block py-3 text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)] border-b border-[var(--color-border-subtle)] transition-colors"
+            >
+              読了者が多い本トップ10
             </Link>
             <button
               onClick={() => { setMenuOpen(false); signOut({ callbackUrl: "/" }); }}
