@@ -21,7 +21,7 @@ export async function DELETE() {
       },
     });
 
-    return NextResponse.json({ message: "退会手続きが完了しました。30日後にデータが完全に削除されます。" });
+    return NextResponse.json({ message: "退会手続きが完了しました。30日以内にログインすると復元できます。30日を過ぎるとアカウント情報等の削除処理が行われます。" });
   } catch (e) {
     console.error("Account DELETE error:", e);
     return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });

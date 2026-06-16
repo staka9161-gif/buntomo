@@ -113,7 +113,7 @@ export default function SignupPage() {
             <ul className="space-y-1 text-xs text-[var(--color-ink-muted)] list-disc list-inside">
               <li>お互いを尊重しあう場所です。誹謗中傷や嫌がらせはご遠慮ください</li>
               <li>13歳以上の方が利用できます</li>
-              <li>退会するとデータは30日後に完全に削除されます</li>
+              <li>退会後30日以内はログインにより復元できます。30日を過ぎると、アカウント情報等の削除処理が行われます</li>
               <li>くわしくは <Link href="/terms" className="text-[var(--color-accent)] underline" target="_blank">利用規約</Link> と <Link href="/privacy" className="text-[var(--color-accent)] underline" target="_blank">プライバシーポリシー</Link> をご覧ください</li>
             </ul>
           </div>
