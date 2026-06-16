@@ -17,6 +17,13 @@ async function isFriend(userId1: string, userId2: string): Promise<boolean> {
   return !!friendship;
 }
 
+async function getActivePartner(userId: string) {
+  return prisma.user.findFirst({
+    where: { id: userId, deactivatedAt: null },
+    select: { id: true, name: true, image: true },
+  });
+}
+
 // メッセージ履歴取得
 export async function GET(
   request: NextRequest,
@@ -30,6 +37,11 @@ export async function GET(
 
     const { userId } = await params;
     const myId = session.user.id;
+
+    const partner = await getActivePartner(userId);
+    if (!partner) {
+      return NextResponse.json({ error: "ユーザーが見つかりません" }, { status: 404 });
+    }
 
     if (await isBlocked(myId, userId)) {
       return NextResponse.json({ error: "メッセージを送信できません" }, { status: 403 });
@@ -56,20 +68,14 @@ export async function GET(
       },
     });
 
-    // 相手の情報
-    const partner = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { id: true, name: true, image: true },
-    });
-
     const { getDisplayNames } = await import("@/lib/user-display");
-    const allIds = [...new Set([...messages.map((m) => m.sender.id), ...(partner ? [partner.id] : [])])];
+    const allIds = [...new Set([...messages.map((m) => m.sender.id), partner.id])];
     const dn = await getDisplayNames(allIds);
     const enrichedMessages = messages.reverse().map((m) => ({
       ...m,
       sender: { ...m.sender, displayName: dn.get(m.sender.id) ?? m.sender.name },
     }));
-    const enrichedPartner = partner ? { ...partner, displayName: dn.get(partner.id) ?? partner.name } : null;
+    const enrichedPartner = { ...partner, displayName: dn.get(partner.id) ?? partner.name };
     return NextResponse.json({
       messages: enrichedMessages,
       partner: enrichedPartner,
@@ -97,6 +103,11 @@ export async function POST(
 
     if (myId === userId) {
       return NextResponse.json({ error: "自分にはメッセージを送れません" }, { status: 400 });
+    }
+
+    const partner = await getActivePartner(userId);
+    if (!partner) {
+      return NextResponse.json({ error: "ユーザーが見つかりません" }, { status: 404 });
     }
 
     if (await isBlocked(myId, userId)) {

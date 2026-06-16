@@ -20,8 +20,8 @@ export async function GET() {
       },
       orderBy: { createdAt: "desc" },
       include: {
-        sender: { select: { id: true, name: true, image: true } },
-        recipient: { select: { id: true, name: true, image: true } },
+        sender: { select: { id: true, name: true, image: true, deactivatedAt: true } },
+        recipient: { select: { id: true, name: true, image: true, deactivatedAt: true } },
       },
     });
 
@@ -41,8 +41,13 @@ export async function GET() {
       if (conversationMap.has(partnerId)) continue;
 
       const partner = msg.senderId === myId ? msg.recipient : msg.sender;
+      if (partner.deactivatedAt) continue;
       conversationMap.set(partnerId, {
-        user: partner,
+        user: {
+          id: partner.id,
+          name: partner.name,
+          image: partner.image,
+        },
         lastMessage: msg.content,
         lastMessageAt: msg.createdAt.toISOString(),
         isMe: msg.senderId === myId,

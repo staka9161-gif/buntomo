@@ -12,14 +12,22 @@ export async function GET() {
 
     const [received, sent] = await Promise.all([
       prisma.friendship.findMany({
-        where: { addresseeId: session.user.id, status: "PENDING" },
+        where: {
+          addresseeId: session.user.id,
+          status: "PENDING",
+          requester: { deactivatedAt: null },
+        },
         include: {
           requester: { select: { id: true, name: true, image: true, bio: true, area: true } },
         },
         orderBy: { createdAt: "desc" },
       }),
       prisma.friendship.findMany({
-        where: { requesterId: session.user.id, status: "PENDING" },
+        where: {
+          requesterId: session.user.id,
+          status: "PENDING",
+          addressee: { deactivatedAt: null },
+        },
         include: {
           addressee: { select: { id: true, name: true, image: true, bio: true, area: true } },
         },
@@ -65,7 +73,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "自分自身には申請できません" }, { status: 400 });
     }
 
-    const target = await prisma.user.findUnique({ where: { id: userId } });
+    const target = await prisma.user.findFirst({
+      where: { id: userId, deactivatedAt: null },
+    });
     if (!target) {
       return NextResponse.json({ error: "ユーザーが見つかりません" }, { status: 404 });
     }

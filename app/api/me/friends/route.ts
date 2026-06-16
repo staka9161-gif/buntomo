@@ -18,16 +18,26 @@ export async function GET() {
         ],
       },
       include: {
-        requester: { select: { id: true, name: true, image: true, bio: true, area: true } },
-        addressee: { select: { id: true, name: true, image: true, bio: true, area: true } },
+        requester: { select: { id: true, name: true, image: true, bio: true, area: true, deactivatedAt: true } },
+        addressee: { select: { id: true, name: true, image: true, bio: true, area: true, deactivatedAt: true } },
       },
       orderBy: { updatedAt: "desc" },
     });
 
-    const friends = friendships.map((f) => {
-      const friend = f.requesterId === session.user!.id ? f.addressee : f.requester;
-      return { ...friend, friendshipId: f.id, since: f.updatedAt };
-    });
+    const friends = friendships
+      .flatMap((f) => {
+        const friend = f.requesterId === session.user!.id ? f.addressee : f.requester;
+        if (friend.deactivatedAt) return [];
+        return [{
+          id: friend.id,
+          name: friend.name,
+          image: friend.image,
+          bio: friend.bio,
+          area: friend.area,
+          friendshipId: f.id,
+          since: f.updatedAt,
+        }];
+      });
 
     const { getDisplayNames } = await import("@/lib/user-display");
     const dn = await getDisplayNames(friends.map((f) => f.id));
