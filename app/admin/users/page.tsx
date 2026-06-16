@@ -14,6 +14,7 @@ type AdminUsersPageProps = {
 const statusOptions = [
   { value: "all", label: "すべて" },
   { value: "active", label: "利用中" },
+  { value: "suspended", label: "停止中" },
   { value: "deactivated", label: "退会済み" },
   { value: "admin", label: "管理者" },
 ];
@@ -64,6 +65,7 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
       <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <SummaryCard label="総ユーザー数" value={data.summary.totalUsers} />
         <SummaryCard label="利用中" value={data.summary.activeUsers} />
+        <SummaryCard label="停止中" value={data.summary.suspendedUsers} />
         <SummaryCard label="退会済み" value={data.summary.deactivatedUsers} />
         <SummaryCard label="管理者" value={data.summary.adminUsers} />
       </section>
@@ -189,7 +191,13 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
                       {user.isPublic ? <Badge tone="green">公開</Badge> : <Badge tone="gray">非公開</Badge>}
                     </td>
                     <td className="px-4 py-3">
-                      {user.deactivatedAt ? <Badge tone="red">退会済み</Badge> : <Badge tone="green">利用中</Badge>}
+                      {user.deactivatedAt ? (
+                        <Badge tone="red">退会済み</Badge>
+                      ) : user.accountStatus === "suspended" ? (
+                        <Badge tone="amber">停止中</Badge>
+                      ) : (
+                        <Badge tone="green">利用中</Badge>
+                      )}
                     </td>
                     <td className="px-4 py-3 tabular-nums text-gray-700">{user.readingCount}</td>
                     <td className="px-4 py-3 tabular-nums text-gray-700">{user.friendCount}</td>

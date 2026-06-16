@@ -32,6 +32,10 @@ model User {
   notificationsLastSeenAt  DateTime?
   deactivatedAt            DateTime?
   scheduledDeletionAt      DateTime?
+  accountStatus            String    @default("active")
+  suspendedAt              DateTime?
+  suspendedReason          String?
+  suspendedUntil           DateTime?
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 

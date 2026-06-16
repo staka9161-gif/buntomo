@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
+import { auth } from "@/lib/auth";
 import { getAdminUserDetail } from "@/lib/admin-users";
+import { SuspensionControls } from "./SuspensionControls";
 
 type AdminUserDetailPageProps = {
   params: Promise<{ userId: string }>;
@@ -20,13 +22,19 @@ function valueOrUnset(value: string | null) {
 
 export default async function AdminUserDetailPage({ params }: AdminUserDetailPageProps) {
   const { userId } = await params;
-  const detail = await getAdminUserDetail(userId);
+  const [session, detail] = await Promise.all([auth(), getAdminUserDetail(userId)]);
 
   if (!detail) {
     notFound();
   }
 
   const { user, activity } = detail;
+  const canManageSuspension =
+    session?.user?.id &&
+    session.user.id !== user.id &&
+    !user.isAdmin &&
+    !user.deactivatedAt;
+  const isSuspended = user.accountStatus === "suspended";
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-8">
@@ -68,6 +76,18 @@ export default async function AdminUserDetailPage({ params }: AdminUserDetailPag
             <InfoItem label="退会状態">
               {user.deactivatedAt ? <Badge tone="red">退会済み</Badge> : <Badge tone="green">利用中</Badge>}
             </InfoItem>
+            <InfoItem label="アカウント状態">
+              {user.deactivatedAt ? (
+                <Badge tone="red">退会済み</Badge>
+              ) : isSuspended ? (
+                <Badge tone="amber">停止中</Badge>
+              ) : (
+                <Badge tone="green">利用中</Badge>
+              )}
+            </InfoItem>
+            <InfoItem label="停止日時" value={formatDate(user.suspendedAt)} />
+            <InfoItem label="停止期限" value={formatDate(user.suspendedUntil)} />
+            <InfoItem label="停止理由" value={valueOrUnset(user.suspendedReason)} wide />
             <InfoItem label="画像" value={user.hasImage ? "画像あり" : "画像なし"} />
             <InfoItem label="外部画像URL" value={user.hasExternalImage ? "あり" : "なし"} />
             <InfoItem label="登録日" value={formatDate(user.createdAt)} />
@@ -101,6 +121,10 @@ export default async function AdminUserDetailPage({ params }: AdminUserDetailPag
           </div>
         </section>
       </div>
+
+      {canManageSuspension ? (
+        <SuspensionControls userId={user.id} isSuspended={isSuspended} />
+      ) : null}
 
       <section className="mt-5 rounded-lg border bg-white p-5 shadow-sm">
         <SectionTitle>プロフィール情報</SectionTitle>

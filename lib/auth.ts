@@ -35,6 +35,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         if (!isValid) return null;
 
+        if (user.accountStatus === "suspended") {
+          throw new Error("このアカウントは現在利用停止中です。");
+        }
+
         // 退会済みユーザーがログインした場合は退会を取り消して復活
         if (user.deactivatedAt) {
           try {

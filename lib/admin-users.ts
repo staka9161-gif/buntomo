@@ -1,11 +1,12 @@
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 
-export type AdminUserStatusFilter = "all" | "active" | "deactivated" | "admin";
+export type AdminUserStatusFilter = "all" | "active" | "suspended" | "deactivated" | "admin";
 
 export const adminUserStatusFilters: AdminUserStatusFilter[] = [
   "all",
   "active",
+  "suspended",
   "deactivated",
   "admin",
 ];
@@ -95,6 +96,10 @@ function buildUserWhere(query: string, status: AdminUserStatusFilter): Prisma.Us
 
   if (status === "active") {
     where.deactivatedAt = null;
+    where.accountStatus = "active";
+  } else if (status === "suspended") {
+    where.deactivatedAt = null;
+    where.accountStatus = "suspended";
   } else if (status === "deactivated") {
     where.deactivatedAt = { not: null };
   } else if (status === "admin") {
@@ -112,10 +117,11 @@ export async function getAdminUsers(queryParams: AdminUsersQuery) {
   const where = buildUserWhere(query, status);
   const skip = (page - 1) * pageSize;
 
-  const [totalUsers, activeUsers, deactivatedUsers, adminUsers, total, users] =
+  const [totalUsers, activeUsers, suspendedUsers, deactivatedUsers, adminUsers, total, users] =
     await prisma.$transaction([
       prisma.user.count(),
-      prisma.user.count({ where: { deactivatedAt: null } }),
+      prisma.user.count({ where: { deactivatedAt: null, accountStatus: "active" } }),
+      prisma.user.count({ where: { deactivatedAt: null, accountStatus: "suspended" } }),
       prisma.user.count({ where: { deactivatedAt: { not: null } } }),
       prisma.user.count({ where: { isAdmin: true } }),
       prisma.user.count({ where }),
@@ -136,6 +142,10 @@ export async function getAdminUsers(queryParams: AdminUsersQuery) {
           updatedAt: true,
           deactivatedAt: true,
           scheduledDeletionAt: true,
+          accountStatus: true,
+          suspendedAt: true,
+          suspendedReason: true,
+          suspendedUntil: true,
           _count: {
             select: {
               readings: true,
@@ -162,12 +172,17 @@ export async function getAdminUsers(queryParams: AdminUsersQuery) {
       updatedAt: user.updatedAt,
       deactivatedAt: user.deactivatedAt,
       scheduledDeletionAt: user.scheduledDeletionAt,
+      accountStatus: user.accountStatus,
+      suspendedAt: user.suspendedAt,
+      suspendedReason: user.suspendedReason,
+      suspendedUntil: user.suspendedUntil,
       readingCount: user._count.readings,
       friendCount: user._count.friendshipsRequested + user._count.friendshipsReceived,
     })),
     summary: {
       totalUsers,
       activeUsers,
+      suspendedUsers,
       deactivatedUsers,
       adminUsers,
     },
@@ -210,6 +225,10 @@ export async function getAdminUserDetail(userId: string) {
         updatedAt: true,
         deactivatedAt: true,
         scheduledDeletionAt: true,
+        accountStatus: true,
+        suspendedAt: true,
+        suspendedReason: true,
+        suspendedUntil: true,
         bio: true,
         area: true,
         linkX: true,
@@ -260,6 +279,10 @@ export async function getAdminUserDetail(userId: string) {
       updatedAt: user.updatedAt,
       deactivatedAt: user.deactivatedAt,
       scheduledDeletionAt: user.scheduledDeletionAt,
+      accountStatus: user.accountStatus,
+      suspendedAt: user.suspendedAt,
+      suspendedReason: user.suspendedReason,
+      suspendedUntil: user.suspendedUntil,
       hasImage: Boolean(user.image),
       hasExternalImage: hasStoredImage(user.image),
       bio: user.bio,
