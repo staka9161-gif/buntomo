@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import type { ReadingStatusType } from "@prisma/client";
+import RankingCover from "./RankingCover";
 
 type RankingKind = "reading" | "completed";
 
@@ -10,6 +11,7 @@ interface BookRankingPageProps {
 
 interface RankingItem {
   rank: number;
+  rankLabel: string;
   book: {
     id: string;
     title: string;
@@ -23,16 +25,22 @@ interface RankingItem {
 const CONFIG: Record<RankingKind, {
   status: ReadingStatusType;
   title: string;
+  description: string;
+  tabLabel: string;
   countLabel: string;
 }> = {
   reading: {
     status: "READING",
     title: "読まれてる本トップ10",
+    description: "ブントモで読書中に登録されている本を集計しています。同数の場合は同じ順位で表示しています。",
+    tabLabel: "読書中トップ10",
     countLabel: "読んでいる人",
   },
   completed: {
     status: "COMPLETED",
     title: "読了者が多い本トップ10",
+    description: "ブントモで読了済みに登録されている本を集計しています。同数の場合は同じ順位で表示しています。",
+    tabLabel: "読了トップ10",
     countLabel: "読了者",
   },
 };
@@ -55,16 +63,13 @@ async function getRankingItems(kind: RankingKind): Promise<RankingItem[]> {
     countByBookId.set(pair.bookId, (countByBookId.get(pair.bookId) ?? 0) + 1);
   }
 
-  const rankedBookIds = Array.from(countByBookId.entries())
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 10)
-    .map(([bookId]) => bookId);
+  const candidateBookIds = Array.from(countByBookId.keys());
 
-  if (rankedBookIds.length === 0) return [];
+  if (candidateBookIds.length === 0) return [];
 
   const [books, events] = await Promise.all([
     prisma.book.findMany({
-      where: { id: { in: rankedBookIds } },
+      where: { id: { in: candidateBookIds } },
       select: {
         id: true,
         title: true,
@@ -76,8 +81,8 @@ async function getRankingItems(kind: RankingKind): Promise<RankingItem[]> {
       where: {
         eventDate: { gte: new Date() },
         OR: [
-          { bookId: { in: rankedBookIds } },
-          { books: { some: { id: { in: rankedBookIds } } } },
+          { bookId: { in: candidateBookIds } },
+          { books: { some: { id: { in: candidateBookIds } } } },
         ],
       },
       select: {
@@ -92,11 +97,11 @@ async function getRankingItems(kind: RankingKind): Promise<RankingItem[]> {
   const eventCountMap = new Map<string, number>();
   for (const event of events) {
     const relatedBookIds = new Set<string>();
-    if (event.bookId && rankedBookIds.includes(event.bookId)) {
+    if (event.bookId && candidateBookIds.includes(event.bookId)) {
       relatedBookIds.add(event.bookId);
     }
     for (const book of event.books) {
-      if (rankedBookIds.includes(book.id)) {
+      if (candidateBookIds.includes(book.id)) {
         relatedBookIds.add(book.id);
       }
     }
@@ -105,18 +110,47 @@ async function getRankingItems(kind: RankingKind): Promise<RankingItem[]> {
     }
   }
 
-  return rankedBookIds
-    .map((bookId, index) => {
+  const topItems = candidateBookIds
+    .map((bookId) => {
       const book = bookMap.get(bookId);
       if (!book) return null;
       return {
-        rank: index + 1,
+        rank: 0,
+        rankLabel: "",
         book,
         readerCount: countByBookId.get(bookId) ?? 0,
         eventCount: eventCountMap.get(bookId) ?? 0,
       };
     })
-    .filter((item): item is RankingItem => item !== null);
+    .filter((item): item is RankingItem => item !== null)
+    .sort((a, b) => {
+      if (b.readerCount !== a.readerCount) return b.readerCount - a.readerCount;
+      if (b.eventCount !== a.eventCount) return b.eventCount - a.eventCount;
+      const titleCompare = a.book.title.localeCompare(b.book.title, "ja");
+      if (titleCompare !== 0) return titleCompare;
+      return a.book.id.localeCompare(b.book.id);
+    })
+    .slice(0, 10);
+
+  const countFrequencies = new Map<number, number>();
+  for (const item of topItems) {
+    countFrequencies.set(item.readerCount, (countFrequencies.get(item.readerCount) ?? 0) + 1);
+  }
+
+  let currentRank = 0;
+  let previousCount: number | null = null;
+  return topItems.map((item) => {
+    if (item.readerCount !== previousCount) {
+      currentRank += 1;
+      previousCount = item.readerCount;
+    }
+    const isTie = (countFrequencies.get(item.readerCount) ?? 0) > 1;
+    return {
+      ...item,
+      rank: currentRank,
+      rankLabel: `${currentRank}位${isTie ? "タイ" : ""}`,
+    };
+  });
 }
 
 export default async function BookRankingPage({ kind }: BookRankingPageProps) {
@@ -129,6 +163,9 @@ export default async function BookRankingPage({ kind }: BookRankingPageProps) {
         <h1 className="font-serif text-xl font-medium tracking-[0.05em] text-[var(--color-ink-primary)] md:text-2xl">
           {config.title}
         </h1>
+        <p className="mt-2 text-sm leading-relaxed text-[var(--color-ink-muted)]">
+          {config.description}
+        </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <Link
             href="/rankings/reading"
@@ -138,7 +175,7 @@ export default async function BookRankingPage({ kind }: BookRankingPageProps) {
                 : "border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] text-[var(--color-ink-muted)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
             }`}
           >
-            読まれてる本
+            {CONFIG.reading.tabLabel}
           </Link>
           <Link
             href="/rankings/completed"
@@ -148,7 +185,7 @@ export default async function BookRankingPage({ kind }: BookRankingPageProps) {
                 : "border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] text-[var(--color-ink-muted)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
             }`}
           >
-            読了者が多い本
+            {CONFIG.completed.tabLabel}
           </Link>
         </div>
       </div>
@@ -165,21 +202,11 @@ export default async function BookRankingPage({ kind }: BookRankingPageProps) {
               href={`/books/${item.book.id}`}
               className="card-base flex gap-3 p-3 transition hover:shadow-md md:gap-4 md:p-4"
             >
-              <div className="flex w-9 shrink-0 items-start justify-center pt-1 font-serif text-lg font-medium text-[var(--color-accent)] md:w-11 md:text-xl">
-                {item.rank}
+              <div className="flex w-14 shrink-0 items-start justify-center pt-1 text-center font-serif text-base font-medium text-[var(--color-accent)] md:w-16 md:text-lg">
+                {item.rankLabel}
               </div>
               <div className="shrink-0">
-                {item.book.coverImageUrl ? (
-                  <img
-                    src={item.book.coverImageUrl}
-                    alt={item.book.title}
-                    className="h-20 w-14 rounded-sm object-cover shadow-[var(--shadow-cover)] md:h-24 md:w-16"
-                  />
-                ) : (
-                  <div className="flex h-20 w-14 items-center justify-center rounded-sm bg-[rgb(31_42_68_/_0.05)] text-[9px] text-[var(--color-ink-faint)] md:h-24 md:w-16">
-                    No Image
-                  </div>
-                )}
+                <RankingCover src={item.book.coverImageUrl} alt={item.book.title} />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="line-clamp-2 font-serif text-sm font-medium text-[var(--color-ink-primary)] md:text-base">

@@ -26,6 +26,7 @@ export default function Header() {
   const { data: session } = useSession();
   const [notifTotal, setNotifTotal] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [rankingOpen, setRankingOpen] = useState(false);
 
   useEffect(() => {
     if (!session?.user?.id) return;
@@ -43,11 +44,14 @@ export default function Header() {
 
   // メニュー外クリックで閉じる
   useEffect(() => {
-    if (!menuOpen) return;
-    const handler = () => setMenuOpen(false);
+    if (!menuOpen && !rankingOpen) return;
+    const handler = () => {
+      setMenuOpen(false);
+      setRankingOpen(false);
+    };
     document.addEventListener("click", handler);
     return () => document.removeEventListener("click", handler);
-  }, [menuOpen]);
+  }, [menuOpen, rankingOpen]);
 
   return (
     <header className="relative border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)]">
@@ -66,12 +70,40 @@ export default function Header() {
               <Link href="/events" className="text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)] transition-colors">
                 読書会を探す
               </Link>
-              <Link href="/rankings/reading" className="text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)] transition-colors">
-                読まれてる本トップ10
-              </Link>
-              <Link href="/rankings/completed" className="text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)] transition-colors">
-                読了者が多い本トップ10
-              </Link>
+              <div className="relative" onClick={(e) => e.stopPropagation()}>
+                <button
+                  type="button"
+                  onClick={() => setRankingOpen((v) => !v)}
+                  className="text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)] transition-colors"
+                  aria-haspopup="menu"
+                  aria-expanded={rankingOpen}
+                >
+                  ランキング ▾
+                </button>
+                {rankingOpen && (
+                  <div
+                    className="absolute right-0 top-full z-50 mt-2 w-56 rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] p-2 shadow-lg"
+                    role="menu"
+                  >
+                    <Link
+                      href="/rankings/reading"
+                      onClick={() => setRankingOpen(false)}
+                      className="block rounded-md px-3 py-2 text-sm text-[var(--color-ink-muted)] transition-colors hover:bg-[var(--color-bg-soft)] hover:text-[var(--color-ink-primary)]"
+                      role="menuitem"
+                    >
+                      読まれてる本トップ10
+                    </Link>
+                    <Link
+                      href="/rankings/completed"
+                      onClick={() => setRankingOpen(false)}
+                      className="block rounded-md px-3 py-2 text-sm text-[var(--color-ink-muted)] transition-colors hover:bg-[var(--color-bg-soft)] hover:text-[var(--color-ink-primary)]"
+                      role="menuitem"
+                    >
+                      読了者が多い本トップ10
+                    </Link>
+                  </div>
+                )}
+              </div>
               <BellIcon count={notifTotal} />
               <Link href="/mypage" className="flex items-center gap-1.5 text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)] transition-colors">
                 {session.user?.image ? (
