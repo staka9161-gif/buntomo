@@ -104,6 +104,9 @@ export default function Header() {
                   </div>
                 )}
               </div>
+              <Link href="/updates" className="text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)] transition-colors">
+                お知らせ
+              </Link>
               <BellIcon count={notifTotal} />
               <Link href="/mypage" className="flex items-center gap-1.5 text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)] transition-colors">
                 {session.user?.image ? (
@@ -210,6 +213,13 @@ export default function Header() {
               className="block py-3 text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)] border-b border-[var(--color-border-subtle)] transition-colors"
             >
               読了者が多い本トップ10
+            </Link>
+            <Link
+              href="/updates"
+              onClick={() => setMenuOpen(false)}
+              className="block py-3 text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)] border-b border-[var(--color-border-subtle)] transition-colors"
+            >
+              お知らせ
             </Link>
             <button
               onClick={() => { setMenuOpen(false); signOut({ callbackUrl: "/" }); }}
