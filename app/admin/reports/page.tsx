@@ -19,6 +19,7 @@ const statusOptions = [
   { value: "pending", label: "未確認" },
   { value: "reviewing", label: "確認中" },
   { value: "resolved", label: "対応済み" },
+  { value: "rejected", label: "却下" },
   { value: "dismissed", label: "対応不要" },
 ];
 
@@ -40,6 +41,7 @@ const statusLabels: Record<string, string> = {
   pending: "未確認",
   reviewing: "確認中",
   resolved: "対応済み",
+  rejected: "却下",
   dismissed: "対応不要",
 };
 
@@ -276,6 +278,7 @@ export default async function AdminReportsPage({ searchParams }: AdminReportsPag
                   <th className="px-4 py-3">reporter</th>
                   <th className="px-4 py-3">targetUser</th>
                   <th className="px-4 py-3">targetId</th>
+                  <th className="px-4 py-3">detail</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
@@ -313,6 +316,14 @@ export default async function AdminReportsPage({ searchParams }: AdminReportsPag
                     </td>
                     <td className="px-4 py-3 font-mono text-xs text-gray-600">
                       {report.targetId}
+                    </td>
+                    <td className="px-4 py-3">
+                      <Link
+                        href={`/admin/reports/${report.id}`}
+                        className="text-sm font-semibold text-amber-700 hover:underline"
+                      >
+                        詳細
+                      </Link>
                     </td>
                   </tr>
                 ))}
