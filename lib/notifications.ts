@@ -16,9 +16,9 @@ export async function notifyDMReceived(
   try {
     const recipient = await prisma.user.findUnique({
       where: { id: recipientId },
-      select: { email: true, emailNotifDM: true },
+      select: { email: true, emailNotifDM: true, deactivatedAt: true },
     });
-    if (!recipient?.emailNotifDM) return;
+    if (!recipient?.emailNotifDM || recipient.deactivatedAt) return;
 
     // 同じ送信者からの未読 DM が既にあればスキップ
     const existingUnread = await prisma.directMessage.count({
@@ -28,8 +28,9 @@ export async function notifyDMReceived(
 
     const sender = await prisma.user.findUnique({
       where: { id: senderId },
-      select: { name: true },
+      select: { name: true, deactivatedAt: true },
     });
+    if (!sender || sender.deactivatedAt) return;
 
     const senderName = sender?.name ?? "誰か";
     const preview = contentPreview.length > 60 ? contentPreview.slice(0, 60) + "..." : contentPreview;
@@ -55,14 +56,15 @@ export async function notifyFriendRequest(requesterId: string, addresseeId: stri
   try {
     const addressee = await prisma.user.findUnique({
       where: { id: addresseeId },
-      select: { email: true, emailNotifFriendRequest: true },
+      select: { email: true, emailNotifFriendRequest: true, deactivatedAt: true },
     });
-    if (!addressee?.emailNotifFriendRequest) return;
+    if (!addressee?.emailNotifFriendRequest || addressee.deactivatedAt) return;
 
     const requester = await prisma.user.findUnique({
       where: { id: requesterId },
-      select: { name: true },
+      select: { name: true, deactivatedAt: true },
     });
+    if (!requester || requester.deactivatedAt) return;
 
     const requesterName = requester?.name ?? "誰か";
 
@@ -86,14 +88,15 @@ export async function notifyFriendAccepted(accepterId: string, requesterId: stri
   try {
     const requester = await prisma.user.findUnique({
       where: { id: requesterId },
-      select: { email: true, emailNotifFriendAccepted: true },
+      select: { email: true, emailNotifFriendAccepted: true, deactivatedAt: true },
     });
-    if (!requester?.emailNotifFriendAccepted) return;
+    if (!requester?.emailNotifFriendAccepted || requester.deactivatedAt) return;
 
     const accepter = await prisma.user.findUnique({
       where: { id: accepterId },
-      select: { name: true },
+      select: { name: true, deactivatedAt: true },
     });
+    if (!accepter || accepter.deactivatedAt) return;
 
     const accepterName = accepter?.name ?? "誰か";
 

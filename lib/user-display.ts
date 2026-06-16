@@ -1,13 +1,13 @@
 import { prisma } from "@/lib/db";
 
 export async function getDisplayName(userId: string): Promise<string | null> {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
+  const user = await prisma.user.findFirst({
+    where: { id: userId, deactivatedAt: null },
     select: { id: true, name: true },
   });
   if (!user?.name) return null;
   const sameName = await prisma.user.findMany({
-    where: { name: user.name },
+    where: { name: user.name, deactivatedAt: null },
     select: { id: true },
     orderBy: { createdAt: "asc" },
   });
@@ -19,14 +19,14 @@ export async function getDisplayName(userId: string): Promise<string | null> {
 export async function getDisplayNames(userIds: string[]): Promise<Map<string, string>> {
   if (userIds.length === 0) return new Map();
   const users = await prisma.user.findMany({
-    where: { id: { in: userIds } },
+    where: { id: { in: userIds }, deactivatedAt: null },
     select: { id: true, name: true },
   });
   const uniqueNames = Array.from(new Set(users.map((u) => u.name).filter(Boolean) as string[]));
   const nameToIds = new Map<string, string[]>();
   for (const name of uniqueNames) {
     const list = await prisma.user.findMany({
-      where: { name },
+      where: { name, deactivatedAt: null },
       select: { id: true },
       orderBy: { createdAt: "asc" },
     });

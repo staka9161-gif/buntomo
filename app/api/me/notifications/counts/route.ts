@@ -22,6 +22,7 @@ export async function GET() {
         where: {
           recipientId: myId,
           read: false,
+          sender: { deactivatedAt: null },
           ...(lastSeen ? { createdAt: { gt: lastSeen } } : {}),
         },
       }),
@@ -29,6 +30,7 @@ export async function GET() {
         where: {
           addresseeId: myId,
           status: "PENDING",
+          requester: { deactivatedAt: null },
           ...(lastSeen ? { createdAt: { gt: lastSeen } } : {}),
         },
       }),
