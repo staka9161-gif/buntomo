@@ -11,7 +11,7 @@ export async function GET(
     const { id } = await params;
 
     const reviews = await prisma.review.findMany({
-      where: { workId: id },
+      where: { workId: id, user: { deactivatedAt: null } },
       include: {
         user: {
           select: { id: true, name: true, image: true },
@@ -50,6 +50,14 @@ export async function POST(
     const { id: workId } = await params;
     const body = await request.json();
     const { edition_id, body: reviewBody, rating } = body;
+
+    const activeUser = await prisma.user.findFirst({
+      where: { id: session.user.id, deactivatedAt: null },
+      select: { id: true },
+    });
+    if (!activeUser) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
 
     if (!reviewBody || reviewBody.trim().length === 0) {
       return NextResponse.json({ error: "レビュー本文は必須です" }, { status: 400 });

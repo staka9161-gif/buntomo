@@ -18,7 +18,7 @@ export async function GET(
     }
 
     const readings = await prisma.readingStatus.findMany({
-      where: { bookId: id, status: "READING" },
+      where: { bookId: id, status: "READING", user: { deactivatedAt: null } },
       include: { user: { select: { id: true, name: true, image: true } } },
     });
 

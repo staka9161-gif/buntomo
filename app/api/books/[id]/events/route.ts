@@ -61,6 +61,7 @@ export async function GET(
           { bookId: { in: bookIds } },
           { books: { some: { id: { in: bookIds } } } },
         ],
+        organizer: { deactivatedAt: null },
         eventDate: { gte: new Date() },
       },
       include: {

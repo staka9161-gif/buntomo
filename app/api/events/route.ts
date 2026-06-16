@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
     // 未来のイベントのみ
     const where: Record<string, unknown> = {
       eventDate: { gte: new Date() },
+      organizer: { deactivatedAt: null },
     };
 
     // 都道府県フィルタ（「東京都」は 23区+多摩地区 の両方を検索）

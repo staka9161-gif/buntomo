@@ -23,6 +23,7 @@ export async function GET(
         bookId: id,
         status: "COMPLETED",
         completedAt: { gte: cutoff },
+        user: { deactivatedAt: null },
       },
       select: { userId: true },
     });
@@ -33,6 +34,7 @@ export async function GET(
       where: {
         bookId: id,
         window,
+        user: { deactivatedAt: null },
       },
       include: {
         user: { select: { name: true, image: true } },
@@ -91,8 +93,12 @@ export async function POST(
     const cutoff = new Date(Date.now() - windowToMs(window));
 
     // 投稿権限チェック
-    const reading = await prisma.readingStatus.findUnique({
-      where: { userId_bookId: { userId: session.user.id, bookId: id } },
+    const reading = await prisma.readingStatus.findFirst({
+      where: {
+        userId: session.user.id,
+        bookId: id,
+        user: { deactivatedAt: null },
+      },
     });
 
     if (
