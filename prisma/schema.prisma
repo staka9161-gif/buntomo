@@ -49,6 +49,28 @@ model User {
   accounts             Account[]
   emailVerificationTokens EmailVerificationToken[]
   mergeSuggestionsReported MergeSuggestion[] @relation("MergeSuggestionReporter")
+  adminAuditLogs       AdminAuditLog[]       @relation("AdminAuditLogs")
+}
+
+model AdminAuditLog {
+  id           String   @id @default(cuid())
+  adminUserId  String?
+  action       String
+  targetType   String
+  targetId     String?
+  targetUserId String?
+  reason       String?
+  metadata     Json?
+  ipAddress    String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+
+  admin User? @relation("AdminAuditLogs", fields: [adminUserId], references: [id], onDelete: SetNull)
+
+  @@index([adminUserId, createdAt])
+  @@index([targetType, targetId])
+  @@index([targetUserId])
+  @@index([action, createdAt])
 }
 
 model Account {

@@ -14,6 +14,11 @@ const menuItems = [
     description: "登録ユーザー、退会状態、読書記録数、友だち数を読み取り専用で確認します。",
   },
   {
+    href: "/admin/audit-logs",
+    title: "監査ログ",
+    description: "管理者操作の履歴を読み取り専用で確認します。",
+  },
+  {
     href: "/admin/dashboard",
     title: "管理ダッシュボード",
     description: "Work / Edition の状態や統合候補の件数を確認します。",

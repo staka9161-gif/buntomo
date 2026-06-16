@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/admin";
+import { createAdminAuditLog } from "@/lib/admin-audit";
 
 // PATCH /api/admin/merge-suggestions/:id
 // 承認（approve → merge 実行）または却下（reject）
@@ -44,6 +45,17 @@ export async function PATCH(
       await prisma.mergeSuggestion.update({
         where: { id },
         data: { status: "rejected" },
+      });
+      await createAdminAuditLog({
+        adminUserId: admin.userId,
+        action: "mergeSuggestion.reject",
+        targetType: "MergeSuggestion",
+        targetId: id,
+        metadata: {
+          sourceWorkId: suggestion.sourceWorkId,
+          targetWorkId: suggestion.targetWorkId,
+        },
+        request,
       });
       return NextResponse.json({ success: true, status: "rejected" });
     }
@@ -125,6 +137,18 @@ export async function PATCH(
 
       // source Work 削除
       await tx.work.delete({ where: { id: sourceWorkId } });
+    });
+
+    await createAdminAuditLog({
+      adminUserId: admin.userId,
+      action: "mergeSuggestion.approve",
+      targetType: "MergeSuggestion",
+      targetId: id,
+      metadata: {
+        sourceWorkId,
+        targetWorkId,
+      },
+      request,
     });
 
     return NextResponse.json({

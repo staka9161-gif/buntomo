@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/admin";
+import { createAdminAuditLog } from "@/lib/admin-audit";
 
 // POST /api/admin/works/merge
 // 複数の Work を 1 つの target_work_id に統合
@@ -122,6 +123,19 @@ export async function POST(request: NextRequest) {
         reviews_moved: reviewResult.count,
         works_deleted: source_work_ids.length,
       };
+    });
+
+    await createAdminAuditLog({
+      adminUserId: admin.userId,
+      action: "work.merge",
+      targetType: "Work",
+      targetId: target_work_id,
+      metadata: {
+        sourceWorkIds: source_work_ids,
+        targetWorkId: target_work_id,
+        ...result,
+      },
+      request,
     });
 
     return NextResponse.json({

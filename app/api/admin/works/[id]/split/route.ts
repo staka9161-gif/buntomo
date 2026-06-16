@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/admin";
+import { createAdminAuditLog } from "@/lib/admin-audit";
 
 // POST /api/admin/works/:id/split
 // Work から一部の Edition を切り出して新しい Work を作成
@@ -95,6 +96,20 @@ export async function POST(
       });
 
       return { new_work_id: newWork.id, editions_moved: edition_ids_to_move.length };
+    });
+
+    await createAdminAuditLog({
+      adminUserId: admin.userId,
+      action: "work.split",
+      targetType: "Work",
+      targetId: sourceWorkId,
+      metadata: {
+        sourceWorkId,
+        newWorkId: result.new_work_id,
+        editionIdsMoved: edition_ids_to_move,
+        editionsMoved: result.editions_moved,
+      },
+      request,
     });
 
     return NextResponse.json({
