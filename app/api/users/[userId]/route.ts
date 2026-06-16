@@ -91,7 +91,7 @@ export async function GET(
       }),
       canSee("readings")
         ? prisma.readingStatus.findMany({
-            where: { userId },
+            where: { userId, bookId: { not: null } },
             include: {
               book: {
                 select: { id: true, title: true, author: true, coverImageUrl: true, totalPages: true },
@@ -102,6 +102,7 @@ export async function GET(
           })
         : Promise.resolve([]),
     ]);
+    const visibleReadings = readings.filter((reading) => reading.book !== null);
 
     let customLinks: unknown[] = [];
     if (canSee("links") && user.customLinks) {
@@ -135,7 +136,7 @@ export async function GET(
 
     return NextResponse.json({
       user: userResponse,
-      readings,
+      readings: visibleReadings,
       friendshipStatus,
       friendshipId,
       hiddenFields,

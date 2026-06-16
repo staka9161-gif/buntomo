@@ -34,7 +34,7 @@ interface Reading {
     author: string;
     coverImageUrl: string | null;
     totalPages: number;
-  };
+  } | null;
 }
 
 type FriendshipStatus = "none" | "pending-sent" | "pending-received" | "friends";
@@ -104,8 +104,11 @@ export default function UserProfilePage() {
     );
   }
 
-  const readingBooks = readings.filter((r) => r.status === "READING");
-  const completedBooks = readings.filter((r) => r.status === "COMPLETED");
+  const validReadings = readings.filter(
+    (reading): reading is Reading & { book: NonNullable<Reading["book"]> } => Boolean(reading.book?.id)
+  );
+  const readingBooks = validReadings.filter((r) => r.status === "READING");
+  const completedBooks = validReadings.filter((r) => r.status === "COMPLETED");
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
