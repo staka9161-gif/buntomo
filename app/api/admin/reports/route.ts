@@ -12,6 +12,11 @@ function parsePositiveInt(value: string | null, fallback: number) {
   return parsed;
 }
 
+function truncatePreview(value: string | null | undefined) {
+  if (!value) return null;
+  return value.length > 80 ? `${value.slice(0, 80)}...` : value;
+}
+
 export async function GET(request: NextRequest) {
   const admin = await requireAdmin();
   if (!admin.ok) {
@@ -65,8 +70,31 @@ export async function GET(request: NextRequest) {
     }),
   ]);
 
+  const chatMessageIds = reports
+    .filter((report) => report.targetType === "BOOK_CHAT_MESSAGE")
+    .map((report) => report.targetId);
+  const chatMessages =
+    chatMessageIds.length > 0
+      ? await prisma.chatMessage.findMany({
+          where: { id: { in: chatMessageIds } },
+          select: {
+            id: true,
+            content: true,
+          },
+        })
+      : [];
+  const chatPreviewById = new Map(
+    chatMessages.map((message) => [message.id, truncatePreview(message.content)])
+  );
+
   return NextResponse.json({
-    reports,
+    reports: reports.map((report) => ({
+      ...report,
+      targetPreview:
+        report.targetType === "BOOK_CHAT_MESSAGE"
+          ? chatPreviewById.get(report.targetId) ?? null
+          : null,
+    })),
     total,
     page,
     pageSize,

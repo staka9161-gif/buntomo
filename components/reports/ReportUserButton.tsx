@@ -3,7 +3,12 @@
 import { useState } from "react";
 import { apiUrl } from "@/lib/api";
 
-const reportReasons = [
+export type ReportReasonOption = {
+  value: string;
+  label: string;
+};
+
+const profileReportReasons: ReportReasonOption[] = [
   { value: "inappropriate_profile", label: "不適切なプロフィール" },
   { value: "harassment", label: "迷惑行為" },
   { value: "impersonation", label: "なりすましの疑い" },
@@ -11,17 +16,40 @@ const reportReasons = [
 ];
 
 type ReportUserButtonProps = {
-  targetUserId: string;
+  targetUserId?: string;
+  targetType?: "USER" | "BOOK_CHAT_MESSAGE";
+  targetId?: string;
+  reasons?: ReportReasonOption[];
+  formTitle?: string;
+  buttonLabel?: string;
+  className?: string;
+  buttonClassName?: string;
 };
 
-export default function ReportUserButton({ targetUserId }: ReportUserButtonProps) {
+export default function ReportUserButton({
+  targetUserId,
+  targetType = "USER",
+  targetId,
+  reasons = profileReportReasons,
+  formTitle = "プロフィールを通報",
+  buttonLabel = "通報",
+  className = "inline-flex flex-col items-start",
+  buttonClassName = "text-xs leading-none text-[var(--color-ink-faint)] hover:text-[var(--color-accent)]",
+}: ReportUserButtonProps) {
   const [open, setOpen] = useState(false);
-  const [reason, setReason] = useState(reportReasons[0].value);
+  const [reason, setReason] = useState(reasons[0]?.value ?? "other");
   const [detail, setDetail] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
+  const reportTargetId = targetId ?? targetUserId;
+
   const handleSubmit = async () => {
+    if (!reportTargetId) {
+      setMessage("通報対象が正しくありません");
+      return;
+    }
+
     if (!confirm("この内容で通報を送信しますか？")) return;
 
     setSubmitting(true);
@@ -31,8 +59,8 @@ export default function ReportUserButton({ targetUserId }: ReportUserButtonProps
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          targetType: "USER",
-          targetId: targetUserId,
+          targetType,
+          targetId: reportTargetId,
           reason,
           detail,
         }),
@@ -56,24 +84,18 @@ export default function ReportUserButton({ targetUserId }: ReportUserButtonProps
 
   if (!open) {
     return (
-      <div className="space-y-1">
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          className="text-xs text-[var(--color-ink-faint)] hover:text-[var(--color-accent)]"
-        >
-          通報
+      <div className={className}>
+        <button type="button" onClick={() => setOpen(true)} className={buttonClassName}>
+          {buttonLabel}
         </button>
-        {message && <p className="text-xs text-[var(--color-ink-muted)]">{message}</p>}
+        {message && <p className="mt-1 text-xs text-[var(--color-ink-muted)]">{message}</p>}
       </div>
     );
   }
 
   return (
-    <div className="mt-2 rounded-lg border bg-white p-3 shadow-sm">
-      <p className="text-xs font-semibold text-[var(--color-ink-primary)]">
-        プロフィールを通報
-      </p>
+    <div className="mt-2 rounded-lg border bg-white p-3 text-left shadow-sm">
+      <p className="text-xs font-semibold text-[var(--color-ink-primary)]">{formTitle}</p>
       <label className="mt-2 block">
         <span className="text-xs text-[var(--color-ink-muted)]">理由</span>
         <select
@@ -82,7 +104,7 @@ export default function ReportUserButton({ targetUserId }: ReportUserButtonProps
           className="mt-1 w-full rounded-md border px-2 py-1.5 text-sm"
           disabled={submitting}
         >
-          {reportReasons.map((item) => (
+          {reasons.map((item) => (
             <option key={item.value} value={item.value}>
               {item.label}
             </option>

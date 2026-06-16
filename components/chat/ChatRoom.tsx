@@ -6,6 +6,7 @@ import Link from "next/link";
 import { apiUrl } from "@/lib/api";
 import WindowSelector from "./WindowSelector";
 import type { WindowType } from "@/types";
+import ReportUserButton from "@/components/reports/ReportUserButton";
 
 interface Message {
   id: string;
@@ -16,6 +17,13 @@ interface Message {
   content: string;
   createdAt: string;
 }
+
+const chatReportReasons = [
+  { value: "inappropriate_content", label: "不適切な内容" },
+  { value: "harassment", label: "迷惑行為" },
+  { value: "impersonation", label: "なりすましの疑い" },
+  { value: "other", label: "その他" },
+];
 
 export default function ChatRoom({ bookId }: { bookId: string }) {
   const { data: session } = useSession();
@@ -134,6 +142,18 @@ export default function ChatRoom({ bookId }: { bookId: string }) {
                     <p className="mt-0.5 text-[10px] font-mono text-[var(--color-ink-faint)]">
                       {new Date(msg.createdAt).toLocaleString("ja-JP")}
                     </p>
+                    {session?.user?.id && !isMe ? (
+                      <div className="mt-1">
+                        <ReportUserButton
+                          targetType="BOOK_CHAT_MESSAGE"
+                          targetId={msg.id}
+                          reasons={chatReportReasons}
+                          formTitle="チャットを通報"
+                          className="inline-flex max-w-xs flex-col items-start"
+                          buttonClassName="text-[10px] leading-none text-[var(--color-ink-faint)] hover:text-[var(--color-accent)]"
+                        />
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               );

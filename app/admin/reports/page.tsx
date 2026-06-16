@@ -25,10 +25,12 @@ const statusOptions = [
 const targetTypeOptions = [
   { value: "", label: "すべて" },
   { value: "USER", label: "ユーザー" },
+  { value: "BOOK_CHAT_MESSAGE", label: "本別チャット" },
 ];
 
 const reasonLabels: Record<string, string> = {
   inappropriate_profile: "不適切なプロフィール",
+  inappropriate_content: "不適切な内容",
   harassment: "迷惑行為",
   impersonation: "なりすましの疑い",
   other: "その他",
@@ -39,6 +41,11 @@ const statusLabels: Record<string, string> = {
   reviewing: "確認中",
   resolved: "対応済み",
   dismissed: "対応不要",
+};
+
+const targetTypeLabels: Record<string, string> = {
+  USER: "ユーザー",
+  BOOK_CHAT_MESSAGE: "本別チャット",
 };
 
 function parsePositiveInt(value: string | undefined, fallback: number) {
@@ -55,6 +62,11 @@ function formatDateTime(value: Date) {
     hour: "2-digit",
     minute: "2-digit",
   }).format(value);
+}
+
+function truncatePreview(value: string | null | undefined) {
+  if (!value) return null;
+  return value.length > 80 ? `${value.slice(0, 80)}...` : value;
 }
 
 function buildHref(params: {
@@ -140,6 +152,22 @@ export default async function AdminReportsPage({ searchParams }: AdminReportsPag
     }),
   ]);
 
+  const chatMessageIds = reports
+    .filter((report) => report.targetType === "BOOK_CHAT_MESSAGE")
+    .map((report) => report.targetId);
+  const chatMessages =
+    chatMessageIds.length > 0
+      ? await prisma.chatMessage.findMany({
+          where: { id: { in: chatMessageIds } },
+          select: {
+            id: true,
+            content: true,
+          },
+        })
+      : [];
+  const chatPreviewById = new Map(
+    chatMessages.map((message) => [message.id, truncatePreview(message.content)])
+  );
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   return (
@@ -154,7 +182,7 @@ export default async function AdminReportsPage({ searchParams }: AdminReportsPag
         </p>
         <h1 className="mt-2 text-2xl font-bold text-gray-900">通報確認</h1>
         <p className="mt-2 text-sm text-gray-500">
-          ユーザーから届いた通報を読み取り専用で確認します。対応やステータス変更は次のフェーズで追加します。
+          ユーザーから届いた通報を管理者向けに確認します。対応やステータス変更は次のフェーズで追加します。
         </p>
       </div>
 
@@ -236,7 +264,7 @@ export default async function AdminReportsPage({ searchParams }: AdminReportsPag
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-[1120px] w-full text-left text-sm">
+            <table className="min-w-[1200px] w-full text-left text-sm">
               <thead className="bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
                 <tr>
                   <th className="px-4 py-3">日時</th>
@@ -244,6 +272,7 @@ export default async function AdminReportsPage({ searchParams }: AdminReportsPag
                   <th className="px-4 py-3">targetType</th>
                   <th className="px-4 py-3">reason</th>
                   <th className="px-4 py-3">detail</th>
+                  <th className="px-4 py-3">preview</th>
                   <th className="px-4 py-3">reporter</th>
                   <th className="px-4 py-3">targetUser</th>
                   <th className="px-4 py-3">targetId</th>
@@ -258,8 +287,8 @@ export default async function AdminReportsPage({ searchParams }: AdminReportsPag
                     <td className="px-4 py-3 text-gray-700">
                       {statusLabels[report.status] ?? report.status}
                     </td>
-                    <td className="px-4 py-3 font-mono text-xs text-gray-700">
-                      {report.targetType}
+                    <td className="px-4 py-3 text-gray-700">
+                      {targetTypeLabels[report.targetType] ?? report.targetType}
                     </td>
                     <td className="px-4 py-3 text-gray-700">
                       {reasonLabels[report.reason] ?? report.reason}
@@ -267,6 +296,13 @@ export default async function AdminReportsPage({ searchParams }: AdminReportsPag
                     <td className="px-4 py-3">
                       <p className="max-w-md whitespace-pre-wrap break-words text-gray-700">
                         {report.detail || "-"}
+                      </p>
+                    </td>
+                    <td className="px-4 py-3">
+                      <p className="max-w-xs whitespace-pre-wrap break-words text-gray-600">
+                        {report.targetType === "BOOK_CHAT_MESSAGE"
+                          ? chatPreviewById.get(report.targetId) ?? "-"
+                          : "-"}
                       </p>
                     </td>
                     <td className="px-4 py-3 text-gray-700">

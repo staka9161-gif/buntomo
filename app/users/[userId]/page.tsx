@@ -184,10 +184,10 @@ export default function UserProfilePage() {
                     </Link>
                   )}
                 </div>
-                <div className="flex flex-wrap items-start gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                   <button
                     onClick={handleBlock}
-                    className="text-xs text-[var(--color-ink-faint)] hover:text-[var(--color-accent)]"
+                    className="text-xs leading-none text-[var(--color-ink-faint)] hover:text-[var(--color-accent)]"
                   >
                     このユーザーをブロック
                   </button>

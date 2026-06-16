@@ -4,10 +4,13 @@ import { requireActiveUser } from "@/lib/active-user";
 
 const ALLOWED_REASONS = new Set([
   "inappropriate_profile",
+  "inappropriate_content",
   "harassment",
   "impersonation",
   "other",
 ]);
+
+const ALLOWED_TARGET_TYPES = new Set(["USER", "BOOK_CHAT_MESSAGE"]);
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,7 +25,7 @@ export async function POST(request: NextRequest) {
     const reason = typeof body?.reason === "string" ? body.reason : "";
     const detail = typeof body?.detail === "string" ? body.detail.trim() : "";
 
-    if (targetType !== "USER") {
+    if (!ALLOWED_TARGET_TYPES.has(targetType)) {
       return NextResponse.json({ error: "通報対象が正しくありません" }, { status: 400 });
     }
 
@@ -38,17 +41,44 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "詳細は1000文字以内で入力してください" }, { status: 400 });
     }
 
-    if (targetId === activeUser.userId) {
-      return NextResponse.json({ error: "自分自身は通報できません" }, { status: 400 });
-    }
+    let targetUserId: string;
 
-    const targetUser = await prisma.user.findFirst({
-      where: { id: targetId, deactivatedAt: null },
-      select: { id: true },
-    });
+    if (targetType === "USER") {
+      if (targetId === activeUser.userId) {
+        return NextResponse.json({ error: "自分自身は通報できません" }, { status: 400 });
+      }
 
-    if (!targetUser) {
-      return NextResponse.json({ error: "通報対象が見つかりません" }, { status: 404 });
+      const targetUser = await prisma.user.findFirst({
+        where: { id: targetId, deactivatedAt: null },
+        select: { id: true },
+      });
+
+      if (!targetUser) {
+        return NextResponse.json({ error: "通報対象が見つかりません" }, { status: 404 });
+      }
+
+      targetUserId = targetUser.id;
+    } else {
+      const chatMessage = await prisma.chatMessage.findFirst({
+        where: {
+          id: targetId,
+          user: { deactivatedAt: null },
+        },
+        select: {
+          id: true,
+          userId: true,
+        },
+      });
+
+      if (!chatMessage) {
+        return NextResponse.json({ error: "通報対象が見つかりません" }, { status: 404 });
+      }
+
+      if (chatMessage.userId === activeUser.userId) {
+        return NextResponse.json({ error: "自分の投稿は通報できません" }, { status: 400 });
+      }
+
+      targetUserId = chatMessage.userId;
     }
 
     const existing = await prisma.report.findFirst({
@@ -70,7 +100,7 @@ export async function POST(request: NextRequest) {
         reporterId: activeUser.userId,
         targetType,
         targetId,
-        targetUserId: targetUser.id,
+        targetUserId,
         reason,
         detail: detail || null,
         status: "pending",
