@@ -11,6 +11,14 @@ export type UpdateEntry = {
 // 実装と同じタイミングで、利用者にとって何が変わったかを追加する。
 export const updates: UpdateEntry[] = [
   {
+    id: "clarify-report-handling-policy-2026-06-16",
+    date: "2026-06-16",
+    type: "お知らせ",
+    title: "通報対応に関する説明を追記しました",
+    body: "通報があった場合に、運営が安全確保のため必要な範囲で内容を確認することがある旨を、利用規約とプライバシーポリシーに追記しました。",
+    href: "/updates",
+  },
+  {
     id: "report-reviews-events-2026-06-16",
     date: "2026-06-16",
     type: "改善",
