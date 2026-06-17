@@ -29,6 +29,7 @@ const targetTypeOptions = [
   { value: "BOOK_CHAT_MESSAGE", label: "本別チャット" },
   { value: "REVIEW", label: "レビュー" },
   { value: "READING_EVENT", label: "読書会" },
+  { value: "DIRECT_MESSAGE", label: "DM" },
 ];
 
 const reasonLabels: Record<string, string> = {
@@ -53,6 +54,7 @@ const targetTypeLabels: Record<string, string> = {
   BOOK_CHAT_MESSAGE: "本別チャット",
   REVIEW: "レビュー",
   READING_EVENT: "読書会",
+  DIRECT_MESSAGE: "DM",
 };
 
 function parsePositiveInt(value: string | undefined, fallback: number) {
@@ -74,6 +76,10 @@ function formatDateTime(value: Date) {
 function truncatePreview(value: string | null | undefined) {
   if (!value) return null;
   return value.length > 80 ? `${value.slice(0, 80)}...` : value;
+}
+
+function userLabel(user: { name: string; handle: string | null }) {
+  return user.handle ? `${user.name} (@${user.handle})` : user.name;
 }
 
 function buildHref(params: {
@@ -236,6 +242,40 @@ export default async function AdminReportsPage({ searchParams }: AdminReportsPag
       ),
     ])
   );
+  const directMessageIds = reports
+    .filter((report) => report.targetType === "DIRECT_MESSAGE")
+    .map((report) => report.targetId);
+  const directMessages =
+    directMessageIds.length > 0
+      ? await prisma.directMessage.findMany({
+          where: { id: { in: directMessageIds } },
+          select: {
+            id: true,
+            content: true,
+            createdAt: true,
+            sender: {
+              select: {
+                name: true,
+                handle: true,
+              },
+            },
+            recipient: {
+              select: {
+                name: true,
+                handle: true,
+              },
+            },
+          },
+        })
+      : [];
+  const directMessagePreviewById = new Map(
+    directMessages.map((message) => [
+      message.id,
+      truncatePreview(
+        `${userLabel(message.sender)} → ${userLabel(message.recipient)} / ${formatDateTime(message.createdAt)} / ${message.content}`
+      ),
+    ])
+  );
   const getTargetPreview = (report: { targetType: string; targetId: string }) => {
     if (report.targetType === "BOOK_CHAT_MESSAGE") {
       return chatPreviewById.get(report.targetId) ?? "-";
@@ -245,6 +285,9 @@ export default async function AdminReportsPage({ searchParams }: AdminReportsPag
     }
     if (report.targetType === "READING_EVENT") {
       return eventPreviewById.get(report.targetId) ?? "-";
+    }
+    if (report.targetType === "DIRECT_MESSAGE") {
+      return directMessagePreviewById.get(report.targetId) ?? "-";
     }
     return "-";
   };

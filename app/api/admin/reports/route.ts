@@ -17,6 +17,10 @@ function truncatePreview(value: string | null | undefined) {
   return value.length > 80 ? `${value.slice(0, 80)}...` : value;
 }
 
+function userLabel(user: { name: string; handle: string | null }) {
+  return user.handle ? `${user.name} (@${user.handle})` : user.name;
+}
+
 export async function GET(request: NextRequest) {
   const admin = await requireAdmin();
   if (!admin.ok) {
@@ -149,6 +153,40 @@ export async function GET(request: NextRequest) {
       ),
     ])
   );
+  const directMessageIds = reports
+    .filter((report) => report.targetType === "DIRECT_MESSAGE")
+    .map((report) => report.targetId);
+  const directMessages =
+    directMessageIds.length > 0
+      ? await prisma.directMessage.findMany({
+          where: { id: { in: directMessageIds } },
+          select: {
+            id: true,
+            content: true,
+            createdAt: true,
+            sender: {
+              select: {
+                name: true,
+                handle: true,
+              },
+            },
+            recipient: {
+              select: {
+                name: true,
+                handle: true,
+              },
+            },
+          },
+        })
+      : [];
+  const directMessagePreviewById = new Map(
+    directMessages.map((message) => [
+      message.id,
+      truncatePreview(
+        `${userLabel(message.sender)} → ${userLabel(message.recipient)} / ${message.createdAt.toISOString().slice(0, 10)} / ${message.content}`
+      ),
+    ])
+  );
 
   return NextResponse.json({
     reports: reports.map((report) => ({
@@ -160,7 +198,9 @@ export async function GET(request: NextRequest) {
             ? reviewPreviewById.get(report.targetId) ?? null
             : report.targetType === "READING_EVENT"
               ? eventPreviewById.get(report.targetId) ?? null
-              : null,
+              : report.targetType === "DIRECT_MESSAGE"
+                ? directMessagePreviewById.get(report.targetId) ?? null
+                : null,
     })),
     total,
     page,

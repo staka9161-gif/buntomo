@@ -11,7 +11,13 @@ const ALLOWED_REASONS = new Set([
   "other",
 ]);
 
-const ALLOWED_TARGET_TYPES = new Set(["USER", "BOOK_CHAT_MESSAGE", "REVIEW", "READING_EVENT"]);
+const ALLOWED_TARGET_TYPES = new Set([
+  "USER",
+  "BOOK_CHAT_MESSAGE",
+  "REVIEW",
+  "READING_EVENT",
+  "DIRECT_MESSAGE",
+]);
 
 export async function POST(request: NextRequest) {
   try {
@@ -101,7 +107,7 @@ export async function POST(request: NextRequest) {
       }
 
       targetUserId = review.userId;
-    } else {
+    } else if (targetType === "READING_EVENT") {
       const readingEvent = await prisma.readingEvent.findFirst({
         where: {
           id: targetId,
@@ -122,6 +128,29 @@ export async function POST(request: NextRequest) {
       }
 
       targetUserId = readingEvent.organizerId;
+    } else {
+      const directMessage = await prisma.directMessage.findFirst({
+        where: {
+          id: targetId,
+          recipientId: activeUser.userId,
+          sender: { deactivatedAt: null },
+        },
+        select: {
+          id: true,
+          senderId: true,
+          recipientId: true,
+        },
+      });
+
+      if (!directMessage) {
+        return NextResponse.json({ error: "通報対象が見つかりません" }, { status: 404 });
+      }
+
+      if (directMessage.senderId === activeUser.userId) {
+        return NextResponse.json({ error: "自分のメッセージは通報できません" }, { status: 400 });
+      }
+
+      targetUserId = directMessage.senderId;
     }
 
     const existing = await prisma.report.findFirst({

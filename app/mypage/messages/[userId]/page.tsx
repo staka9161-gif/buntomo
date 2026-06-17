@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { apiUrl } from "@/lib/api";
+import ReportUserButton from "@/components/reports/ReportUserButton";
 
 interface Message {
   id: string;
@@ -20,6 +21,14 @@ interface Partner {
   displayName?: string;
   image: string | null;
 }
+
+const dmReportReasons = [
+  { value: "inappropriate_content", label: "不適切な内容" },
+  { value: "harassment", label: "迷惑行為" },
+  { value: "spam_or_scam", label: "スパム・勧誘の疑い" },
+  { value: "impersonation", label: "なりすましの疑い" },
+  { value: "other", label: "その他" },
+];
 
 export default function DMChatPage() {
   const params = useParams();
@@ -160,6 +169,16 @@ export default function DMChatPage() {
                       <p className="mt-0.5 text-[10px] font-mono text-[var(--color-ink-faint)]">
                         {new Date(msg.createdAt).toLocaleString("ja-JP")}
                       </p>
+                      {!isMe && (
+                        <ReportUserButton
+                          targetType="DIRECT_MESSAGE"
+                          targetId={msg.id}
+                          reasons={dmReportReasons}
+                          formTitle="DMを通報"
+                          className={`mt-1 inline-flex flex-col ${isMe ? "items-end" : "items-start"}`}
+                          buttonClassName="text-[10px] leading-none text-[var(--color-ink-faint)] hover:text-[var(--color-accent)]"
+                        />
+                      )}
                     </div>
                   </div>
                 );

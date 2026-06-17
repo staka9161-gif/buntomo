@@ -30,6 +30,7 @@ const targetTypeLabels: Record<string, string> = {
   BOOK_CHAT_MESSAGE: "本別チャット",
   REVIEW: "レビュー",
   READING_EVENT: "読書会",
+  DIRECT_MESSAGE: "DM",
 };
 
 function formatDateTime(value: Date | null) {
@@ -225,6 +226,31 @@ export default async function AdminReportDetailPage({ params }: AdminReportDetai
           },
         })
       : null;
+  const directMessage =
+    report.targetType === "DIRECT_MESSAGE"
+      ? await prisma.directMessage.findUnique({
+          where: { id: report.targetId },
+          select: {
+            id: true,
+            content: true,
+            createdAt: true,
+            sender: {
+              select: {
+                id: true,
+                name: true,
+                handle: true,
+              },
+            },
+            recipient: {
+              select: {
+                id: true,
+                name: true,
+                handle: true,
+              },
+            },
+          },
+        })
+      : null;
 
   const targetUserHref = report.targetUserId ? `/users/${report.targetUserId}` : null;
   const chatTargetHref = chatMessage?.bookId
@@ -413,6 +439,28 @@ export default async function AdminReportDetailPage({ params }: AdminReportDetai
                   </>
                 ) : (
                   <p className="text-gray-500">対象の読書会は見つかりません。</p>
+                )}
+              </div>
+            ) : report.targetType === "DIRECT_MESSAGE" ? (
+              <div className="mt-4 space-y-3 text-sm text-gray-700">
+                {directMessage ? (
+                  <>
+                    <p>
+                      送信者: <UserLabel user={directMessage.sender} fallback="削除済みユーザー" />
+                    </p>
+                    <p>
+                      受信者: <UserLabel user={directMessage.recipient} fallback="削除済みユーザー" />
+                    </p>
+                    <p>送信日時: {formatDateTime(directMessage.createdAt)}</p>
+                    <div>
+                      <h3 className="text-xs font-semibold text-gray-500">本文プレビュー</h3>
+                      <p className="mt-1 whitespace-pre-wrap rounded-md bg-gray-50 p-3 text-sm text-gray-900">
+                        {truncatePreview(directMessage.content) || "-"}
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-gray-500">対象のDMは見つかりません。</p>
                 )}
               </div>
             ) : (

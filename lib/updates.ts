@@ -11,6 +11,14 @@ export type UpdateEntry = {
 // 実装と同じタイミングで、利用者にとって何が変わったかを追加する。
 export const updates: UpdateEntry[] = [
   {
+    id: "report-direct-messages-2026-06-16",
+    date: "2026-06-16",
+    type: "改善",
+    title: "DMの通報に対応しました",
+    body: "ダイレクトメッセージで不適切な内容を受け取った場合に、運営へ知らせられるようになりました。",
+    href: "/updates",
+  },
+  {
     id: "clarify-report-handling-policy-2026-06-16",
     date: "2026-06-16",
     type: "お知らせ",

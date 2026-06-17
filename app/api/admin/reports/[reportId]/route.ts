@@ -154,6 +154,31 @@ async function getReportDetail(reportId: string) {
           },
         })
       : null;
+  const directMessage =
+    report.targetType === "DIRECT_MESSAGE"
+      ? await prisma.directMessage.findUnique({
+          where: { id: report.targetId },
+          select: {
+            id: true,
+            content: true,
+            createdAt: true,
+            sender: {
+              select: {
+                id: true,
+                name: true,
+                handle: true,
+              },
+            },
+            recipient: {
+              select: {
+                id: true,
+                name: true,
+                handle: true,
+              },
+            },
+          },
+        })
+      : null;
 
   return {
     ...report,
@@ -192,6 +217,15 @@ async function getReportDetail(reportId: string) {
             organizer: readingEvent.organizer,
             book: readingEvent.book,
             work: readingEvent.work,
+          }
+        : null,
+      directMessage: directMessage
+        ? {
+            id: directMessage.id,
+            preview: truncatePreview(directMessage.content),
+            createdAt: directMessage.createdAt,
+            sender: directMessage.sender,
+            recipient: directMessage.recipient,
           }
         : null,
     },
