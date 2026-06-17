@@ -5,6 +5,7 @@ import SessionProvider from "@/components/SessionProvider";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
+import ImportantAnnouncementBanner from "@/components/announcements/ImportantAnnouncementBanner";
 import SuspendedAccountGate from "@/components/auth/SuspendedAccountGate";
 
 const geistSans = Geist({
@@ -87,6 +88,7 @@ export default function RootLayout({
         <SessionProvider>
           <SuspendedAccountGate />
           <Header />
+          <ImportantAnnouncementBanner />
           <main className="flex-1">{children}</main>
           <Footer />
         </SessionProvider>

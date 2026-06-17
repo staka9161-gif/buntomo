@@ -59,6 +59,9 @@ model User {
   reportsHandled       Report[]              @relation("ReportsHandled")
   suspensionAppeals    SuspensionAppeal[]     @relation("SuspensionAppeals")
   suspensionAppealsHandled SuspensionAppeal[] @relation("SuspensionAppealAdmin")
+  importantAnnouncementsCreated ImportantAnnouncement[] @relation("ImportantAnnouncementCreatedBy")
+  importantAnnouncementsUpdated ImportantAnnouncement[] @relation("ImportantAnnouncementUpdatedBy")
+  importantAnnouncementReads ImportantAnnouncementRead[]
 }
 
 model AdminAuditLog {
@@ -126,6 +129,44 @@ model SuspensionAppeal {
   @@index([status])
   @@index([createdAt])
   @@index([adminUserId])
+}
+
+model ImportantAnnouncement {
+  id          String   @id @default(cuid())
+  title       String
+  body        String
+  status      String   @default("draft")
+  level       String   @default("important")
+  createdById String?
+  updatedById String?
+  publishedAt DateTime?
+  expiresAt   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  createdBy User? @relation("ImportantAnnouncementCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy User? @relation("ImportantAnnouncementUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+  reads     ImportantAnnouncementRead[]
+
+  @@index([status])
+  @@index([publishedAt])
+  @@index([expiresAt])
+  @@index([createdById])
+  @@index([updatedById])
+}
+
+model ImportantAnnouncementRead {
+  id             String   @id @default(cuid())
+  announcementId String
+  userId         String
+  readAt         DateTime @default(now())
+
+  announcement ImportantAnnouncement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  user         User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([announcementId, userId])
+  @@index([userId])
+  @@index([announcementId])
 }
 
 model Account {

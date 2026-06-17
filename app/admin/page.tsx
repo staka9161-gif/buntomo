@@ -30,6 +30,11 @@ const menuItems = [
     description: "利用停止中ユーザーから届いた異議申し立てを確認します。",
   },
   {
+    href: "/admin/announcements",
+    title: "重要なお知らせ",
+    description: "通常ページ上部に表示する、運営からの重要なお知らせを管理します。",
+  },
+  {
     href: "/admin/dashboard",
     title: "管理ダッシュボード",
     description: "Work / Edition の状態や統合候補の件数を確認します。",
@@ -41,7 +46,7 @@ const menuItems = [
   },
 ];
 
-const plannedItems = ["重要なお知らせ"];
+const plannedItems: string[] = [];
 
 const reportTargetTypeLabels: Record<string, string> = {
   USER: "ユーザー",
@@ -119,6 +124,8 @@ export default async function AdminPage() {
     scheduledDeletionUsers,
     pendingSuspensionAppeals,
     reviewingSuspensionAppeals,
+    publishedAnnouncements,
+    draftAnnouncements,
     recentPendingReports,
   ] = await Promise.all([
     prisma.report.count({ where: { status: "pending" } }),
@@ -128,6 +135,8 @@ export default async function AdminPage() {
     prisma.user.count({ where: { scheduledDeletionAt: { not: null } } }),
     prisma.suspensionAppeal.count({ where: { status: "pending" } }),
     prisma.suspensionAppeal.count({ where: { status: "reviewing" } }),
+    prisma.importantAnnouncement.count({ where: { status: "published" } }),
+    prisma.importantAnnouncement.count({ where: { status: "draft" } }),
     prisma.report.findMany({
       where: { status: "pending" },
       orderBy: { createdAt: "desc" },
@@ -191,6 +200,18 @@ export default async function AdminPage() {
       value: reviewingSuspensionAppeals,
       href: "/admin/suspension-appeals?status=reviewing",
       tone: reviewingSuspensionAppeals > 0 ? "amber" : "gray",
+    },
+    {
+      label: "重要なお知らせ 公開中",
+      value: publishedAnnouncements,
+      href: "/admin/announcements?status=published",
+      tone: publishedAnnouncements > 0 ? "amber" : "gray",
+    },
+    {
+      label: "重要なお知らせ 下書き",
+      value: draftAnnouncements,
+      href: "/admin/announcements?status=draft",
+      tone: "gray",
     },
   ];
 
