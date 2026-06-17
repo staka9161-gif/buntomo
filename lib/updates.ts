@@ -15,8 +15,8 @@ export const updates: UpdateEntry[] = [
     date: "2026-06-17",
     type: "改善",
     title: "読書会に「気になる」ができるようになりました",
-    body: "参加を迷っている読書会を気になるリストに保存し、あとからマイページで確認できるようになりました。",
-    href: "/updates",
+    body: "参加を迷っている読書会を気になるリストに保存し、あとからマイページで確認できるようになりました。詳しい表示範囲も確認できます。",
+    href: "/updates/reading-event-interest",
   },
   {
     id: "important-announcements-2026-06-17",

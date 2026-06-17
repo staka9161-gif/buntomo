@@ -50,7 +50,7 @@ export default function UpdatesPage() {
                 href={entry.href}
                 className="mt-4 inline-flex text-sm font-medium text-[var(--color-accent)] hover:underline"
               >
-                関連ページを見る
+                詳細
               </Link>
             )}
           </article>
