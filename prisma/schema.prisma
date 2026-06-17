@@ -57,6 +57,8 @@ model User {
   reportsSubmitted     Report[]              @relation("ReportsSubmitted")
   reportsTargeted      Report[]              @relation("ReportsTargetUser")
   reportsHandled       Report[]              @relation("ReportsHandled")
+  suspensionAppeals    SuspensionAppeal[]     @relation("SuspensionAppeals")
+  suspensionAppealsHandled SuspensionAppeal[] @relation("SuspensionAppealAdmin")
 }
 
 model AdminAuditLog {
@@ -103,6 +105,26 @@ model Report {
   @@index([targetType, targetId])
   @@index([reporterId])
   @@index([targetUserId])
+  @@index([adminUserId])
+}
+
+model SuspensionAppeal {
+  id          String    @id @default(cuid())
+  userId      String?
+  status      String    @default("pending")
+  message     String
+  adminUserId String?
+  adminNote   String?
+  resolvedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user      User? @relation("SuspensionAppeals", fields: [userId], references: [id], onDelete: SetNull)
+  adminUser User? @relation("SuspensionAppealAdmin", fields: [adminUserId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
   @@index([adminUserId])
 }
 

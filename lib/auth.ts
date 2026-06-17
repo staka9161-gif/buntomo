@@ -1,12 +1,8 @@
-import NextAuth, { CredentialsSignin } from "next-auth";
+import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcryptjs from "bcryptjs";
 import { prisma } from "./db";
-
-class SuspendedAccountError extends CredentialsSignin {
-  code = "account_suspended";
-}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -39,10 +35,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         );
 
         if (!isValid) return null;
-
-        if (user.accountStatus === "suspended") {
-          throw new SuspendedAccountError();
-        }
 
         if (user.deactivatedAt) {
           try {

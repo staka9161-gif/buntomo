@@ -30,7 +30,7 @@ export default function Header() {
   const isSuspended = session?.user?.accountStatus === "suspended";
 
   useEffect(() => {
-    if (!session?.user?.id) return;
+    if (!session?.user?.id || isSuspended) return;
     const fetchCounts = () => {
       fetch(apiUrl("/api/me/notifications/counts"))
         .then((r) => r.ok ? r.json() : null)
@@ -41,7 +41,7 @@ export default function Header() {
     const interval = setInterval(fetchCounts, 60000);
     window.addEventListener("notifications-seen", fetchCounts);
     return () => { clearInterval(interval); window.removeEventListener("notifications-seen", fetchCounts); };
-  }, [session?.user?.id]);
+  }, [isSuspended, session?.user?.id]);
 
   // メニュー外クリックで閉じる
   useEffect(() => {
@@ -64,6 +64,19 @@ export default function Header() {
         {/* === PC nav (md+) === */}
         <nav className="hidden md:flex items-center gap-4 text-sm">
           {session ? (
+            isSuspended ? (
+              <>
+                <Link href="/account/suspended" className="text-sm font-semibold text-amber-700 hover:underline">
+                  利用停止中
+                </Link>
+                <button
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                  className="btn-secondary-sm"
+                >
+                  ログアウト
+                </button>
+              </>
+            ) : (
             <>
               <Link href="/books/search" className="text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)] transition-colors">
                 本を探す
@@ -127,6 +140,7 @@ export default function Header() {
                 ログアウト
               </button>
             </>
+            )
           ) : (
             <>
               <Link href="/login" className="text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)] transition-colors">
@@ -142,6 +156,19 @@ export default function Header() {
         {/* === Mobile controls (< md) === */}
         <div className="flex md:hidden items-center gap-3">
           {session ? (
+            isSuspended ? (
+              <>
+                <Link href="/account/suspended" className="text-xs font-semibold text-amber-700 hover:underline">
+                  利用停止中
+                </Link>
+                <button
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                  className="text-xs text-[var(--color-ink-muted)] hover:text-[var(--color-accent)]"
+                >
+                  ログアウト
+                </button>
+              </>
+            ) : (
             <>
               <BellIcon count={notifTotal} />
               <button
@@ -160,6 +187,7 @@ export default function Header() {
                 )}
               </button>
             </>
+            )
           ) : (
             <>
               <Link href="/login" className="text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)] transition-colors">
@@ -173,14 +201,8 @@ export default function Header() {
         </div>
       </div>
 
-      {isSuspended ? (
-        <div className="border-t border-amber-200 bg-amber-50 px-4 py-2 text-center text-xs text-amber-800 md:text-sm">
-          このアカウントは現在利用停止中です。一部の操作は利用できません。解除や詳細については運営にお問い合わせください。
-        </div>
-      ) : null}
-
       {/* === Mobile dropdown menu === */}
-      {menuOpen && session && (
+      {menuOpen && session && !isSuspended && (
         <nav
           className="md:hidden absolute left-0 right-0 top-full z-50 border-b border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] shadow-lg"
           onClick={(e) => e.stopPropagation()}

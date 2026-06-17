@@ -4,6 +4,7 @@ import "./globals.css";
 import SessionProvider from "@/components/SessionProvider";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import SuspendedAccountGate from "@/components/auth/SuspendedAccountGate";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -82,6 +83,7 @@ export default function RootLayout({
           }}
         />
         <SessionProvider>
+          <SuspendedAccountGate />
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />

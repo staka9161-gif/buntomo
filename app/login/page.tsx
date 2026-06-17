@@ -6,9 +6,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { apiUrl } from "@/lib/api";
 
-const SUSPENDED_LOGIN_MESSAGE =
-  "このアカウントは現在利用停止中のためログインできません。解除や詳細については運営にお問い合わせください。";
-
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -35,8 +32,6 @@ export default function LoginPage() {
 
       if (!result?.error) {
         router.push("/mypage");
-      } else if (result.code === "account_suspended") {
-        setError(SUSPENDED_LOGIN_MESSAGE);
       } else {
         setError("メールアドレスまたはパスワードが正しくありません");
         setShowResend(true);

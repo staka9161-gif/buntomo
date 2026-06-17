@@ -11,11 +11,11 @@ export type UpdateEntry = {
 // 実装と同じタイミングで、利用者にとって何が変わったかを追加する。
 export const updates: UpdateEntry[] = [
   {
-    id: "suspended-login-message-2026-06-17",
+    id: "suspension-appeal-2026-06-17",
     date: "2026-06-17",
     type: "改善",
-    title: "ログインできない場合の案内を改善しました",
-    body: "アカウントが利用停止中の場合に、ログイン画面や画面上で状態が分かりやすく表示されるようになりました。",
+    title: "利用停止中の異議申し立てに対応しました",
+    body: "アカウントが利用停止中の場合でもログイン後に状態を確認し、運営へ異議申し立てを送れるようになりました。",
     href: "/updates",
   },
   {
