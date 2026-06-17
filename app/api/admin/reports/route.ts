@@ -86,6 +86,69 @@ export async function GET(request: NextRequest) {
   const chatPreviewById = new Map(
     chatMessages.map((message) => [message.id, truncatePreview(message.content)])
   );
+  const reviewIds = reports
+    .filter((report) => report.targetType === "REVIEW")
+    .map((report) => report.targetId);
+  const reviews =
+    reviewIds.length > 0
+      ? await prisma.review.findMany({
+          where: { id: { in: reviewIds } },
+          select: {
+            id: true,
+            body: true,
+            work: {
+              select: {
+                title: true,
+              },
+            },
+            edition: {
+              select: {
+                titleOnCover: true,
+              },
+            },
+          },
+        })
+      : [];
+  const reviewPreviewById = new Map(
+    reviews.map((review) => [
+      review.id,
+      truncatePreview(
+        `${review.edition?.titleOnCover ?? review.work.title}: ${review.body}`
+      ),
+    ])
+  );
+  const eventIds = reports
+    .filter((report) => report.targetType === "READING_EVENT")
+    .map((report) => report.targetId);
+  const readingEvents =
+    eventIds.length > 0
+      ? await prisma.readingEvent.findMany({
+          where: { id: { in: eventIds } },
+          select: {
+            id: true,
+            title: true,
+            eventDate: true,
+            book: {
+              select: {
+                title: true,
+              },
+            },
+            work: {
+              select: {
+                title: true,
+              },
+            },
+          },
+        })
+      : [];
+  const eventPreviewById = new Map(
+    readingEvents.map((event) => [
+      event.id,
+      truncatePreview(
+        `${event.title} / ${event.book?.title ?? event.work?.title ?? "関連本なし"} / ${event.eventDate.toISOString().slice(0, 10)}`
+      ),
+    ])
+  );
 
   return NextResponse.json({
     reports: reports.map((report) => ({
@@ -93,7 +156,11 @@ export async function GET(request: NextRequest) {
       targetPreview:
         report.targetType === "BOOK_CHAT_MESSAGE"
           ? chatPreviewById.get(report.targetId) ?? null
-          : null,
+          : report.targetType === "REVIEW"
+            ? reviewPreviewById.get(report.targetId) ?? null
+            : report.targetType === "READING_EVENT"
+              ? eventPreviewById.get(report.targetId) ?? null
+              : null,
     })),
     total,
     page,

@@ -17,7 +17,7 @@ const profileReportReasons: ReportReasonOption[] = [
 
 type ReportUserButtonProps = {
   targetUserId?: string;
-  targetType?: "USER" | "BOOK_CHAT_MESSAGE";
+  targetType?: "USER" | "BOOK_CHAT_MESSAGE" | "REVIEW" | "READING_EVENT";
   targetId?: string;
   reasons?: ReportReasonOption[];
   formTitle?: string;

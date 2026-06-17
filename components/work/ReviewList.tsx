@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
+import ReportUserButton from "@/components/reports/ReportUserButton";
 
 interface Review {
   id: string;
@@ -35,6 +37,13 @@ const FORMAT_LABELS: Record<string, string> = {
   other: "その他",
 };
 
+const reviewReportReasons = [
+  { value: "inappropriate_content", label: "不適切な内容" },
+  { value: "harassment", label: "迷惑行為" },
+  { value: "impersonation", label: "なりすましの疑い" },
+  { value: "other", label: "その他" },
+];
+
 function editionBadge(edition?: { format: string; publisher: string | null } | null) {
   if (!edition) return null;
   const label = FORMAT_LABELS[edition.format] || edition.format;
@@ -47,6 +56,7 @@ function editionBadge(edition?: { format: string; publisher: string | null } | n
 }
 
 export default function ReviewList({ reviews, editionFilter }: ReviewListProps) {
+  const { data: session } = useSession();
   const [filter, setFilter] = useState<"all" | "edition">(editionFilter ? "edition" : "all");
 
   const filtered = filter === "edition" && editionFilter
@@ -123,6 +133,18 @@ export default function ReviewList({ reviews, editionFilter }: ReviewListProps) 
             <p className="mt-1 text-xs font-mono text-[var(--color-ink-faint)]">
               {new Date(review.postedAt).toLocaleDateString("ja-JP")}
             </p>
+            {session?.user?.id && review.user.id !== session.user.id ? (
+              <div className="mt-1">
+                <ReportUserButton
+                  targetType="REVIEW"
+                  targetId={review.id}
+                  reasons={reviewReportReasons}
+                  formTitle="レビューを通報"
+                  className="inline-flex max-w-xs flex-col items-start"
+                  buttonClassName="text-[10px] leading-none text-[var(--color-ink-faint)] hover:text-[var(--color-accent)]"
+                />
+              </div>
+            ) : null}
           </div>
         ))}
 

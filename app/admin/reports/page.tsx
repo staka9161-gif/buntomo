@@ -27,6 +27,8 @@ const targetTypeOptions = [
   { value: "", label: "すべて" },
   { value: "USER", label: "ユーザー" },
   { value: "BOOK_CHAT_MESSAGE", label: "本別チャット" },
+  { value: "REVIEW", label: "レビュー" },
+  { value: "READING_EVENT", label: "読書会" },
 ];
 
 const reasonLabels: Record<string, string> = {
@@ -34,6 +36,7 @@ const reasonLabels: Record<string, string> = {
   inappropriate_content: "不適切な内容",
   harassment: "迷惑行為",
   impersonation: "なりすましの疑い",
+  spam_or_scam: "スパム・詐欺の疑い",
   other: "その他",
 };
 
@@ -48,6 +51,8 @@ const statusLabels: Record<string, string> = {
 const targetTypeLabels: Record<string, string> = {
   USER: "ユーザー",
   BOOK_CHAT_MESSAGE: "本別チャット",
+  REVIEW: "レビュー",
+  READING_EVENT: "読書会",
 };
 
 function parsePositiveInt(value: string | undefined, fallback: number) {
@@ -170,6 +175,79 @@ export default async function AdminReportsPage({ searchParams }: AdminReportsPag
   const chatPreviewById = new Map(
     chatMessages.map((message) => [message.id, truncatePreview(message.content)])
   );
+  const reviewIds = reports
+    .filter((report) => report.targetType === "REVIEW")
+    .map((report) => report.targetId);
+  const reviews =
+    reviewIds.length > 0
+      ? await prisma.review.findMany({
+          where: { id: { in: reviewIds } },
+          select: {
+            id: true,
+            body: true,
+            work: {
+              select: {
+                title: true,
+              },
+            },
+            edition: {
+              select: {
+                titleOnCover: true,
+              },
+            },
+          },
+        })
+      : [];
+  const reviewPreviewById = new Map(
+    reviews.map((review) => [
+      review.id,
+      truncatePreview(`${review.edition?.titleOnCover ?? review.work.title}: ${review.body}`),
+    ])
+  );
+  const eventIds = reports
+    .filter((report) => report.targetType === "READING_EVENT")
+    .map((report) => report.targetId);
+  const readingEvents =
+    eventIds.length > 0
+      ? await prisma.readingEvent.findMany({
+          where: { id: { in: eventIds } },
+          select: {
+            id: true,
+            title: true,
+            eventDate: true,
+            book: {
+              select: {
+                title: true,
+              },
+            },
+            work: {
+              select: {
+                title: true,
+              },
+            },
+          },
+        })
+      : [];
+  const eventPreviewById = new Map(
+    readingEvents.map((event) => [
+      event.id,
+      truncatePreview(
+        `${event.title} / ${event.book?.title ?? event.work?.title ?? "関連本なし"} / ${event.eventDate.toISOString().slice(0, 10)}`
+      ),
+    ])
+  );
+  const getTargetPreview = (report: { targetType: string; targetId: string }) => {
+    if (report.targetType === "BOOK_CHAT_MESSAGE") {
+      return chatPreviewById.get(report.targetId) ?? "-";
+    }
+    if (report.targetType === "REVIEW") {
+      return reviewPreviewById.get(report.targetId) ?? "-";
+    }
+    if (report.targetType === "READING_EVENT") {
+      return eventPreviewById.get(report.targetId) ?? "-";
+    }
+    return "-";
+  };
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   return (
@@ -303,9 +381,7 @@ export default async function AdminReportsPage({ searchParams }: AdminReportsPag
                     </td>
                     <td className="px-4 py-3">
                       <p className="max-w-xs whitespace-pre-wrap break-words text-gray-600">
-                        {report.targetType === "BOOK_CHAT_MESSAGE"
-                          ? chatPreviewById.get(report.targetId) ?? "-"
-                          : "-"}
+                        {getTargetPreview(report)}
                       </p>
                     </td>
                     <td className="px-4 py-3 text-gray-700">

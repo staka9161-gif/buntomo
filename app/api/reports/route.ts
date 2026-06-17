@@ -7,10 +7,11 @@ const ALLOWED_REASONS = new Set([
   "inappropriate_content",
   "harassment",
   "impersonation",
+  "spam_or_scam",
   "other",
 ]);
 
-const ALLOWED_TARGET_TYPES = new Set(["USER", "BOOK_CHAT_MESSAGE"]);
+const ALLOWED_TARGET_TYPES = new Set(["USER", "BOOK_CHAT_MESSAGE", "REVIEW", "READING_EVENT"]);
 
 export async function POST(request: NextRequest) {
   try {
@@ -58,7 +59,7 @@ export async function POST(request: NextRequest) {
       }
 
       targetUserId = targetUser.id;
-    } else {
+    } else if (targetType === "BOOK_CHAT_MESSAGE") {
       const chatMessage = await prisma.chatMessage.findFirst({
         where: {
           id: targetId,
@@ -79,6 +80,48 @@ export async function POST(request: NextRequest) {
       }
 
       targetUserId = chatMessage.userId;
+    } else if (targetType === "REVIEW") {
+      const review = await prisma.review.findFirst({
+        where: {
+          id: targetId,
+          user: { deactivatedAt: null },
+        },
+        select: {
+          id: true,
+          userId: true,
+        },
+      });
+
+      if (!review) {
+        return NextResponse.json({ error: "騾壼ｱ蟇ｾ雎｡縺瑚ｦ九▽縺九ｊ縺ｾ縺帙ｓ" }, { status: 404 });
+      }
+
+      if (review.userId === activeUser.userId) {
+        return NextResponse.json({ error: "閾ｪ蛻・・謚慕ｨｿ縺ｯ騾壼ｱ縺ｧ縺阪∪縺帙ｓ" }, { status: 400 });
+      }
+
+      targetUserId = review.userId;
+    } else {
+      const readingEvent = await prisma.readingEvent.findFirst({
+        where: {
+          id: targetId,
+          organizer: { deactivatedAt: null },
+        },
+        select: {
+          id: true,
+          organizerId: true,
+        },
+      });
+
+      if (!readingEvent) {
+        return NextResponse.json({ error: "騾壼ｱ蟇ｾ雎｡縺瑚ｦ九▽縺九ｊ縺ｾ縺帙ｓ" }, { status: 404 });
+      }
+
+      if (readingEvent.organizerId === activeUser.userId) {
+        return NextResponse.json({ error: "閾ｪ蛻・・謚慕ｨｿ縺ｯ騾壼ｱ縺ｧ縺阪∪縺帙ｓ" }, { status: 400 });
+      }
+
+      targetUserId = readingEvent.organizerId;
     }
 
     const existing = await prisma.report.findFirst({

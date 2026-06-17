@@ -21,12 +21,15 @@ const reasonLabels: Record<string, string> = {
   inappropriate_content: "不適切な内容",
   harassment: "迷惑行為",
   impersonation: "なりすましの疑い",
+  spam_or_scam: "スパム・詐欺の疑い",
   other: "その他",
 };
 
 const targetTypeLabels: Record<string, string> = {
   USER: "ユーザー",
   BOOK_CHAT_MESSAGE: "本別チャット",
+  REVIEW: "レビュー",
+  READING_EVENT: "読書会",
 };
 
 function formatDateTime(value: Date | null) {
@@ -157,12 +160,83 @@ export default async function AdminReportDetailPage({ params }: AdminReportDetai
           },
         })
       : null;
+  const review =
+    report.targetType === "REVIEW"
+      ? await prisma.review.findUnique({
+          where: { id: report.targetId },
+          select: {
+            id: true,
+            body: true,
+            rating: true,
+            postedAt: true,
+            user: {
+              select: {
+                id: true,
+                name: true,
+                handle: true,
+              },
+            },
+            work: {
+              select: {
+                id: true,
+                title: true,
+              },
+            },
+            edition: {
+              select: {
+                id: true,
+                titleOnCover: true,
+                publisher: true,
+              },
+            },
+          },
+        })
+      : null;
+  const readingEvent =
+    report.targetType === "READING_EVENT"
+      ? await prisma.readingEvent.findUnique({
+          where: { id: report.targetId },
+          select: {
+            id: true,
+            title: true,
+            eventDate: true,
+            prefecture: true,
+            location: true,
+            url: true,
+            organizer: {
+              select: {
+                id: true,
+                name: true,
+                handle: true,
+              },
+            },
+            book: {
+              select: {
+                id: true,
+                title: true,
+              },
+            },
+            work: {
+              select: {
+                id: true,
+                title: true,
+              },
+            },
+          },
+        })
+      : null;
 
   const targetUserHref = report.targetUserId ? `/users/${report.targetUserId}` : null;
   const chatTargetHref = chatMessage?.bookId
     ? `/books/${chatMessage.bookId}/chat`
     : chatMessage?.workId
       ? `/works/${chatMessage.workId}`
+      : null;
+  const reviewTargetHref = review?.work ? `/works/${review.work.id}` : null;
+  const readingEventTargetHref = readingEvent?.book
+    ? `/books/${readingEvent.book.id}`
+    : readingEvent?.work
+      ? `/works/${readingEvent.work.id}`
       : null;
 
   return (
@@ -241,7 +315,7 @@ export default async function AdminReportDetailPage({ params }: AdminReportDetai
                   )}
                 </p>
               </div>
-            ) : (
+            ) : report.targetType === "BOOK_CHAT_MESSAGE" ? (
               <div className="mt-4 space-y-3 text-sm text-gray-700">
                 {chatMessage ? (
                   <>
@@ -270,6 +344,79 @@ export default async function AdminReportDetailPage({ params }: AdminReportDetai
                   <p className="text-gray-500">対象のチャット投稿は見つかりません。</p>
                 )}
               </div>
+            ) : report.targetType === "REVIEW" ? (
+              <div className="mt-4 space-y-3 text-sm text-gray-700">
+                {review ? (
+                  <>
+                    <p>
+                      投稿者: <UserLabel user={review.user} fallback="削除済みユーザー" />
+                    </p>
+                    <p>投稿日時: {formatDateTime(review.postedAt)}</p>
+                    <p>評価: {review.rating ?? "-"}</p>
+                    <p>
+                      関連:{" "}
+                      {reviewTargetHref ? (
+                        <Link href={reviewTargetHref} className="text-amber-700 hover:underline">
+                          {review.edition?.titleOnCover ?? review.work.title}
+                        </Link>
+                      ) : (
+                        <span className="text-gray-400">関連ページなし</span>
+                      )}
+                    </p>
+                    {review.edition?.publisher ? <p>出版社: {review.edition.publisher}</p> : null}
+                    <div>
+                      <h3 className="text-xs font-semibold text-gray-500">本文プレビュー</h3>
+                      <p className="mt-1 whitespace-pre-wrap rounded-md bg-gray-50 p-3 text-sm text-gray-900">
+                        {truncatePreview(review.body) || "-"}
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <p className="text-gray-500">対象のレビューは見つかりません。</p>
+                )}
+              </div>
+            ) : report.targetType === "READING_EVENT" ? (
+              <div className="mt-4 space-y-3 text-sm text-gray-700">
+                {readingEvent ? (
+                  <>
+                    <p>
+                      主催者: <UserLabel user={readingEvent.organizer} fallback="削除済みユーザー" />
+                    </p>
+                    <p>読書会名: {readingEvent.title}</p>
+                    <p>開催日時: {formatDateTime(readingEvent.eventDate)}</p>
+                    <p>
+                      場所: {readingEvent.prefecture} {readingEvent.location}
+                    </p>
+                    <p>
+                      関連:{" "}
+                      {readingEventTargetHref ? (
+                        <Link href={readingEventTargetHref} className="text-amber-700 hover:underline">
+                          {readingEvent.book?.title ?? readingEvent.work?.title ?? "関連ページ"}
+                        </Link>
+                      ) : (
+                        <span className="text-gray-400">関連ページなし</span>
+                      )}
+                    </p>
+                    {readingEvent.url ? (
+                      <p>
+                        申込URL:{" "}
+                        <a
+                          href={readingEvent.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-amber-700 hover:underline"
+                        >
+                          外部ページ
+                        </a>
+                      </p>
+                    ) : null}
+                  </>
+                ) : (
+                  <p className="text-gray-500">対象の読書会は見つかりません。</p>
+                )}
+              </div>
+            ) : (
+              <p className="mt-4 text-sm text-gray-500">対象情報はありません。</p>
             )}
           </section>
         </div>

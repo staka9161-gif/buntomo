@@ -11,6 +11,14 @@ export type UpdateEntry = {
 // 実装と同じタイミングで、利用者にとって何が変わったかを追加する。
 export const updates: UpdateEntry[] = [
   {
+    id: "report-reviews-events-2026-06-16",
+    date: "2026-06-16",
+    type: "改善",
+    title: "レビューと読書会の通報に対応しました",
+    body: "公共の目に触れるレビューや読書会について、不適切な内容が気になる場合に運営へ知らせられるようになりました。",
+    href: "/updates",
+  },
+  {
     id: "report-chat-messages-2026-06-16",
     date: "2026-06-16",
     type: "改善",

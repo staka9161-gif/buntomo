@@ -89,6 +89,71 @@ async function getReportDetail(reportId: string) {
           },
         })
       : null;
+  const review =
+    report.targetType === "REVIEW"
+      ? await prisma.review.findUnique({
+          where: { id: report.targetId },
+          select: {
+            id: true,
+            body: true,
+            rating: true,
+            postedAt: true,
+            user: {
+              select: {
+                id: true,
+                name: true,
+                handle: true,
+              },
+            },
+            work: {
+              select: {
+                id: true,
+                title: true,
+              },
+            },
+            edition: {
+              select: {
+                id: true,
+                titleOnCover: true,
+                publisher: true,
+              },
+            },
+          },
+        })
+      : null;
+  const readingEvent =
+    report.targetType === "READING_EVENT"
+      ? await prisma.readingEvent.findUnique({
+          where: { id: report.targetId },
+          select: {
+            id: true,
+            title: true,
+            eventDate: true,
+            prefecture: true,
+            location: true,
+            url: true,
+            organizer: {
+              select: {
+                id: true,
+                name: true,
+                handle: true,
+              },
+            },
+            book: {
+              select: {
+                id: true,
+                title: true,
+              },
+            },
+            work: {
+              select: {
+                id: true,
+                title: true,
+              },
+            },
+          },
+        })
+      : null;
 
   return {
     ...report,
@@ -103,6 +168,30 @@ async function getReportDetail(reportId: string) {
             book: chatMessage.book,
             work: chatMessage.work,
             user: chatMessage.user,
+          }
+        : null,
+      review: review
+        ? {
+            id: review.id,
+            preview: truncatePreview(review.body),
+            rating: review.rating,
+            postedAt: review.postedAt,
+            user: review.user,
+            work: review.work,
+            edition: review.edition,
+          }
+        : null,
+      readingEvent: readingEvent
+        ? {
+            id: readingEvent.id,
+            title: readingEvent.title,
+            eventDate: readingEvent.eventDate,
+            prefecture: readingEvent.prefecture,
+            location: readingEvent.location,
+            url: readingEvent.url,
+            organizer: readingEvent.organizer,
+            book: readingEvent.book,
+            work: readingEvent.work,
           }
         : null,
     },

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { PREFECTURES } from "@/lib/prefectures";
 import { apiUrl } from "@/lib/api";
+import ReportUserButton from "@/components/reports/ReportUserButton";
 
 interface BookInfo {
   id: string;
@@ -45,6 +46,13 @@ const EMPTY_FORM = {
   url: "",
   description: "",
 };
+
+const readingEventReportReasons = [
+  { value: "inappropriate_content", label: "不適切な内容" },
+  { value: "harassment", label: "迷惑行為" },
+  { value: "spam_or_scam", label: "スパム・詐欺の疑い" },
+  { value: "other", label: "その他" },
+];
 
 export default function ReadingEvents({ bookId, bookTitle, compact = false }: { bookId: string; bookTitle?: string; compact?: boolean }) {
   const { data: session } = useSession();
@@ -245,6 +253,18 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
                     詳細・申込
                   </a>
                 )}
+                {session?.user?.id && !isMyEvent(event) ? (
+                  <div className="mt-1">
+                    <ReportUserButton
+                      targetType="READING_EVENT"
+                      targetId={event.id}
+                      reasons={readingEventReportReasons}
+                      formTitle="読書会を通報"
+                      className="inline-flex max-w-xs flex-col items-start"
+                      buttonClassName="text-[10px] leading-none text-[var(--color-ink-faint)] hover:text-[var(--color-accent)]"
+                    />
+                  </div>
+                ) : null}
               </div>
             ))}
           </div>
@@ -503,6 +523,18 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
                       </button>
                     </div>
                   )}
+                  {session?.user?.id && !isMyEvent(event) ? (
+                    <div className="mt-1">
+                      <ReportUserButton
+                        targetType="READING_EVENT"
+                        targetId={event.id}
+                        reasons={readingEventReportReasons}
+                        formTitle="読書会を通報"
+                        className="inline-flex max-w-xs flex-col items-start"
+                        buttonClassName="text-[10px] leading-none text-[var(--color-ink-faint)] hover:text-[var(--color-accent)]"
+                      />
+                    </div>
+                  ) : null}
                 </div>
                 {event.url && (
                   <a
