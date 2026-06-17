@@ -27,6 +27,7 @@ export default function Header() {
   const [notifTotal, setNotifTotal] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [rankingOpen, setRankingOpen] = useState(false);
+  const isSuspended = session?.user?.accountStatus === "suspended";
 
   useEffect(() => {
     if (!session?.user?.id) return;
@@ -171,6 +172,12 @@ export default function Header() {
           )}
         </div>
       </div>
+
+      {isSuspended ? (
+        <div className="border-t border-amber-200 bg-amber-50 px-4 py-2 text-center text-xs text-amber-800 md:text-sm">
+          このアカウントは現在利用停止中です。一部の操作は利用できません。解除や詳細については運営にお問い合わせください。
+        </div>
+      ) : null}
 
       {/* === Mobile dropdown menu === */}
       {menuOpen && session && (

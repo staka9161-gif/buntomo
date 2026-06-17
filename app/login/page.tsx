@@ -6,6 +6,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { apiUrl } from "@/lib/api";
 
+const SUSPENDED_LOGIN_MESSAGE =
+  "このアカウントは現在利用停止中のためログインできません。解除や詳細については運営にお問い合わせください。";
+
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -32,6 +35,8 @@ export default function LoginPage() {
 
       if (!result?.error) {
         router.push("/mypage");
+      } else if (result.code === "account_suspended") {
+        setError(SUSPENDED_LOGIN_MESSAGE);
       } else {
         setError("メールアドレスまたはパスワードが正しくありません");
         setShowResend(true);
@@ -45,6 +50,7 @@ export default function LoginPage() {
     if (!email.trim() || resending) return;
     setResending(true);
     setResendMsg("");
+
     try {
       const res = await fetch(apiUrl("/api/auth/resend-verification"), {
         method: "POST",
@@ -52,6 +58,7 @@ export default function LoginPage() {
         body: JSON.stringify({ email: email.trim() }),
       });
       const data = await res.json();
+
       if (res.ok) {
         setResendMsg("確認メールを送信しました。受信箱をご確認ください。");
       } else {
@@ -67,7 +74,9 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-[80vh] items-center justify-center px-4">
       <div className="w-full max-w-md card-base p-6 md:p-8">
-        <h1 className="mb-4 text-center font-serif text-xl font-medium tracking-[0.06em] text-[var(--color-ink-primary)] md:mb-6 md:text-2xl">ログイン</h1>
+        <h1 className="mb-4 text-center font-serif text-xl font-medium tracking-[0.06em] text-[var(--color-ink-primary)] md:mb-6 md:text-2xl">
+          ログイン
+        </h1>
 
         {error && (
           <div className="mb-4 rounded bg-[var(--color-accent-soft)] p-3 text-sm text-[var(--color-accent)]">
@@ -75,7 +84,7 @@ export default function LoginPage() {
             {showResend && (
               <div className="mt-2 border-t border-[var(--color-border-subtle)] pt-2">
                 <p className="text-xs text-[var(--color-ink-muted)]">
-                  メールアドレスの確認がお済みでない場合:
+                  メールアドレスの確認がまだの場合
                 </p>
                 {resendMsg ? (
                   <p className="mt-1 text-xs">{resendMsg}</p>
@@ -96,24 +105,28 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-[var(--color-ink-primary)]">メールアドレス</label>
+            <label className="mb-1.5 block text-sm font-medium text-[var(--color-ink-primary)]">
+              メールアドレス
+            </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-3 py-2.5 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
+              className="w-full rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-3 py-2.5 text-sm transition-colors focus:border-[var(--color-accent)] focus:outline-none"
               placeholder="example@mail.com"
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-[var(--color-ink-primary)]">パスワード</label>
+            <label className="mb-1.5 block text-sm font-medium text-[var(--color-ink-primary)]">
+              パスワード
+            </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-3 py-2.5 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
+              className="w-full rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-3 py-2.5 text-sm transition-colors focus:border-[var(--color-accent)] focus:outline-none"
             />
           </div>
           <button
@@ -133,7 +146,10 @@ export default function LoginPage() {
             </Link>
           </p>
           <p>
-            <Link href="/forgot-password" className="text-xs text-[var(--color-ink-muted)] hover:text-[var(--color-accent)] hover:underline">
+            <Link
+              href="/forgot-password"
+              className="text-xs text-[var(--color-ink-muted)] hover:text-[var(--color-accent)] hover:underline"
+            >
               パスワードを忘れた方
             </Link>
           </p>

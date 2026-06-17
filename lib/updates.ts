@@ -11,6 +11,14 @@ export type UpdateEntry = {
 // 実装と同じタイミングで、利用者にとって何が変わったかを追加する。
 export const updates: UpdateEntry[] = [
   {
+    id: "suspended-login-message-2026-06-17",
+    date: "2026-06-17",
+    type: "改善",
+    title: "ログインできない場合の案内を改善しました",
+    body: "アカウントが利用停止中の場合に、ログイン画面や画面上で状態が分かりやすく表示されるようになりました。",
+    href: "/updates",
+  },
+  {
     id: "report-direct-messages-2026-06-16",
     date: "2026-06-16",
     type: "改善",

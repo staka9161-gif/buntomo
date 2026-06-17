@@ -1,8 +1,12 @@
-import NextAuth from "next-auth";
+import NextAuth, { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcryptjs from "bcryptjs";
 import { prisma } from "./db";
+
+class SuspendedAccountError extends CredentialsSignin {
+  code = "account_suspended";
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -21,11 +25,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         });
 
         if (!user) return null;
-
         if (!user.passwordHash) return null;
 
         if (!user.emailVerified) {
-          throw new Error("メールアドレスの確認が完了していません。受信箱をご確認ください。");
+          throw new Error(
+            "メールアドレスの確認が完了していません。受信箱をご確認ください。"
+          );
         }
 
         const isValid = await bcryptjs.compare(
@@ -36,10 +41,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!isValid) return null;
 
         if (user.accountStatus === "suspended") {
-          throw new Error("このアカウントは現在利用停止中です。");
+          throw new SuspendedAccountError();
         }
 
-        // 退会済みユーザーがログインした場合は退会を取り消して復活
         if (user.deactivatedAt) {
           try {
             await prisma.user.update({
@@ -47,7 +51,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               data: { deactivatedAt: null, scheduledDeletionAt: null },
             });
           } catch {
-            // update 失敗してもログイン自体は通す
+            // 復元処理に失敗しても、既存仕様どおりログイン処理自体は続行する。
           }
         }
 
@@ -56,6 +60,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           email: user.email,
           name: user.name,
           image: user.image?.startsWith("data:") ? null : user.image,
+          accountStatus: user.accountStatus === "suspended" ? "suspended" : "active",
         };
       },
     }),
@@ -65,27 +70,33 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     signIn: "/login",
   },
   callbacks: {
-    async jwt({ token, user, trigger }) {
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.name = user.name;
         token.picture = user.image?.startsWith("data:") ? null : user.image;
+        token.accountStatus =
+          user.accountStatus === "suspended" ? "suspended" : "active";
       }
-      // クライアントから useSession().update() が呼ばれた時のみ DB を参照
-      if (trigger === "update" && token.id && typeof token.id === "string") {
+
+      if (token.id && typeof token.id === "string") {
         try {
           const dbUser = await prisma.user.findUnique({
-            where: { id: token.id as string },
-            select: { name: true, image: true },
+            where: { id: token.id },
+            select: { name: true, image: true, accountStatus: true },
           });
+
           if (dbUser) {
             token.name = dbUser.name;
             token.picture = dbUser.image?.startsWith("data:") ? null : dbUser.image;
+            token.accountStatus =
+              dbUser.accountStatus === "suspended" ? "suspended" : "active";
           }
         } catch {
-          // DB エラー時はトークンをそのまま維持（強制ログアウトしない）
+          // DBエラー時は既存トークンを維持する。ここで強制ログアウトはしない。
         }
       }
+
       return token;
     },
     async session({ session, token }) {
@@ -93,7 +104,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.id = token.id as string;
         session.user.name = token.name as string;
         session.user.image = token.picture as string | null;
+        session.user.accountStatus =
+          token.accountStatus === "suspended" ? "suspended" : "active";
       }
+
       return session;
     },
   },
