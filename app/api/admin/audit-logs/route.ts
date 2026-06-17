@@ -5,11 +5,59 @@ import { prisma } from "@/lib/db";
 
 const DEFAULT_PAGE_SIZE = 20;
 const MAX_PAGE_SIZE = 50;
+const SENSITIVE_METADATA_KEYS = [
+  "content",
+  "body",
+  "message",
+  "text",
+  "dm",
+  "email",
+  "token",
+  "password",
+];
 
 function parsePositiveInt(value: string | null, fallback: number) {
   const parsed = Number(value);
   if (!Number.isInteger(parsed) || parsed < 1) return fallback;
   return parsed;
+}
+
+function isSensitiveMetadataKey(key: string) {
+  const normalized = key.toLowerCase();
+  return SENSITIVE_METADATA_KEYS.some((sensitiveKey) => normalized.includes(sensitiveKey));
+}
+
+function sanitizeMetadata(value: Prisma.JsonValue): Prisma.JsonValue {
+  if (value === null || typeof value === "number" || typeof value === "boolean") {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    return value.length > 120 ? `${value.slice(0, 120)}...` : value;
+  }
+
+  if (Array.isArray(value)) {
+    return value.slice(0, 10).map((item) => sanitizeMetadata(item));
+  }
+
+  return Object.fromEntries(
+    Object.entries(value).map(([key, item]) => {
+      const jsonItem = item === undefined ? null : (item as Prisma.JsonValue);
+      return [key, isSensitiveMetadataKey(key) ? "[非表示]" : sanitizeMetadata(jsonItem)];
+    })
+  );
+}
+
+function metadataSummary(value: Prisma.JsonValue | null) {
+  if (!value) return null;
+
+  try {
+    const sanitized = sanitizeMetadata(value);
+    const text = JSON.stringify(sanitized);
+    return text.length > 800 ? `${text.slice(0, 800)}...` : text;
+  } catch {
+    return null;
+  }
 }
 
 export async function GET(request: NextRequest) {
@@ -51,8 +99,6 @@ export async function GET(request: NextRequest) {
         targetUserId: true,
         reason: true,
         metadata: true,
-        ipAddress: true,
-        userAgent: true,
         createdAt: true,
         admin: {
           select: {
@@ -64,9 +110,35 @@ export async function GET(request: NextRequest) {
       },
     }),
   ]);
+  const targetUserIds = Array.from(
+    new Set(logs.map((log) => log.targetUserId).filter((id): id is string => Boolean(id)))
+  );
+  const targetUsers =
+    targetUserIds.length > 0
+      ? await prisma.user.findMany({
+          where: { id: { in: targetUserIds } },
+          select: {
+            id: true,
+            name: true,
+            handle: true,
+          },
+        })
+      : [];
+  const targetUserById = new Map(targetUsers.map((user) => [user.id, user]));
 
   return NextResponse.json({
-    logs,
+    logs: logs.map((log) => ({
+      id: log.id,
+      createdAt: log.createdAt,
+      action: log.action,
+      targetType: log.targetType,
+      targetId: log.targetId,
+      targetUserId: log.targetUserId,
+      reason: log.reason,
+      metadataSummary: metadataSummary(log.metadata),
+      adminUser: log.admin,
+      targetUser: log.targetUserId ? targetUserById.get(log.targetUserId) ?? null : null,
+    })),
     total,
     page,
     pageSize,
