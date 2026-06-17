@@ -4,6 +4,7 @@ import "./globals.css";
 import SessionProvider from "@/components/SessionProvider";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
 import SuspendedAccountGate from "@/components/auth/SuspendedAccountGate";
 
 const geistSans = Geist({
@@ -82,6 +83,7 @@ export default function RootLayout({
             }),
           }}
         />
+        <GoogleAnalytics />
         <SessionProvider>
           <SuspendedAccountGate />
           <Header />
