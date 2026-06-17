@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { auth } from "@/lib/auth";
+import { requireActiveUser } from "@/lib/active-user";
 
 export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
+    const activeUser = await requireActiveUser();
+    if (!activeUser.ok) {
+      return NextResponse.json({ error: activeUser.error }, { status: activeUser.status });
     }
 
     const { userId } = await params;
@@ -18,14 +18,17 @@ export async function DELETE(
       where: {
         status: "ACCEPTED",
         OR: [
-          { requesterId: session.user.id, addresseeId: userId },
-          { requesterId: userId, addresseeId: session.user.id },
+          { requesterId: activeUser.userId, addresseeId: userId },
+          { requesterId: userId, addresseeId: activeUser.userId },
         ],
       },
     });
 
     if (!friendship) {
-      return NextResponse.json({ error: "友だち関係が見つかりません" }, { status: 404 });
+      return NextResponse.json(
+        { error: "友だち関係が見つかりません" },
+        { status: 404 }
+      );
     }
 
     await prisma.friendship.delete({ where: { id: friendship.id } });
@@ -33,6 +36,9 @@ export async function DELETE(
     return NextResponse.json({ success: true });
   } catch (e) {
     console.error("Friend DELETE error:", e);
-    return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });
+    return NextResponse.json(
+      { error: "サーバーエラーが発生しました" },
+      { status: 500 }
+    );
   }
 }
