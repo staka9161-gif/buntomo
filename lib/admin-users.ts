@@ -1,19 +1,28 @@
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 
-export type AdminUserStatusFilter = "all" | "active" | "suspended" | "deactivated" | "admin";
+export type AdminUserStatusFilter =
+  | "all"
+  | "active"
+  | "suspended"
+  | "deactivated"
+  | "scheduledDeletion"
+  | "admin";
 
 export const adminUserStatusFilters: AdminUserStatusFilter[] = [
   "all",
   "active",
   "suspended",
   "deactivated",
+  "scheduledDeletion",
   "admin",
 ];
 
 export type AdminUsersQuery = {
   query?: string | null;
   status?: string | null;
+  hasReports?: string | boolean | null;
+  hasOpenReports?: string | boolean | null;
   page?: string | number | null;
   pageSize?: string | number | null;
 };
@@ -29,6 +38,10 @@ export function normalizeAdminUserStatus(status: string | null | undefined): Adm
   return adminUserStatusFilters.includes(status as AdminUserStatusFilter)
     ? (status as AdminUserStatusFilter)
     : "all";
+}
+
+function normalizeBooleanParam(value: string | boolean | null | undefined) {
+  return value === true || value === "true";
 }
 
 export function maskEmail(email: string) {
@@ -83,7 +96,12 @@ function hasStoredImage(value: string | null) {
   return Boolean(value && !value.startsWith("data:"));
 }
 
-function buildUserWhere(query: string, status: AdminUserStatusFilter): Prisma.UserWhereInput {
+function buildUserWhere(
+  query: string,
+  status: AdminUserStatusFilter,
+  hasReports: boolean,
+  hasOpenReports: boolean
+): Prisma.UserWhereInput {
   const where: Prisma.UserWhereInput = {};
 
   if (query) {
@@ -96,14 +114,28 @@ function buildUserWhere(query: string, status: AdminUserStatusFilter): Prisma.Us
 
   if (status === "active") {
     where.deactivatedAt = null;
-    where.accountStatus = "active";
+    where.accountStatus = { not: "suspended" };
   } else if (status === "suspended") {
     where.deactivatedAt = null;
     where.accountStatus = "suspended";
   } else if (status === "deactivated") {
     where.deactivatedAt = { not: null };
+  } else if (status === "scheduledDeletion") {
+    where.scheduledDeletionAt = { not: null };
   } else if (status === "admin") {
     where.isAdmin = true;
+  }
+
+  if (hasOpenReports) {
+    where.reportsTargeted = {
+      some: {
+        status: { in: ["pending", "reviewing"] },
+      },
+    };
+  } else if (hasReports) {
+    where.reportsTargeted = {
+      some: {},
+    };
   }
 
   return where;
@@ -112,9 +144,11 @@ function buildUserWhere(query: string, status: AdminUserStatusFilter): Prisma.Us
 export async function getAdminUsers(queryParams: AdminUsersQuery) {
   const query = String(queryParams.query ?? "").trim();
   const status = normalizeAdminUserStatus(queryParams.status);
+  const hasReports = normalizeBooleanParam(queryParams.hasReports);
+  const hasOpenReports = normalizeBooleanParam(queryParams.hasOpenReports);
   const page = clampPositiveInt(queryParams.page, 1);
   const pageSize = clampPositiveInt(queryParams.pageSize, 20, 50);
-  const where = buildUserWhere(query, status);
+  const where = buildUserWhere(query, status, hasReports, hasOpenReports);
   const skip = (page - 1) * pageSize;
 
   const [totalUsers, activeUsers, suspendedUsers, deactivatedUsers, adminUsers, total, users] =
@@ -158,6 +192,39 @@ export async function getAdminUsers(queryParams: AdminUsersQuery) {
     ]);
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const userIds = users.map((user) => user.id);
+  const reportGroups =
+    userIds.length > 0
+      ? await prisma.report.groupBy({
+          by: ["targetUserId", "status"],
+          where: {
+            targetUserId: { in: userIds },
+          },
+          _count: {
+            _all: true,
+          },
+        })
+      : [];
+
+  const reportSummaryByUserId = new Map<string, { total: number; open: number }>();
+
+  for (const reportGroup of reportGroups) {
+    if (!reportGroup.targetUserId) continue;
+
+    const summary = reportSummaryByUserId.get(reportGroup.targetUserId) ?? {
+      total: 0,
+      open: 0,
+    };
+    const count = reportGroup._count._all;
+
+    summary.total += count;
+
+    if (reportGroup.status === "pending" || reportGroup.status === "reviewing") {
+      summary.open += count;
+    }
+
+    reportSummaryByUserId.set(reportGroup.targetUserId, summary);
+  }
 
   return {
     users: users.map((user) => ({
@@ -176,6 +243,7 @@ export async function getAdminUsers(queryParams: AdminUsersQuery) {
       suspendedAt: user.suspendedAt,
       suspendedReason: user.suspendedReason,
       suspendedUntil: user.suspendedUntil,
+      reportSummary: reportSummaryByUserId.get(user.id) ?? { total: 0, open: 0 },
       readingCount: user._count.readings,
       friendCount: user._count.friendshipsRequested + user._count.friendshipsReceived,
     })),
@@ -192,6 +260,8 @@ export async function getAdminUsers(queryParams: AdminUsersQuery) {
     totalPages,
     query,
     status,
+    hasReports,
+    hasOpenReports,
   };
 }
 

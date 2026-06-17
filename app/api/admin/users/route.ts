@@ -13,6 +13,8 @@ export async function GET(request: NextRequest) {
   const users = await getAdminUsers({
     query: searchParams.get("query"),
     status: searchParams.get("status"),
+    hasReports: searchParams.get("hasReports"),
+    hasOpenReports: searchParams.get("hasOpenReports"),
     page: searchParams.get("page"),
     pageSize: searchParams.get("pageSize"),
   });

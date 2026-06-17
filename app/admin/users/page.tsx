@@ -6,6 +6,8 @@ type AdminUsersPageProps = {
   searchParams: Promise<{
     query?: string;
     status?: string;
+    hasReports?: string;
+    hasOpenReports?: string;
     page?: string;
     pageSize?: string;
   }>;
@@ -16,7 +18,7 @@ const statusOptions = [
   { value: "active", label: "利用中" },
   { value: "suspended", label: "停止中" },
   { value: "deactivated", label: "退会済み" },
-  { value: "admin", label: "管理者" },
+  { value: "scheduledDeletion", label: "削除予定" },
 ];
 
 function formatDate(value: Date | string | null) {
@@ -29,12 +31,16 @@ function formatDate(value: Date | string | null) {
 function buildHref(params: {
   query: string;
   status: string;
+  hasReports: boolean;
+  hasOpenReports: boolean;
   pageSize: number;
   page: number;
 }) {
   const search = new URLSearchParams();
   if (params.query) search.set("query", params.query);
   if (params.status !== "all") search.set("status", params.status);
+  if (params.hasReports) search.set("hasReports", "true");
+  if (params.hasOpenReports) search.set("hasOpenReports", "true");
   if (params.page !== 1) search.set("page", String(params.page));
   if (params.pageSize !== 20) search.set("pageSize", String(params.pageSize));
   const queryString = search.toString();
@@ -71,7 +77,7 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
       </section>
 
       <form className="mt-6 rounded-lg border bg-white p-4 shadow-sm" action="/admin/users">
-        <div className="grid gap-3 md:grid-cols-[1fr_180px_140px_auto]">
+        <div className="grid gap-3 md:grid-cols-[1fr_180px_220px_140px_auto]">
           <label className="block">
             <span className="text-xs font-semibold text-gray-600">検索</span>
             <input
@@ -97,6 +103,32 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
               ))}
             </select>
           </label>
+
+          <fieldset className="block">
+            <legend className="text-xs font-semibold text-gray-600">通報</legend>
+            <div className="mt-2 space-y-2 text-sm text-gray-700">
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  name="hasReports"
+                  value="true"
+                  defaultChecked={data.hasReports}
+                  className="h-4 w-4 rounded border-gray-300 text-amber-600"
+                />
+                通報あり
+              </label>
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  name="hasOpenReports"
+                  value="true"
+                  defaultChecked={data.hasOpenReports}
+                  className="h-4 w-4 rounded border-gray-300 text-amber-600"
+                />
+                未対応・確認中の通報あり
+              </label>
+            </div>
+          </fieldset>
 
           <label className="block">
             <span className="text-xs font-semibold text-gray-600">表示件数</span>
@@ -146,7 +178,7 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-[1080px] w-full text-left text-sm">
+            <table className="min-w-[1180px] w-full text-left text-sm">
               <thead className="bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
                 <tr>
                   <th className="px-4 py-3">表示名</th>
@@ -156,6 +188,7 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
                   <th className="px-4 py-3">メール確認</th>
                   <th className="px-4 py-3">公開</th>
                   <th className="px-4 py-3">状態</th>
+                  <th className="px-4 py-3">通報</th>
                   <th className="px-4 py-3">読書記録</th>
                   <th className="px-4 py-3">友だち</th>
                   <th className="px-4 py-3">登録日</th>
@@ -199,6 +232,20 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
                         <Badge tone="green">利用中</Badge>
                       )}
                     </td>
+                    <td className="px-4 py-3 text-gray-700">
+                      {user.reportSummary.total > 0 ? (
+                        <div className="space-y-1">
+                          <p className="tabular-nums">通報: {user.reportSummary.total}件</p>
+                          {user.reportSummary.open > 0 ? (
+                            <Badge tone="amber">未対応・確認中 {user.reportSummary.open}件</Badge>
+                          ) : (
+                            <span className="text-xs text-gray-400">未対応なし</span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-gray-400">通報なし</span>
+                      )}
+                    </td>
                     <td className="px-4 py-3 tabular-nums text-gray-700">{user.readingCount}</td>
                     <td className="px-4 py-3 tabular-nums text-gray-700">{user.friendCount}</td>
                     <td className="px-4 py-3 text-gray-600">{formatDate(user.createdAt)}</td>
@@ -217,6 +264,8 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
           href={buildHref({
             query: data.query,
             status: data.status,
+            hasReports: data.hasReports,
+            hasOpenReports: data.hasOpenReports,
             pageSize: data.pageSize,
             page: Math.max(1, data.page - 1),
           })}
@@ -234,6 +283,8 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
           href={buildHref({
             query: data.query,
             status: data.status,
+            hasReports: data.hasReports,
+            hasOpenReports: data.hasOpenReports,
             pageSize: data.pageSize,
             page: Math.min(data.totalPages, data.page + 1),
           })}

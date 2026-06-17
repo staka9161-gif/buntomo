@@ -156,19 +156,19 @@ export default async function AdminPage() {
     {
       label: "停止中ユーザー",
       value: suspendedUsers,
-      href: "/admin/users",
+      href: "/admin/users?status=suspended",
       tone: suspendedUsers > 0 ? "amber" : "gray",
     },
     {
       label: "退会済みユーザー",
       value: deactivatedUsers,
-      href: "/admin/users",
+      href: "/admin/users?status=deactivated",
       tone: "gray",
     },
     {
       label: "削除予定ユーザー",
       value: scheduledDeletionUsers,
-      href: "/admin/users",
+      href: "/admin/users?status=scheduledDeletion",
       tone: scheduledDeletionUsers > 0 ? "amber" : "gray",
     },
   ];
