@@ -16,9 +16,47 @@ function formatDate(value: Date | string | null) {
   return date.toISOString().slice(0, 10);
 }
 
+function formatDateTime(value: Date | string | null) {
+  if (!value) return "未設定";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "未設定";
+  return new Intl.DateTimeFormat("ja-JP", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+}
+
 function valueOrUnset(value: string | null) {
   return value?.trim() || "未設定";
 }
+
+const reportTargetTypeLabels: Record<string, string> = {
+  USER: "ユーザー",
+  BOOK_CHAT_MESSAGE: "本別チャット",
+  REVIEW: "レビュー",
+  READING_EVENT: "読書会",
+  DIRECT_MESSAGE: "DM",
+};
+
+const reportReasonLabels: Record<string, string> = {
+  inappropriate_profile: "不適切なプロフィール",
+  inappropriate_content: "不適切な内容",
+  harassment: "迷惑行為",
+  impersonation: "なりすましの疑い",
+  spam_or_scam: "スパム・詐欺の疑い",
+  other: "その他",
+};
+
+const reportStatusLabels: Record<string, string> = {
+  pending: "未対応",
+  reviewing: "確認中",
+  resolved: "対応済み",
+  rejected: "却下",
+  dismissed: "対応不要",
+};
 
 export default async function AdminUserDetailPage({ params }: AdminUserDetailPageProps) {
   const { userId } = await params;
@@ -28,7 +66,7 @@ export default async function AdminUserDetailPage({ params }: AdminUserDetailPag
     notFound();
   }
 
-  const { user, activity } = detail;
+  const { user, activity, reportSummary, recentReports } = detail;
   const canManageSuspension =
     session?.user?.id &&
     session.user.id !== user.id &&
@@ -125,6 +163,93 @@ export default async function AdminUserDetailPage({ params }: AdminUserDetailPag
       {canManageSuspension ? (
         <SuspensionControls userId={user.id} isSuspended={isSuspended} />
       ) : null}
+
+      <section className="mt-5 rounded-lg border bg-white p-5 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <SectionTitle>通報サマリー</SectionTitle>
+          {reportSummary.pending + reportSummary.reviewing > 0 ? (
+            <Badge tone="amber">
+              未対応・確認中 {reportSummary.pending + reportSummary.reviewing}件
+            </Badge>
+          ) : (
+            <Badge>未対応なし</Badge>
+          )}
+        </div>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <Metric label="総数" value={reportSummary.total} />
+          <Metric label="未対応" value={reportSummary.pending} />
+          <Metric label="確認中" value={reportSummary.reviewing} />
+          <Metric label="対応済み" value={reportSummary.resolved} />
+          <Metric label="却下" value={reportSummary.rejected} />
+        </div>
+
+        <div className="mt-5">
+          <h3 className="text-sm font-semibold text-gray-700">最近の通報</h3>
+          {recentReports.length === 0 ? (
+            <p className="mt-3 rounded-md bg-gray-50 px-3 py-4 text-sm text-gray-500">
+              このユーザーを対象にした通報はありません。
+            </p>
+          ) : (
+            <div className="mt-3 overflow-x-auto">
+              <table className="min-w-[760px] w-full text-left text-sm">
+                <thead className="bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
+                  <tr>
+                    <th className="px-3 py-2">日時</th>
+                    <th className="px-3 py-2">対象</th>
+                    <th className="px-3 py-2">理由</th>
+                    <th className="px-3 py-2">status</th>
+                    <th className="px-3 py-2">通報者</th>
+                    <th className="px-3 py-2">詳細</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y">
+                  {recentReports.map((report) => (
+                    <tr key={report.id} className="align-top">
+                      <td className="whitespace-nowrap px-3 py-2 text-gray-700">
+                        {formatDateTime(report.createdAt)}
+                      </td>
+                      <td className="px-3 py-2 text-gray-700">
+                        {reportTargetTypeLabels[report.targetType] ?? report.targetType}
+                      </td>
+                      <td className="px-3 py-2 text-gray-700">
+                        {reportReasonLabels[report.reason] ?? report.reason}
+                      </td>
+                      <td className="px-3 py-2 text-gray-700">
+                        {reportStatusLabels[report.status] ?? report.status}
+                      </td>
+                      <td className="px-3 py-2 text-gray-700">
+                        {report.reporter ? (
+                          <span>
+                            {report.reporter.name}
+                            {report.reporter.handle ? (
+                              <span className="ml-1 font-mono text-xs text-gray-500">
+                                @{report.reporter.handle}
+                              </span>
+                            ) : null}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">削除済みユーザー</span>
+                        )}
+                      </td>
+                      <td className="px-3 py-2">
+                        <Link
+                          href={`/admin/reports/${report.id}`}
+                          className="font-semibold text-amber-700 hover:underline"
+                        >
+                          詳細
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          <p className="mt-3 text-xs text-gray-400">
+            DM本文の全文やプレビューは、この利用者詳細には表示していません。
+          </p>
+        </div>
+      </section>
 
       <section className="mt-5 rounded-lg border bg-white p-5 shadow-sm">
         <SectionTitle>プロフィール情報</SectionTitle>

@@ -209,6 +209,12 @@ export async function getAdminUserDetail(userId: string) {
     dmSentCount,
     dmReceivedCount,
     dmPairs,
+    reportTotal,
+    pendingReports,
+    reviewingReports,
+    resolvedReports,
+    rejectedReports,
+    recentReports,
   ] = await prisma.$transaction([
     prisma.user.findUnique({
       where: { id: userId },
@@ -256,6 +262,31 @@ export async function getAdminUserDetail(userId: string) {
       select: {
         senderId: true,
         recipientId: true,
+      },
+    }),
+    prisma.report.count({ where: { targetUserId: userId } }),
+    prisma.report.count({ where: { targetUserId: userId, status: "pending" } }),
+    prisma.report.count({ where: { targetUserId: userId, status: "reviewing" } }),
+    prisma.report.count({ where: { targetUserId: userId, status: "resolved" } }),
+    prisma.report.count({ where: { targetUserId: userId, status: "rejected" } }),
+    prisma.report.findMany({
+      where: { targetUserId: userId },
+      orderBy: { createdAt: "desc" },
+      take: 10,
+      select: {
+        id: true,
+        targetType: true,
+        reason: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        reporter: {
+          select: {
+            id: true,
+            name: true,
+            handle: true,
+          },
+        },
       },
     }),
   ]);
@@ -308,5 +339,13 @@ export async function getAdminUserDetail(userId: string) {
       directMessageCount: dmSentCount + dmReceivedCount,
       directMessageConversationCount: conversationIds.size,
     },
+    reportSummary: {
+      total: reportTotal,
+      pending: pendingReports,
+      reviewing: reviewingReports,
+      resolved: resolvedReports,
+      rejected: rejectedReports,
+    },
+    recentReports,
   };
 }
