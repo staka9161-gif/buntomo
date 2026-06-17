@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { PREFECTURES } from "@/lib/prefectures";
 import { apiUrl } from "@/lib/api";
 import ReportUserButton from "@/components/reports/ReportUserButton";
+import ReadingEventInterestButton from "@/components/events/ReadingEventInterestButton";
 
 interface BookInfo {
   id: string;
@@ -242,6 +243,9 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
                   <p>📅 {formatDate(event.eventDate)}</p>
                   <p>📍 {event.prefecture} {event.location}</p>
                   <p><a href={`/users/${event.organizer.id}`} className="text-[var(--color-accent)] hover:underline">👤 {event.organizer.name}</a></p>
+                </div>
+                <div className="mt-1.5">
+                  <ReadingEventInterestButton eventId={event.id} isOrganizer={isMyEvent(event)} compact />
                 </div>
                 {event.url && (
                   <a
@@ -507,6 +511,9 @@ export default function ReadingEvents({ bookId, bookTitle, compact = false }: { 
                   {event.description && (
                     <p className="mt-1 text-xs text-[var(--color-ink-faint)]">{event.description}</p>
                   )}
+                  <div className="mt-1.5">
+                    <ReadingEventInterestButton eventId={event.id} isOrganizer={isMyEvent(event)} />
+                  </div>
                   {isMyEvent(event) && (
                     <div className="mt-1 flex gap-2">
                       <button

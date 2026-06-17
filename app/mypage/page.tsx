@@ -164,7 +164,7 @@ export default function MyPage() {
         </div>
       </Link>
 
-      <div className="mb-8 grid gap-4 grid-cols-2 sm:grid-cols-5">
+      <div className="mb-8 grid gap-4 grid-cols-2 sm:grid-cols-3">
         <Link
           href="/mypage/reading"
           className="card-base p-4 text-center md:p-5"
@@ -201,6 +201,17 @@ export default function MyPage() {
             </svg>
           </div>
           <p className="mt-2 text-[11px] tracking-[0.05em] text-[var(--color-ink-muted)] md:text-xs">メッセージ</p>
+        </Link>
+        <Link
+          href="/mypage/interested-events"
+          className="card-base p-4 text-center md:p-5"
+        >
+          <div className="flex justify-center">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/>
+            </svg>
+          </div>
+          <p className="mt-2 text-[11px] tracking-[0.05em] text-[var(--color-ink-muted)] md:text-xs">気になる読書会</p>
         </Link>
         <Link
           href="/books/search"

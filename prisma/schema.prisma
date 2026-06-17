@@ -62,6 +62,7 @@ model User {
   importantAnnouncementsCreated ImportantAnnouncement[] @relation("ImportantAnnouncementCreatedBy")
   importantAnnouncementsUpdated ImportantAnnouncement[] @relation("ImportantAnnouncementUpdatedBy")
   importantAnnouncementReads ImportantAnnouncementRead[]
+  readingEventInterests ReadingEventInterest[]
 }
 
 model AdminAuditLog {
@@ -440,11 +441,27 @@ model ReadingEvent {
   work      Work?  @relation("WorkReadingEvents", fields: [workId], references: [id])
   books     Book[] @relation("EventBooks")
   organizer User   @relation(fields: [organizerId], references: [id], onDelete: Cascade)
+  interests ReadingEventInterest[]
 
   @@index([bookId, eventDate])
   @@index([workId, eventDate])
   @@index([eventDate])
   @@index([prefecture])
+}
+
+model ReadingEventInterest {
+  id        String   @id @default(cuid())
+  eventId   String
+  userId    String
+  createdAt DateTime @default(now())
+
+  event ReadingEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+  @@index([eventId])
+  @@index([userId])
+  @@index([createdAt])
 }
 
 model PasswordResetToken {

@@ -2,8 +2,10 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { apiUrl } from "@/lib/api";
 import { PREFECTURES_SEARCH } from "@/lib/prefectures";
+import ReadingEventInterestButton from "@/components/events/ReadingEventInterestButton";
 
 interface BookInfo {
   id: string;
@@ -42,6 +44,7 @@ function buildMonthOptions() {
 }
 
 export default function EventsPage() {
+  const { data: session } = useSession();
   const [events, setEvents] = useState<EventItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
@@ -204,6 +207,12 @@ export default function EventsPage() {
                 <p className="truncate">
                   <a href={`/users/${event.organizer.id}`} className="text-[var(--color-accent)] hover:underline">👤 {event.organizer.name}</a>
                 </p>
+              </div>
+              <div className="mt-2">
+                <ReadingEventInterestButton
+                  eventId={event.id}
+                  isOrganizer={session?.user?.id === event.organizer.id}
+                />
               </div>
 
               {event.description && (
