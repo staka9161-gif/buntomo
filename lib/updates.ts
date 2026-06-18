@@ -21,6 +21,14 @@ export const updateTopicTags = [
 
 export const updates: UpdateEntry[] = [
   {
+    id: "book-based-impressions-2026-06-18",
+    date: "2026-06-18",
+    type: "修正",
+    title: "読了済みの本に感想を書ける対象を広げました",
+    body: "作品ページに紐づいていない読了済みの本でも、読了メモ・感想を書いたり編集したりできるようにしました。",
+    topicTag: "マイページ",
+  },
+  {
     id: "book-page-impression-editor-2026-06-18",
     date: "2026-06-18",
     type: "修正",

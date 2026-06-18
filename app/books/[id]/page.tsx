@@ -23,6 +23,9 @@ interface Book {
 
 interface MyReading {
   id: string;
+  book: {
+    migratedWorkId: string | null;
+  } | null;
   workId: string | null;
   editionId: string | null;
   status: string;
@@ -56,7 +59,10 @@ export default function BookDetailPage() {
       if (!res.ok) return;
       const data = await res.json();
       // Keep the book page visible so completed readers can edit impressions here.
-      setBook(data.book);
+      setBook({
+        ...data.book,
+        migratedWorkId: data.book?.migratedWorkId ?? data.migratedWorkId ?? null,
+      });
       setTotalPagesInputStr(data.book.totalPages ? String(data.book.totalPages) : "");
       setReadingCount(data.readingCount ?? 0);
       setCompletedCount(data.completedCount ?? 0);
@@ -192,7 +198,10 @@ export default function BookDetailPage() {
       : 0;
   const isCompleted = myReading?.status === "COMPLETED";
   const impressionWorkId = isCompleted
-    ? myReading.workId ?? myReading.edition?.workId ?? book.migratedWorkId
+    ? myReading.workId ??
+      myReading.edition?.workId ??
+      myReading.book?.migratedWorkId ??
+      book.migratedWorkId
     : null;
 
   return (
@@ -358,19 +367,21 @@ export default function BookDetailPage() {
                     読了した本について、自分の感想を残せます。
                   </p>
                 </div>
-                {impressionWorkId ? (
-                  <div className="space-y-3">
+                <div className="space-y-3">
                     <CompletedBookImpressionEditor
+                      bookId={book.id}
                       workId={impressionWorkId}
                       editionId={myReading.editionId}
                     />
                     <div className="flex flex-wrap items-center gap-3">
+                      {impressionWorkId ? (
                       <Link
                         href={`/works/${impressionWorkId}`}
                         className="text-xs text-[var(--color-accent)] hover:underline"
                       >
                         みんなの感想を見る
                       </Link>
+                      ) : null}
                       <Link
                         href="/mypage/completed"
                         className="text-xs text-[var(--color-ink-faint)] hover:text-[var(--color-accent)]"
@@ -379,7 +390,7 @@ export default function BookDetailPage() {
                       </Link>
                     </div>
                   </div>
-                ) : (
+                {false ? (
                   <div className="space-y-2">
                     <p className="text-xs text-[var(--color-ink-muted)]">
                       この本はまだ読了メモ・感想の投稿に対応していません。
@@ -391,7 +402,7 @@ export default function BookDetailPage() {
                       読了本一覧に戻る
                     </Link>
                   </div>
-                )}
+                ) : null}
               </div>
             )}
           </div>

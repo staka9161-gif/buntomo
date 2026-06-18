@@ -183,6 +183,12 @@ export default async function AdminReportDetailPage({ params }: AdminReportDetai
                 title: true,
               },
             },
+            book: {
+              select: {
+                id: true,
+                title: true,
+              },
+            },
             edition: {
               select: {
                 id: true,
@@ -259,7 +265,11 @@ export default async function AdminReportDetailPage({ params }: AdminReportDetai
     : chatMessage?.workId
       ? `/works/${chatMessage.workId}`
       : null;
-  const reviewTargetHref = review?.work ? `/works/${review.work.id}` : null;
+  const reviewTargetHref = review?.work
+    ? `/works/${review.work.id}`
+    : review?.book
+      ? `/books/${review.book.id}`
+      : null;
   const readingEventTargetHref = readingEvent?.book
     ? `/books/${readingEvent.book.id}`
     : readingEvent?.work
@@ -405,7 +415,7 @@ export default async function AdminReportDetailPage({ params }: AdminReportDetai
                       関連:{" "}
                       {reviewTargetHref ? (
                         <Link href={reviewTargetHref} className="text-amber-700 hover:underline">
-                          {review.edition?.titleOnCover ?? review.work.title}
+                          {review.edition?.titleOnCover ?? review.work?.title ?? review.book?.title ?? "髢｢騾｣繝壹・繧ｸ"}
                         </Link>
                       ) : (
                         <span className="text-gray-400">関連ページなし</span>

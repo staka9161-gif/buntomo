@@ -111,6 +111,12 @@ async function getReportDetail(reportId: string) {
                 title: true,
               },
             },
+            book: {
+              select: {
+                id: true,
+                title: true,
+              },
+            },
             edition: {
               select: {
                 id: true,
@@ -203,6 +209,7 @@ async function getReportDetail(reportId: string) {
             postedAt: review.postedAt,
             user: review.user,
             work: review.work,
+            book: review.book,
             edition: review.edition,
           }
         : null,

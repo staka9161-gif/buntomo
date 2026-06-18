@@ -18,7 +18,8 @@ interface ExistingReview {
 }
 
 interface CompletedBookImpressionEditorProps {
-  workId: string;
+  bookId: string;
+  workId?: string | null;
   editionId: string | null;
 }
 
@@ -33,6 +34,7 @@ const visibilityOptions: Array<{
 ];
 
 export default function CompletedBookImpressionEditor({
+  bookId,
   workId,
   editionId,
 }: CompletedBookImpressionEditorProps) {
@@ -65,7 +67,7 @@ export default function CompletedBookImpressionEditor({
     setMessage(null);
 
     try {
-      const res = await fetch(apiUrl(`/api/works/${workId}/reviews`));
+      const res = await fetch(apiUrl(`/api/books/${bookId}/impression`));
       if (!res.ok) {
         const data = await res.json().catch(() => null);
         setError(data?.error || "感想の読み込みに失敗しました");
@@ -73,11 +75,7 @@ export default function CompletedBookImpressionEditor({
       }
 
       const data = await res.json();
-      const ownReview =
-        (data.reviews as ExistingReview[] | undefined)?.find(
-          (item) => item.user.id === session.user.id
-        ) ?? null;
-      applyReview(ownReview);
+      applyReview((data.review as ExistingReview | null | undefined) ?? null);
     } finally {
       setIsLoading(false);
     }
@@ -96,11 +94,11 @@ export default function CompletedBookImpressionEditor({
     setMessage(null);
 
     try {
-      const res = await fetch(apiUrl(`/api/works/${workId}/reviews`), {
+      const res = await fetch(apiUrl(`/api/books/${bookId}/impression`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          edition_id: editionId,
+          editionId,
           body: body.trim(),
           rating,
           visibility,
@@ -132,7 +130,7 @@ export default function CompletedBookImpressionEditor({
     setMessage(null);
 
     try {
-      const res = await fetch(apiUrl(`/api/works/${workId}/reviews`), {
+      const res = await fetch(apiUrl(`/api/books/${bookId}/impression`), {
         method: "DELETE",
       });
 
@@ -211,7 +209,7 @@ export default function CompletedBookImpressionEditor({
                       <span className="flex items-center gap-2 font-medium text-[var(--color-ink-primary)]">
                         <input
                           type="radio"
-                          name={`completed-review-visibility-${workId}`}
+                          name={`completed-review-visibility-${workId ?? bookId}`}
                           value={option.value}
                           checked={visibility === option.value}
                           onChange={() => setVisibility(option.value)}

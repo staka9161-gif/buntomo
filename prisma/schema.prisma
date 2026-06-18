@@ -237,6 +237,7 @@ model Book {
   messages      ChatMessage[]
   readingEvents ReadingEvent[]   @relation("PrimaryBook")
   events        ReadingEvent[]   @relation("EventBooks")
+  reviews       Review[]
 
   @@index([title])
   @@index([titleNormalized])
@@ -345,7 +346,8 @@ model TranslationGroup {
 model Review {
   id        String   @id @default(cuid())
   userId    String
-  workId    String
+  workId    String?
+  bookId    String?
   editionId String?
   body      String
   rating    Int?     // 1-5
@@ -355,11 +357,14 @@ model Review {
   updatedAt DateTime @updatedAt
 
   user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  work    Work     @relation(fields: [workId], references: [id])
+  work    Work?    @relation(fields: [workId], references: [id])
+  book    Book?    @relation(fields: [bookId], references: [id], onDelete: Cascade)
   edition Edition? @relation(fields: [editionId], references: [id])
 
   @@unique([userId, workId])
+  @@unique([userId, bookId])
   @@index([workId])
+  @@index([bookId])
   @@index([editionId])
 }
 

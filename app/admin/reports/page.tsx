@@ -196,6 +196,11 @@ export default async function AdminReportsPage({ searchParams }: AdminReportsPag
                 title: true,
               },
             },
+            book: {
+              select: {
+                title: true,
+              },
+            },
             edition: {
               select: {
                 titleOnCover: true,
@@ -207,7 +212,9 @@ export default async function AdminReportsPage({ searchParams }: AdminReportsPag
   const reviewPreviewById = new Map(
     reviews.map((review) => [
       review.id,
-      truncatePreview(`${review.edition?.titleOnCover ?? review.work.title}: ${review.body}`),
+      truncatePreview(
+        `${review.edition?.titleOnCover ?? review.work?.title ?? review.book?.title ?? "Related book"}: ${review.body}`
+      ),
     ])
   );
   const eventIds = reports

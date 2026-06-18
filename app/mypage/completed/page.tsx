@@ -232,12 +232,11 @@ export default function CompletedPage() {
                 showCompletedDate
                 impressionHref={workId ? `/works/${workId}` : undefined}
                 impressionEditor={
-                  workId ? (
-                    <CompletedBookImpressionEditor
-                      workId={workId}
-                      editionId={r.editionId}
-                    />
-                  ) : undefined
+                  <CompletedBookImpressionEditor
+                    bookId={r.book.id}
+                    workId={workId}
+                    editionId={r.editionId}
+                  />
                 }
               />
             );

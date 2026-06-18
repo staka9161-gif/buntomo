@@ -105,6 +105,11 @@ export async function GET(request: NextRequest) {
                 title: true,
               },
             },
+            book: {
+              select: {
+                title: true,
+              },
+            },
             edition: {
               select: {
                 titleOnCover: true,
@@ -117,7 +122,7 @@ export async function GET(request: NextRequest) {
     reviews.map((review) => [
       review.id,
       truncatePreview(
-        `${review.edition?.titleOnCover ?? review.work.title}: ${review.body}`
+        `${review.edition?.titleOnCover ?? review.work?.title ?? review.book?.title ?? "Related book"}: ${review.body}`
       ),
     ])
   );
