@@ -212,8 +212,16 @@ export default function WorkPage() {
         </div>
       )}
 
-      {/* 5. レビュー一覧 */}
+      {/* 5. 読了メモ・感想 */}
       <div className="mt-5 card-base p-5">
+        <div className="mb-4">
+          <h2 className="font-serif text-lg font-medium tracking-[0.05em] text-[var(--color-ink-primary)]">
+            読了メモ・感想
+          </h2>
+          <p className="mt-1 text-sm text-[var(--color-ink-muted)]">
+            読み終えたあとに残した感想や、ほかの人の感想を見られます。
+          </p>
+        </div>
         <ReviewList reviews={reviews} editionFilter={selectedEditionId} />
         <ReviewForm
           workId={data.work.id}

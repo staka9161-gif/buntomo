@@ -21,6 +21,14 @@ export const updateTopicTags = [
 
 export const updates: UpdateEntry[] = [
   {
+    id: "reading-impressions-2026-06-17",
+    date: "2026-06-17",
+    type: "改善",
+    title: "読了した本に感想を書きやすくしました",
+    body: "読了済みの本から感想を書いたり、他の人の感想を見に行きやすくなりました。",
+    topicTag: "マイページ",
+  },
+  {
     id: "updates-search-tags-2026-06-17",
     date: "2026-06-17",
     type: "改善",

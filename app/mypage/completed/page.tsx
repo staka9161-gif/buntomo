@@ -8,6 +8,7 @@ import { apiUrl } from "@/lib/api";
 
 interface Reading {
   id: string;
+  workId: string | null;
   status: string;
   currentPage: number;
   completedAt: string | null;
@@ -17,6 +18,7 @@ interface Reading {
     author: string;
     totalPages: number;
     coverImageUrl: string | null;
+    migratedWorkId: string | null;
   } | null;
   readingCount: number;
   completedCount: number;
@@ -202,26 +204,31 @@ export default function CompletedPage() {
         <p className="text-sm text-[var(--color-ink-faint)] text-center py-8">{emptyMessage}</p>
       ) : (
         <div className="space-y-4">
-          {sortedReadings.map((r) => (
-            <BookCard
-              key={r.id}
-              id={r.book.id}
-              title={r.book.title}
-              author={r.book.author}
-              coverImageUrl={r.book.coverImageUrl}
-              totalPages={r.book.totalPages}
-              status={r.status}
-              completedAt={r.completedAt}
-              readingId={r.id}
-              readingCount={r.readingCount}
-              completedCount={r.completedCount}
-              eventCount={r.eventCount}
-              onStatusChange={handleStatusChange}
-              onCompletedAtChange={handleCompletedAtChange}
-              onDelete={handleDelete}
-              showCompletedDate
-            />
-          ))}
+          {sortedReadings.map((r) => {
+            const workId = r.workId ?? r.book.migratedWorkId;
+
+            return (
+              <BookCard
+                key={r.id}
+                id={r.book.id}
+                title={r.book.title}
+                author={r.book.author}
+                coverImageUrl={r.book.coverImageUrl}
+                totalPages={r.book.totalPages}
+                status={r.status}
+                completedAt={r.completedAt}
+                readingId={r.id}
+                readingCount={r.readingCount}
+                completedCount={r.completedCount}
+                eventCount={r.eventCount}
+                onStatusChange={handleStatusChange}
+                onCompletedAtChange={handleCompletedAtChange}
+                onDelete={handleDelete}
+                showCompletedDate
+                impressionHref={workId ? `/works/${workId}` : undefined}
+              />
+            );
+          })}
         </div>
       )}
     </div>

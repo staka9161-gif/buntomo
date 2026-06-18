@@ -52,7 +52,7 @@ export default function ReviewForm({
 
   return (
     <div className="mt-4 card-base p-5">
-      <h3 className="mb-2 font-serif text-base font-medium tracking-[0.05em] text-[var(--color-ink-primary)]">レビューを書く</h3>
+      <h3 className="mb-2 font-serif text-base font-medium tracking-[0.05em] text-[var(--color-ink-primary)]">読了メモ・感想を書く</h3>
 
       {/* 星評価 */}
       <div className="mb-2 flex gap-1">
@@ -75,7 +75,7 @@ export default function ReviewForm({
       <textarea
         value={body}
         onChange={(e) => setBody(e.target.value)}
-        placeholder="この作品の感想を書いてください..."
+        placeholder="読了後に残しておきたいメモや、この作品の感想を書いてください..."
         className="w-full rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] p-3 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
         rows={3}
       />
@@ -88,7 +88,7 @@ export default function ReviewForm({
           disabled={submitting || !body.trim()}
           className="btn-primary disabled:opacity-50"
         >
-          {submitting ? "送信中..." : "投稿する"}
+          {submitting ? "保存中..." : "感想を保存"}
         </button>
       </div>
     </div>

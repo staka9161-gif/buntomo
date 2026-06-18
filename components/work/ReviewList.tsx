@@ -66,8 +66,8 @@ export default function ReviewList({ reviews, editionFilter }: ReviewListProps) 
   if (reviews.length === 0) {
     return (
       <div>
-        <h2 className="mb-2 font-serif text-base font-medium text-[var(--color-ink-primary)]">レビュー</h2>
-        <p className="text-sm text-[var(--color-ink-faint)]">まだレビューがありません</p>
+        <h3 className="mb-2 font-serif text-base font-medium text-[var(--color-ink-primary)]">みんなの感想</h3>
+        <p className="text-sm text-[var(--color-ink-faint)]">まだ感想がありません</p>
       </div>
     );
   }
@@ -76,7 +76,7 @@ export default function ReviewList({ reviews, editionFilter }: ReviewListProps) 
     <div>
       <div className="mb-3 flex items-center justify-between">
         <h2 className="font-serif text-base font-medium text-[var(--color-ink-primary)]">
-          レビュー ({reviews.length}件)
+          みんなの感想 ({reviews.length}件)
         </h2>
         {editionFilter && (
           <div className="flex gap-1">
@@ -139,7 +139,7 @@ export default function ReviewList({ reviews, editionFilter }: ReviewListProps) 
                   targetType="REVIEW"
                   targetId={review.id}
                   reasons={reviewReportReasons}
-                  formTitle="レビューを通報"
+                  formTitle="感想を通報"
                   className="inline-flex max-w-xs flex-col items-start"
                   buttonClassName="text-[10px] leading-none text-[var(--color-ink-faint)] hover:text-[var(--color-accent)]"
                 />
@@ -149,7 +149,7 @@ export default function ReviewList({ reviews, editionFilter }: ReviewListProps) 
         ))}
 
         {filtered.length === 0 && (
-          <p className="text-sm text-[var(--color-ink-faint)]">この版のレビューはありません</p>
+          <p className="text-sm text-[var(--color-ink-faint)]">この版の感想はありません</p>
         )}
       </div>
     </div>

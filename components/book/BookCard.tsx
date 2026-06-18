@@ -22,6 +22,7 @@ interface BookCardProps {
   onCompletedAtChange?: (readingId: string, completedAt: string) => Promise<boolean> | boolean;
   onDelete?: (readingId: string) => void;
   showCompletedDate?: boolean;
+  impressionHref?: string;
 }
 
 function toDateInputValue(value?: string | Date | null): string {
@@ -55,6 +56,7 @@ export default function BookCard({
   onCompletedAtChange,
   onDelete,
   showCompletedDate = false,
+  impressionHref,
 }: BookCardProps) {
   const [localPageStr, setLocalPageStr] = useState(currentPage ? String(currentPage) : "");
   const [showNoTotal, setShowNoTotal] = useState(false);
@@ -256,6 +258,14 @@ export default function BookCard({
                 >
                   読了チャットに参加
                 </Link>
+                {impressionHref && (
+                  <Link
+                    href={impressionHref}
+                    className="text-xs text-[var(--color-accent)] hover:underline"
+                  >
+                    感想を見る・書く
+                  </Link>
+                )}
                 {readingId && onStatusChange && (
                   <button
                     onClick={() => onStatusChange(readingId, "READING")}
