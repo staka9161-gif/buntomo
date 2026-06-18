@@ -66,6 +66,8 @@ interface Review {
   body: string;
   rating: number | null;
   postedAt: string;
+  visibility: "public" | "friends" | "private";
+  isSpoiler: boolean;
   user: { id: string; name: string; image: string | null };
   edition: { id: string; format: string; publisher: string | null } | null;
 }
@@ -162,6 +164,9 @@ export default function WorkPage() {
   }
 
   const selectedEdition = data.editions.find((e) => e.id === selectedEditionId) || null;
+  const myReview = session?.user?.id
+    ? reviews.find((review) => review.user.id === session.user.id) ?? null
+    : null;
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
@@ -224,9 +229,11 @@ export default function WorkPage() {
         </div>
         <ReviewList reviews={reviews} editionFilter={selectedEditionId} />
         <ReviewForm
+          key={myReview?.id ?? "new-review"}
           workId={data.work.id}
           editionId={selectedEditionId}
           isLoggedIn={!!session}
+          existingReview={myReview}
           onSubmitted={fetchReviews}
         />
       </div>

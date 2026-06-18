@@ -95,6 +95,7 @@ export async function POST(request: NextRequest) {
         select: {
           id: true,
           userId: true,
+          visibility: true,
         },
       });
 
@@ -104,6 +105,27 @@ export async function POST(request: NextRequest) {
 
       if (review.userId === activeUser.userId) {
         return NextResponse.json({ error: "閾ｪ蛻・・謚慕ｨｿ縺ｯ騾壼ｱ縺ｧ縺阪∪縺帙ｓ" }, { status: 400 });
+      }
+
+      if (review.visibility === "private") {
+        return NextResponse.json({ error: "通報対象が見つかりません" }, { status: 404 });
+      }
+
+      if (review.visibility === "friends") {
+        const friendship = await prisma.friendship.findFirst({
+          where: {
+            status: "ACCEPTED",
+            OR: [
+              { requesterId: activeUser.userId, addresseeId: review.userId },
+              { requesterId: review.userId, addresseeId: activeUser.userId },
+            ],
+          },
+          select: { id: true },
+        });
+
+        if (!friendship) {
+          return NextResponse.json({ error: "通報対象が見つかりません" }, { status: 404 });
+        }
       }
 
       targetUserId = review.userId;

@@ -3,10 +3,21 @@
 import { useState } from "react";
 import { apiUrl } from "@/lib/api";
 
+type ReviewVisibility = "public" | "friends" | "private";
+
+interface ExistingReview {
+  id: string;
+  body: string;
+  rating: number | null;
+  visibility: ReviewVisibility;
+  isSpoiler: boolean;
+}
+
 interface ReviewFormProps {
   workId: string;
   editionId: string | null;
   isLoggedIn: boolean;
+  existingReview: ExistingReview | null;
   onSubmitted: () => void;
 }
 
@@ -14,11 +25,15 @@ export default function ReviewForm({
   workId,
   editionId,
   isLoggedIn,
+  existingReview,
   onSubmitted,
 }: ReviewFormProps) {
-  const [body, setBody] = useState("");
-  const [rating, setRating] = useState<number | null>(null);
+  const [body, setBody] = useState(existingReview?.body ?? "");
+  const [rating, setRating] = useState<number | null>(existingReview?.rating ?? null);
+  const [visibility, setVisibility] = useState<ReviewVisibility>(existingReview?.visibility ?? "public");
+  const [isSpoiler, setIsSpoiler] = useState(existingReview?.isSpoiler ?? false);
   const [submitting, setSubmitting] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   if (!isLoggedIn) return null;
@@ -35,11 +50,11 @@ export default function ReviewForm({
           edition_id: editionId,
           body: body.trim(),
           rating,
+          visibility,
+          isSpoiler,
         }),
       });
       if (res.ok) {
-        setBody("");
-        setRating(null);
         onSubmitted();
       } else {
         const data = await res.json();
@@ -47,6 +62,31 @@ export default function ReviewForm({
       }
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!existingReview) return;
+    if (!confirm("この読了メモ・感想を削除しますか？")) return;
+
+    setDeleting(true);
+    setError(null);
+    try {
+      const res = await fetch(apiUrl(`/api/works/${workId}/reviews`), {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setBody("");
+        setRating(null);
+        setVisibility("public");
+        setIsSpoiler(false);
+        onSubmitted();
+      } else {
+        const data = await res.json();
+        setError(data.error || "削除に失敗しました");
+      }
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -80,12 +120,72 @@ export default function ReviewForm({
         rows={3}
       />
 
+      <fieldset className="mt-3">
+        <legend className="mb-2 text-xs font-medium tracking-[0.05em] text-[var(--color-ink-muted)]">
+          公開範囲
+        </legend>
+        <div className="grid gap-2 sm:grid-cols-3">
+          {[
+            { value: "public", label: "公開", description: "だれでも見ることができます" },
+            { value: "friends", label: "友だちのみ", description: "友だちだけが見ることができます" },
+            { value: "private", label: "非公開", description: "自分だけが見ることができます" },
+          ].map((option) => (
+            <label
+              key={option.value}
+              className={`rounded border px-3 py-2 text-sm ${
+                visibility === option.value
+                  ? "border-[var(--color-accent)] bg-[var(--color-accent-soft)]"
+                  : "border-[var(--color-border-subtle)] bg-[var(--color-bg-base)]"
+              }`}
+            >
+              <span className="flex items-center gap-2 font-medium text-[var(--color-ink-primary)]">
+                <input
+                  type="radio"
+                  name="review-visibility"
+                  value={option.value}
+                  checked={visibility === option.value}
+                  onChange={() => setVisibility(option.value as ReviewVisibility)}
+                />
+                {option.label}
+              </span>
+              <span className="mt-1 block text-xs text-[var(--color-ink-muted)]">
+                {option.description}
+              </span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      <label className="mt-3 flex items-start gap-2 rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-3 py-2 text-sm">
+        <input
+          type="checkbox"
+          checked={isSpoiler}
+          onChange={(e) => setIsSpoiler(e.target.checked)}
+          className="mt-1"
+        />
+        <span>
+          <span className="font-medium text-[var(--color-ink-primary)]">ネタバレを含む</span>
+          <span className="block text-xs text-[var(--color-ink-muted)]">
+            ネタバレありにすると、他の人には内容が隠された状態で表示されます。
+          </span>
+        </span>
+      </label>
+
       {error && <p className="mt-1 text-xs text-[var(--color-accent)]">{error}</p>}
 
-      <div className="mt-2 flex justify-end">
+      <div className="mt-3 flex flex-wrap justify-end gap-2">
+        {existingReview && (
+          <button
+            onClick={handleDelete}
+            disabled={submitting || deleting}
+            className="btn-secondary-sm disabled:opacity-50"
+          >
+            {deleting ? "削除中..." : "削除"}
+          </button>
+        )}
         <button
           onClick={handleSubmit}
-          disabled={submitting || !body.trim()}
+          disabled={submitting || deleting || !body.trim()}
           className="btn-primary disabled:opacity-50"
         >
           {submitting ? "保存中..." : "感想を保存"}

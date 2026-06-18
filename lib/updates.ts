@@ -21,6 +21,14 @@ export const updateTopicTags = [
 
 export const updates: UpdateEntry[] = [
   {
+    id: "reading-impression-visibility-spoiler-2026-06-17",
+    date: "2026-06-17",
+    type: "改善",
+    title: "感想の公開範囲とネタバレ設定に対応しました",
+    body: "読了メモ・感想をあとから編集・削除できるようになり、公開範囲やネタバレ有無も選べるようになりました。",
+    topicTag: "マイページ",
+  },
+  {
     id: "reading-impressions-2026-06-17",
     date: "2026-06-17",
     type: "改善",

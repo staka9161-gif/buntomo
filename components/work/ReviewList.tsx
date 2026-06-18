@@ -4,11 +4,15 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import ReportUserButton from "@/components/reports/ReportUserButton";
 
+type ReviewVisibility = "public" | "friends" | "private";
+
 interface Review {
   id: string;
   body: string;
   rating: number | null;
   postedAt: string;
+  visibility: ReviewVisibility;
+  isSpoiler: boolean;
   user: {
     id: string;
     name: string;
@@ -44,6 +48,12 @@ const reviewReportReasons = [
   { value: "other", label: "その他" },
 ];
 
+const VISIBILITY_LABELS: Record<ReviewVisibility, string> = {
+  public: "公開",
+  friends: "友だちのみ",
+  private: "非公開",
+};
+
 function editionBadge(edition?: { format: string; publisher: string | null } | null) {
   if (!edition) return null;
   const label = FORMAT_LABELS[edition.format] || edition.format;
@@ -58,6 +68,7 @@ function editionBadge(edition?: { format: string; publisher: string | null } | n
 export default function ReviewList({ reviews, editionFilter }: ReviewListProps) {
   const { data: session } = useSession();
   const [filter, setFilter] = useState<"all" | "edition">(editionFilter ? "edition" : "all");
+  const [revealedSpoilers, setRevealedSpoilers] = useState<Set<string>>(new Set());
 
   const filtered = filter === "edition" && editionFilter
     ? reviews.filter((r) => r.edition?.id === editionFilter)
@@ -128,8 +139,33 @@ export default function ReviewList({ reviews, editionFilter }: ReviewListProps) 
                 </span>
               )}
               {editionBadge(review.edition)}
+              <span className="rounded bg-[rgb(31_42_68_/_0.05)] px-1.5 py-0.5 text-xs text-[var(--color-ink-muted)]">
+                {VISIBILITY_LABELS[review.visibility] ?? "公開"}
+              </span>
+              {review.isSpoiler && (
+                <span className="rounded bg-[rgb(184_71_60_/_0.08)] px-1.5 py-0.5 text-xs text-[var(--color-accent)]">
+                  ネタバレあり
+                </span>
+              )}
             </div>
-            <p className="mt-2 text-sm leading-[1.9] text-[var(--color-ink-primary)]">{review.body}</p>
+            {review.isSpoiler && !revealedSpoilers.has(review.id) ? (
+              <div className="mt-2 rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-soft)] p-3">
+                <p className="text-sm text-[var(--color-ink-muted)]">
+                  この感想にはネタバレが含まれます。
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRevealedSpoilers((current) => new Set(current).add(review.id));
+                  }}
+                  className="mt-2 text-xs text-[var(--color-accent)] hover:underline"
+                >
+                  ネタバレを読む
+                </button>
+              </div>
+            ) : (
+              <p className="mt-2 text-sm leading-[1.9] text-[var(--color-ink-primary)]">{review.body}</p>
+            )}
             <p className="mt-1 text-xs font-mono text-[var(--color-ink-faint)]">
               {new Date(review.postedAt).toLocaleDateString("ja-JP")}
             </p>

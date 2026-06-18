@@ -3,6 +3,8 @@ import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { requireActiveUser } from "@/lib/active-user";
 
+const ALLOWED_VISIBILITIES = new Set(["public", "friends", "private"]);
+
 // GET /api/works/:id/reviews
 export async function GET(
   request: NextRequest,
@@ -10,9 +12,39 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+    const session = await auth();
+    const viewerId = session?.user?.id ?? null;
 
     const reviews = await prisma.review.findMany({
-      where: { workId: id, user: { deactivatedAt: null } },
+      where: {
+        workId: id,
+        user: { deactivatedAt: null },
+        OR: viewerId
+          ? [
+              { visibility: "public" },
+              { userId: viewerId },
+              {
+                visibility: "friends",
+                OR: [
+                  {
+                    user: {
+                      friendshipsRequested: {
+                        some: { addresseeId: viewerId, status: "ACCEPTED" },
+                      },
+                    },
+                  },
+                  {
+                    user: {
+                      friendshipsReceived: {
+                        some: { requesterId: viewerId, status: "ACCEPTED" },
+                      },
+                    },
+                  },
+                ],
+              },
+            ]
+          : [{ visibility: "public" }],
+      },
       include: {
         user: {
           select: { id: true, name: true, image: true },
@@ -88,6 +120,13 @@ export async function POST(
       where: { userId_workId: { userId: myId, workId } },
     });
 
+    const visibility = typeof body.visibility === "string" ? body.visibility : existing?.visibility ?? "public";
+    if (!ALLOWED_VISIBILITIES.has(visibility)) {
+      return NextResponse.json({ error: "公開範囲が正しくありません" }, { status: 400 });
+    }
+
+    const isSpoiler = typeof body.isSpoiler === "boolean" ? body.isSpoiler : existing?.isSpoiler ?? false;
+
     let review;
     if (existing) {
       review = await prisma.review.update({
@@ -96,6 +135,8 @@ export async function POST(
           body: reviewBody.trim(),
           rating: rating ?? null,
           editionId: edition_id ?? existing.editionId,
+          visibility,
+          isSpoiler,
         },
         include: {
           user: { select: { id: true, name: true, image: true } },
@@ -110,6 +151,8 @@ export async function POST(
           editionId: edition_id ?? null,
           body: reviewBody.trim(),
           rating: rating ?? null,
+          visibility,
+          isSpoiler,
         },
         include: {
           user: { select: { id: true, name: true, image: true } },
@@ -121,6 +164,41 @@ export async function POST(
     return NextResponse.json({ review }, { status: existing ? 200 : 201 });
   } catch (e) {
     console.error("Reviews POST error:", e);
+    return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });
+  }
+}
+
+// DELETE /api/works/:id/reviews
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const activeUser = await requireActiveUser();
+    if (!activeUser.ok) {
+      return NextResponse.json({ error: activeUser.error }, { status: activeUser.status });
+    }
+
+    const { id: workId } = await params;
+
+    const work = await prisma.work.findUnique({ where: { id: workId }, select: { id: true } });
+    if (!work) {
+      return NextResponse.json({ error: "作品が見つかりません" }, { status: 404 });
+    }
+
+    const existing = await prisma.review.findUnique({
+      where: { userId_workId: { userId: activeUser.userId, workId } },
+      select: { id: true },
+    });
+
+    if (!existing) {
+      return NextResponse.json({ error: "感想が見つかりません" }, { status: 404 });
+    }
+
+    await prisma.review.delete({ where: { id: existing.id } });
+    return NextResponse.json({ success: true });
+  } catch (e) {
+    console.error("Reviews DELETE error:", e);
     return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });
   }
 }
