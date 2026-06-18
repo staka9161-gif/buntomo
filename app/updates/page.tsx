@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
-import { updateTopicTags, updateTypes, updates, type UpdateEntry } from "@/lib/updates";
+import { updateTopicTags, updateTypes, type UpdateEntry } from "@/lib/updates";
 
 const typeStyles: Record<UpdateEntry["type"], string> = {
   新機能: "border-emerald-200 bg-emerald-50 text-emerald-700",
@@ -70,7 +70,7 @@ async function getPublishedUpdateNotices(): Promise<UpdateEntry[]> {
   return notices
     .filter((notice) => updateTypes.includes(notice.type as UpdateEntry["type"]))
     .map((notice) => ({
-      id: `db-${notice.id}`,
+      id: notice.id,
       date: notice.displayDate.toISOString().slice(0, 10),
       type: notice.type as UpdateEntry["type"],
       title: notice.title,
@@ -90,9 +90,8 @@ export default async function UpdatesPage({ searchParams }: UpdatesPageProps) {
   const selectedTag = updateTopicTags.includes(params.tag as (typeof updateTopicTags)[number]) ? params.tag ?? "" : "";
 
   const publishedNotices = await getPublishedUpdateNotices();
-  const allUpdates = [...publishedNotices, ...updates];
 
-  const filteredUpdates = allUpdates
+  const filteredUpdates = publishedNotices
     .filter((entry) => matchesQuery(entry, query))
     .filter((entry) => !selectedType || entry.type === selectedType)
     .filter((entry) => !selectedTag || entry.topicTag === selectedTag)
