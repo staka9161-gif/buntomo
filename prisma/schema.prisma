@@ -62,6 +62,8 @@ model User {
   importantAnnouncementsCreated ImportantAnnouncement[] @relation("ImportantAnnouncementCreatedBy")
   importantAnnouncementsUpdated ImportantAnnouncement[] @relation("ImportantAnnouncementUpdatedBy")
   importantAnnouncementReads ImportantAnnouncementRead[]
+  updateNoticesCreated UpdateNotice[] @relation("UpdateNoticeCreatedBy")
+  updateNoticesUpdated UpdateNotice[] @relation("UpdateNoticeUpdatedBy")
   readingEventInterests ReadingEventInterest[]
 }
 
@@ -168,6 +170,32 @@ model ImportantAnnouncementRead {
   @@unique([announcementId, userId])
   @@index([userId])
   @@index([announcementId])
+}
+
+model UpdateNotice {
+  id          String   @id @default(cuid())
+  title       String
+  body        String
+  type        String   @default("お知らせ")
+  topicTag    String?
+  href        String?
+  status      String   @default("draft")
+  publishedAt DateTime?
+  displayDate DateTime @default(now())
+  createdById String?
+  updatedById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  createdBy User? @relation("UpdateNoticeCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy User? @relation("UpdateNoticeUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([displayDate])
+  @@index([type])
+  @@index([topicTag])
+  @@index([createdById])
+  @@index([updatedById])
 }
 
 model Account {

@@ -8,6 +8,8 @@ export type UpdateEntry = {
   topicTag?: string;
 };
 
+export const updateTypes: UpdateEntry["type"][] = ["新機能", "改善", "修正", "お知らせ"];
+
 // ユーザーに知らせるべき新機能・改善・修正を行った場合は、
 // 実装と同じタイミングで、利用者にとって何が変わったかを追加する。
 export const updateTopicTags = [

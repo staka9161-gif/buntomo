@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { updateTopicTags, updates, type UpdateEntry } from "@/lib/updates";
-
-const updateTypes: UpdateEntry["type"][] = ["新機能", "改善", "修正", "お知らせ"];
+import { prisma } from "@/lib/db";
+import { updateTopicTags, updateTypes, updates, type UpdateEntry } from "@/lib/updates";
 
 const typeStyles: Record<UpdateEntry["type"], string> = {
   新機能: "border-emerald-200 bg-emerald-50 text-emerald-700",
@@ -53,6 +52,34 @@ function matchesQuery(entry: UpdateEntry, query: string) {
   return searchableText.includes(normalizedQuery);
 }
 
+async function getPublishedUpdateNotices(): Promise<UpdateEntry[]> {
+  const notices = await prisma.updateNotice.findMany({
+    where: { status: "published" },
+    orderBy: { displayDate: "desc" },
+    select: {
+      id: true,
+      title: true,
+      body: true,
+      type: true,
+      topicTag: true,
+      href: true,
+      displayDate: true,
+    },
+  });
+
+  return notices
+    .filter((notice) => updateTypes.includes(notice.type as UpdateEntry["type"]))
+    .map((notice) => ({
+      id: `db-${notice.id}`,
+      date: notice.displayDate.toISOString().slice(0, 10),
+      type: notice.type as UpdateEntry["type"],
+      title: notice.title,
+      body: notice.body,
+      href: notice.href ?? undefined,
+      topicTag: notice.topicTag ?? undefined,
+    }));
+}
+
 export default async function UpdatesPage({ searchParams }: UpdatesPageProps) {
   const params = await searchParams;
   const query = normalizeQuery(params.q);
@@ -62,7 +89,10 @@ export default async function UpdatesPage({ searchParams }: UpdatesPageProps) {
     : "";
   const selectedTag = updateTopicTags.includes(params.tag as (typeof updateTopicTags)[number]) ? params.tag ?? "" : "";
 
-  const filteredUpdates = updates
+  const publishedNotices = await getPublishedUpdateNotices();
+  const allUpdates = [...publishedNotices, ...updates];
+
+  const filteredUpdates = allUpdates
     .filter((entry) => matchesQuery(entry, query))
     .filter((entry) => !selectedType || entry.type === selectedType)
     .filter((entry) => !selectedTag || entry.topicTag === selectedTag)

@@ -35,6 +35,11 @@ const menuItems = [
     description: "通常ページ上部に表示する、運営からの重要なお知らせを管理します。",
   },
   {
+    href: "/admin/update-notices",
+    title: "お知らせ管理",
+    description: "/updates に表示する通常のお知らせを作成・編集します。重要なお知らせバナーとは別です。",
+  },
+  {
     href: "/admin/dashboard",
     title: "管理ダッシュボード",
     description: "Work / Edition の状態や統合候補の件数を確認します。",
@@ -126,6 +131,8 @@ export default async function AdminPage() {
     reviewingSuspensionAppeals,
     publishedAnnouncements,
     draftAnnouncements,
+    publishedUpdateNotices,
+    draftUpdateNotices,
     recentPendingReports,
   ] = await Promise.all([
     prisma.report.count({ where: { status: "pending" } }),
@@ -137,6 +144,8 @@ export default async function AdminPage() {
     prisma.suspensionAppeal.count({ where: { status: "reviewing" } }),
     prisma.importantAnnouncement.count({ where: { status: "published" } }),
     prisma.importantAnnouncement.count({ where: { status: "draft" } }),
+    prisma.updateNotice.count({ where: { status: "published" } }),
+    prisma.updateNotice.count({ where: { status: "draft" } }),
     prisma.report.findMany({
       where: { status: "pending" },
       orderBy: { createdAt: "desc" },
@@ -212,6 +221,18 @@ export default async function AdminPage() {
       value: draftAnnouncements,
       href: "/admin/announcements?status=draft",
       tone: "gray",
+    },
+    {
+      label: "通常お知らせ 公開中",
+      value: publishedUpdateNotices,
+      href: "/admin/update-notices?status=published",
+      tone: "gray",
+    },
+    {
+      label: "通常お知らせ 下書き",
+      value: draftUpdateNotices,
+      href: "/admin/update-notices?status=draft",
+      tone: draftUpdateNotices > 0 ? "amber" : "gray",
     },
   ];
 
