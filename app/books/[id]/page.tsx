@@ -8,6 +8,7 @@ import { apiUrl } from "@/lib/api";
 import ProgressBar from "@/components/book/ProgressBar";
 import CurrentlyReadingList from "@/components/book/CurrentlyReadingList";
 import ReadingEvents from "@/components/book/ReadingEvents";
+import CompletedBookImpressionEditor from "@/components/book/CompletedBookImpressionEditor";
 
 interface Book {
   id: string;
@@ -17,13 +18,19 @@ interface Book {
   totalPages: number;
   coverImageUrl: string | null;
   description: string | null;
+  migratedWorkId: string | null;
 }
 
 interface MyReading {
   id: string;
+  workId: string | null;
+  editionId: string | null;
   status: string;
   currentPage: number;
   completedAt: string | null;
+  edition: {
+    workId: string;
+  } | null;
 }
 
 export default function BookDetailPage() {
@@ -48,13 +55,7 @@ export default function BookDetailPage() {
       const res = await fetch(apiUrl(`/api/books/${bookId}`));
       if (!res.ok) return;
       const data = await res.json();
-
-      // Work に移行済みならリダイレクト
-      if (data.migratedWorkId) {
-        router.replace(`/works/${data.migratedWorkId}`);
-        return;
-      }
-
+      // Keep the book page visible so completed readers can edit impressions here.
       setBook(data.book);
       setTotalPagesInputStr(data.book.totalPages ? String(data.book.totalPages) : "");
       setReadingCount(data.readingCount ?? 0);
@@ -63,7 +64,7 @@ export default function BookDetailPage() {
     } catch {
       // network error
     }
-  }, [bookId, router]);
+  }, [bookId]);
 
   const fetchMyReading = useCallback(async () => {
     try {
@@ -95,6 +96,7 @@ export default function BookDetailPage() {
 
   useEffect(() => {
     if (sessionStatus === "authenticated") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchMyReading();
     }
   }, [sessionStatus, fetchMyReading]);
@@ -188,6 +190,10 @@ export default function BookDetailPage() {
     book.totalPages > 0 && myReading
       ? Math.min(100, Math.floor((myReading.currentPage / book.totalPages) * 100))
       : 0;
+  const isCompleted = myReading?.status === "COMPLETED";
+  const impressionWorkId = isCompleted
+    ? myReading.workId ?? myReading.edition?.workId ?? book.migratedWorkId
+    : null;
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
@@ -342,6 +348,52 @@ export default function BookDetailPage() {
                 </div>
               )}
             </div>
+            {isCompleted && myReading && (
+              <div className="mt-4 rounded-md border border-[var(--color-border-subtle)] bg-[var(--color-bg-soft)] p-3">
+                <div className="mb-3">
+                  <h2 className="text-sm font-medium text-[var(--color-ink-primary)]">
+                    読了メモ・感想
+                  </h2>
+                  <p className="mt-1 text-xs leading-relaxed text-[var(--color-ink-muted)]">
+                    読了した本について、自分の感想を残せます。
+                  </p>
+                </div>
+                {impressionWorkId ? (
+                  <div className="space-y-3">
+                    <CompletedBookImpressionEditor
+                      workId={impressionWorkId}
+                      editionId={myReading.editionId}
+                    />
+                    <div className="flex flex-wrap items-center gap-3">
+                      <Link
+                        href={`/works/${impressionWorkId}`}
+                        className="text-xs text-[var(--color-accent)] hover:underline"
+                      >
+                        みんなの感想を見る
+                      </Link>
+                      <Link
+                        href="/mypage/completed"
+                        className="text-xs text-[var(--color-ink-faint)] hover:text-[var(--color-accent)]"
+                      >
+                        読了本一覧に戻る
+                      </Link>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-xs text-[var(--color-ink-muted)]">
+                      この本はまだ読了メモ・感想の投稿に対応していません。
+                    </p>
+                    <Link
+                      href="/mypage/completed"
+                      className="text-xs text-[var(--color-accent)] hover:underline"
+                    >
+                      読了本一覧に戻る
+                    </Link>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 

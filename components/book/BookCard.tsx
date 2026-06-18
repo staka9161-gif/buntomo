@@ -256,6 +256,12 @@ export default function BookCard({
               )}
               <div className="mt-1 flex items-center gap-3">
                 <Link
+                  href={`/books/${id}`}
+                  className="text-xs text-[var(--color-accent)] hover:underline"
+                >
+                  本ページを見る
+                </Link>
+                <Link
                   href={`/books/${id}/chat`}
                   className="text-xs text-[var(--color-accent)] hover:underline"
                 >
