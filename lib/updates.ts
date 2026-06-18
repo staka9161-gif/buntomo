@@ -21,6 +21,14 @@ export const updateTopicTags = [
 
 export const updates: UpdateEntry[] = [
   {
+    id: "completed-inline-impression-editor-2026-06-18",
+    date: "2026-06-18",
+    type: "修正",
+    title: "読了済みの本に感想を書く場所を分かりやすくしました",
+    body: "読了済みの本から、読了メモ・感想を書いたり編集したりしやすいように表示を見直しました。",
+    topicTag: "マイページ",
+  },
+  {
     id: "completed-book-impression-link-fix-2026-06-18",
     date: "2026-06-18",
     type: "修正",

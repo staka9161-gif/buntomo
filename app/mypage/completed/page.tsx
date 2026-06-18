@@ -4,11 +4,13 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import BookCard from "@/components/book/BookCard";
+import CompletedBookImpressionEditor from "@/components/book/CompletedBookImpressionEditor";
 import { apiUrl } from "@/lib/api";
 
 interface Reading {
   id: string;
   workId: string | null;
+  editionId: string | null;
   status: string;
   currentPage: number;
   completedAt: string | null;
@@ -229,6 +231,14 @@ export default function CompletedPage() {
                 onDelete={handleDelete}
                 showCompletedDate
                 impressionHref={workId ? `/works/${workId}` : undefined}
+                impressionEditor={
+                  workId ? (
+                    <CompletedBookImpressionEditor
+                      workId={workId}
+                      editionId={r.editionId}
+                    />
+                  ) : undefined
+                }
               />
             );
           })}

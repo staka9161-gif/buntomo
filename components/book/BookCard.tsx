@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import ProgressBar from "./ProgressBar";
 
@@ -23,6 +24,7 @@ interface BookCardProps {
   onDelete?: (readingId: string) => void;
   showCompletedDate?: boolean;
   impressionHref?: string;
+  impressionEditor?: ReactNode;
 }
 
 function toDateInputValue(value?: string | Date | null): string {
@@ -57,6 +59,7 @@ export default function BookCard({
   onDelete,
   showCompletedDate = false,
   impressionHref,
+  impressionEditor,
 }: BookCardProps) {
   const [localPageStr, setLocalPageStr] = useState(currentPage ? String(currentPage) : "");
   const [showNoTotal, setShowNoTotal] = useState(false);
@@ -263,7 +266,7 @@ export default function BookCard({
                     href={impressionHref}
                     className="text-xs text-[var(--color-accent)] hover:underline"
                   >
-                    感想を見る・書く
+                    みんなの感想を見る
                   </Link>
                 )}
                 {readingId && onStatusChange && (
@@ -285,6 +288,7 @@ export default function BookCard({
                   </button>
                 )}
               </div>
+              {impressionEditor && <div className="mt-3">{impressionEditor}</div>}
             </div>
           )}
         </div>
