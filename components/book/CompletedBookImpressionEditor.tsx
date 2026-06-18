@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 import { apiUrl } from "@/lib/api";
 
@@ -33,6 +33,17 @@ const visibilityOptions: Array<{
   { value: "private", label: "非公開", description: "自分だけが見ることができます" },
 ];
 
+const visibilityPreviewLabels: Record<ReviewVisibility, string> = {
+  public: "公開",
+  friends: "友だちのみ",
+  private: "非公開",
+};
+
+function createExcerpt(value: string, maxLength = 110) {
+  const normalized = value.replace(/\s+/g, " ").trim();
+  return normalized.length > maxLength ? `${normalized.slice(0, maxLength)}...` : normalized;
+}
+
 export default function CompletedBookImpressionEditor({
   bookId,
   workId,
@@ -59,7 +70,7 @@ export default function CompletedBookImpressionEditor({
     setIsSpoiler(nextReview?.isSpoiler ?? false);
   };
 
-  const loadReview = async () => {
+  const loadReview = useCallback(async () => {
     if (!session?.user?.id) return;
 
     setIsLoading(true);
@@ -79,7 +90,36 @@ export default function CompletedBookImpressionEditor({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [bookId, session?.user?.id]);
+
+  useEffect(() => {
+    let ignore = false;
+
+    const loadInitialReview = async () => {
+      if (!session?.user?.id) return;
+
+      try {
+        const res = await fetch(apiUrl(`/api/books/${bookId}/impression`));
+        if (!res.ok) return;
+
+        const data = await res.json();
+        if (!ignore) {
+          applyReview((data.review as ExistingReview | null | undefined) ?? null);
+        }
+      } catch {
+        // Ignore background preview loading errors. Opening the editor shows the error.
+      }
+    };
+
+    void loadInitialReview();
+    return () => {
+      ignore = true;
+    };
+  }, [bookId, session?.user?.id]);
+
+  const reviewExcerpt = useMemo(() => {
+    return review ? createExcerpt(review.body) : null;
+  }, [review]);
 
   const openEditor = async () => {
     setIsOpen(true);
@@ -177,6 +217,29 @@ export default function CompletedBookImpressionEditor({
           </button>
         )}
       </div>
+
+      {!isOpen && review && reviewExcerpt && (
+        <div className="mt-3 rounded-md border border-[var(--color-border-subtle)] bg-white px-3 py-2">
+          <p className="text-xs font-medium text-[var(--color-ink-muted)]">あなたの感想</p>
+          <p className="mt-1 text-sm leading-relaxed text-[var(--color-ink-primary)]">
+            {reviewExcerpt}
+          </p>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            <span className="rounded-full bg-[rgb(31_42_68_/_0.05)] px-2 py-0.5 text-[10px] text-[var(--color-ink-muted)]">
+              {visibilityPreviewLabels[review.visibility] ?? "公開"}
+            </span>
+            <span
+              className={`rounded-full px-2 py-0.5 text-[10px] ${
+                review.isSpoiler
+                  ? "bg-[rgb(184_71_60_/_0.08)] text-[var(--color-accent)]"
+                  : "bg-[rgb(31_42_68_/_0.05)] text-[var(--color-ink-muted)]"
+              }`}
+            >
+              {review.isSpoiler ? "ネタバレあり" : "ネタバレなし"}
+            </span>
+          </div>
+        </div>
+      )}
 
       {isOpen && (
         <div className="mt-3 space-y-3">

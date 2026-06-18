@@ -374,14 +374,12 @@ export default function BookDetailPage() {
                       editionId={myReading.editionId}
                     />
                     <div className="flex flex-wrap items-center gap-3">
-                      {impressionWorkId ? (
                       <Link
-                        href={`/works/${impressionWorkId}`}
+                        href={impressionWorkId ? `/works/${impressionWorkId}` : `/books/${book.id}/impressions`}
                         className="text-xs text-[var(--color-accent)] hover:underline"
                       >
                         みんなの感想を見る
                       </Link>
-                      ) : null}
                       <Link
                         href="/mypage/completed"
                         className="text-xs text-[var(--color-ink-faint)] hover:text-[var(--color-accent)]"

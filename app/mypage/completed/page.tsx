@@ -211,6 +211,7 @@ export default function CompletedPage() {
         <div className="space-y-4">
           {sortedReadings.map((r) => {
             const workId = r.workId ?? r.edition?.workId ?? r.book.migratedWorkId;
+            const impressionHref = workId ? `/works/${workId}` : `/books/${r.book.id}/impressions`;
 
             return (
               <BookCard
@@ -230,7 +231,7 @@ export default function CompletedPage() {
                 onCompletedAtChange={handleCompletedAtChange}
                 onDelete={handleDelete}
                 showCompletedDate
-                impressionHref={workId ? `/works/${workId}` : undefined}
+                impressionHref={impressionHref}
                 impressionEditor={
                   <CompletedBookImpressionEditor
                     bookId={r.book.id}
