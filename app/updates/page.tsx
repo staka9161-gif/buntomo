@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { updateFrequentWords, updateTopicTags, updates, type UpdateEntry } from "@/lib/updates";
+import { updateTopicTags, updates, type UpdateEntry } from "@/lib/updates";
 
 const updateTypes: UpdateEntry["type"][] = ["新機能", "改善", "修正", "お知らせ"];
 
@@ -46,7 +46,7 @@ function matchesQuery(entry: UpdateEntry, query: string) {
   if (!query) return true;
 
   const normalizedQuery = query.toLocaleLowerCase();
-  const searchableText = [entry.title, entry.body, entry.type, ...(entry.topicTags ?? [])]
+  const searchableText = [entry.title, entry.body, entry.type, entry.topicTag]
     .join(" ")
     .toLocaleLowerCase();
 
@@ -65,7 +65,7 @@ export default async function UpdatesPage({ searchParams }: UpdatesPageProps) {
   const filteredUpdates = updates
     .filter((entry) => matchesQuery(entry, query))
     .filter((entry) => !selectedType || entry.type === selectedType)
-    .filter((entry) => !selectedTag || entry.topicTags?.includes(selectedTag))
+    .filter((entry) => !selectedTag || entry.topicTag === selectedTag)
     .sort((a, b) => (sort === "asc" ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date)));
 
   const nextSort = sort === "asc" ? "desc" : "asc";
@@ -156,19 +156,6 @@ export default async function UpdatesPage({ searchParams }: UpdatesPageProps) {
           ))}
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 text-sm">
-          <span className="text-xs font-medium text-[var(--color-ink-muted)]">よく使われる言葉</span>
-          {updateFrequentWords.map((word) => (
-            <Link
-              key={word}
-              href={buildUpdatesHref({ q: word, sort })}
-              className="rounded-full border border-[var(--color-border-subtle)] px-3 py-1 text-[var(--color-ink-muted)] hover:border-[var(--color-accent)]"
-            >
-              {word}
-            </Link>
-          ))}
-        </div>
-
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--color-border-subtle)] pt-4">
           <p className="text-sm text-[var(--color-ink-muted)]">
             {filteredUpdates.length}件のお知らせ
@@ -209,6 +196,14 @@ export default async function UpdatesPage({ searchParams }: UpdatesPageProps) {
                   <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${typeStyles[entry.type]}`}>
                     {entry.type}
                   </span>
+                  {entry.topicTag && (
+                    <Link
+                      href={buildUpdatesHref({ tag: entry.topicTag, sort })}
+                      className="rounded-full border border-[var(--color-border-subtle)] bg-[var(--color-bg-soft)] px-2 py-0.5 text-xs font-medium text-[var(--color-ink-muted)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+                    >
+                      {entry.topicTag}
+                    </Link>
+                  )}
                 </div>
                 <h2 className="font-serif text-lg font-medium text-[var(--color-ink-primary)]">
                   {entry.title}
@@ -216,19 +211,6 @@ export default async function UpdatesPage({ searchParams }: UpdatesPageProps) {
                 <p className="mt-2 text-sm leading-relaxed text-[var(--color-ink-muted)]">
                   {entry.body}
                 </p>
-                {entry.topicTags && entry.topicTags.length > 0 && (
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {entry.topicTags.map((tag) => (
-                      <Link
-                        key={tag}
-                        href={buildUpdatesHref({ tag, sort })}
-                        className="rounded-full bg-[var(--color-bg-soft)] px-2.5 py-1 text-xs text-[var(--color-ink-muted)] hover:text-[var(--color-accent)]"
-                      >
-                        {tag}
-                      </Link>
-                    ))}
-                  </div>
-                )}
                 {hasDetailPage && entry.href && (
                   <Link
                     href={entry.href}
