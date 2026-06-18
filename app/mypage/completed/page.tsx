@@ -20,6 +20,9 @@ interface Reading {
     coverImageUrl: string | null;
     migratedWorkId: string | null;
   } | null;
+  edition: {
+    workId: string;
+  } | null;
   readingCount: number;
   completedCount: number;
   eventCount: number;
@@ -205,7 +208,7 @@ export default function CompletedPage() {
       ) : (
         <div className="space-y-4">
           {sortedReadings.map((r) => {
-            const workId = r.workId ?? r.book.migratedWorkId;
+            const workId = r.workId ?? r.edition?.workId ?? r.book.migratedWorkId;
 
             return (
               <BookCard

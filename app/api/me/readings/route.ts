@@ -17,7 +17,10 @@ export async function GET(request: NextRequest) {
         userId: session.user.id,
         ...(status ? { status: status.toUpperCase() as "READING" | "COMPLETED" | "WANT_TO_READ" } : {}),
       },
-      include: { book: true },
+      include: {
+        book: true,
+        edition: { select: { workId: true } },
+      },
       orderBy: { updatedAt: "desc" },
     });
     const validReadings = readings.filter((r) => r.book != null);
