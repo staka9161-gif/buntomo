@@ -28,7 +28,10 @@ export default function UpdatesPage() {
       </div>
 
       <div className="space-y-4 border-l border-[var(--color-border-subtle)] pl-5">
-        {sortedUpdates.map((entry) => (
+        {sortedUpdates.map((entry) => {
+          const hasDetailPage = entry.href?.startsWith("/updates/") === true;
+
+          return (
           <article key={entry.id} className="relative card-base p-5">
             <span className="absolute -left-[1.85rem] top-6 h-3 w-3 rounded-full border-2 border-[var(--color-bg-elevated)] bg-[var(--color-accent)]" />
             <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -45,7 +48,7 @@ export default function UpdatesPage() {
             <p className="mt-2 text-sm leading-relaxed text-[var(--color-ink-muted)]">
               {entry.body}
             </p>
-            {entry.href && (
+            {hasDetailPage && entry.href && (
               <Link
                 href={entry.href}
                 className="mt-4 inline-flex text-sm font-medium text-[var(--color-accent)] hover:underline"
@@ -54,7 +57,8 @@ export default function UpdatesPage() {
               </Link>
             )}
           </article>
-        ))}
+          );
+        })}
       </div>
     </main>
   );
