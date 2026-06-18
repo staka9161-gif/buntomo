@@ -33,7 +33,7 @@ const visibilityOptions: Array<{
   { value: "private", label: "非公開", description: "自分だけが見ることができます" },
 ];
 
-const visibilityPreviewLabels: Record<ReviewVisibility, string> = {
+const visibilityLabels: Record<ReviewVisibility, string> = {
   public: "公開",
   friends: "友だちのみ",
   private: "非公開",
@@ -70,27 +70,36 @@ export default function CompletedBookImpressionEditor({
     setIsSpoiler(nextReview?.isSpoiler ?? false);
   };
 
-  const loadReview = useCallback(async () => {
-    if (!session?.user?.id) return;
+  const loadReview = useCallback(
+    async ({ showLoading = true }: { showLoading?: boolean } = {}) => {
+      if (!session?.user?.id) return;
 
-    setIsLoading(true);
-    setError(null);
-    setMessage(null);
-
-    try {
-      const res = await fetch(apiUrl(`/api/books/${bookId}/impression`));
-      if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        setError(data?.error || "感想の読み込みに失敗しました");
-        return;
+      if (showLoading) {
+        setIsLoading(true);
+        setError(null);
+        setMessage(null);
       }
 
-      const data = await res.json();
-      applyReview((data.review as ExistingReview | null | undefined) ?? null);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [bookId, session?.user?.id]);
+      try {
+        const res = await fetch(apiUrl(`/api/books/${bookId}/impression`));
+        if (!res.ok) {
+          if (showLoading) {
+            const data = await res.json().catch(() => null);
+            setError(data?.error || "感想の読み込みに失敗しました");
+          }
+          return;
+        }
+
+        const data = await res.json();
+        applyReview((data.review as ExistingReview | null | undefined) ?? null);
+      } finally {
+        if (showLoading) {
+          setIsLoading(false);
+        }
+      }
+    },
+    [bookId, session?.user?.id]
+  );
 
   useEffect(() => {
     let ignore = false;
@@ -107,7 +116,7 @@ export default function CompletedBookImpressionEditor({
           applyReview((data.review as ExistingReview | null | undefined) ?? null);
         }
       } catch {
-        // Ignore background preview loading errors. Opening the editor shows the error.
+        // Opening the editor will surface loading errors if needed.
       }
     };
 
@@ -124,6 +133,13 @@ export default function CompletedBookImpressionEditor({
   const openEditor = async () => {
     setIsOpen(true);
     await loadReview();
+  };
+
+  const handleCancel = () => {
+    applyReview(review);
+    setError(null);
+    setMessage(null);
+    setIsOpen(false);
   };
 
   const handleSave = async () => {
@@ -156,6 +172,7 @@ export default function CompletedBookImpressionEditor({
         applyReview(data.review as ExistingReview);
       }
       setMessage("保存しました");
+      setIsOpen(false);
     } finally {
       setIsSaving(false);
     }
@@ -182,67 +199,81 @@ export default function CompletedBookImpressionEditor({
 
       applyReview(null);
       setMessage("削除しました");
+      setIsOpen(false);
     } finally {
       setIsDeleting(false);
     }
   };
 
+  if (!session?.user?.id) {
+    return (
+      <div className="border-t border-[var(--color-border-subtle)] pt-3">
+        <p className="text-sm text-[var(--color-ink-muted)]">
+          感想を書くにはログインが必要です。
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div className="rounded-md border border-[var(--color-border-subtle)] bg-[var(--color-bg-soft)] p-3">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <p className="text-sm font-medium text-[var(--color-ink-primary)]">
-            読了メモ・感想
-          </p>
-          <p className="mt-0.5 text-xs text-[var(--color-ink-muted)]">
-            読み終えたあとに残しておきたい感想を書けます。
-          </p>
-        </div>
-        {!isOpen ? (
+    <div className="border-t border-[var(--color-border-subtle)] pt-3">
+      {!isOpen ? (
+        <div className="space-y-3">
+          {review && reviewExcerpt ? (
+            <div>
+              <p className="text-xs font-semibold tracking-[0.05em] text-[var(--color-ink-muted)]">
+                あなたの感想
+              </p>
+              <p className="mt-1 text-sm leading-relaxed text-[var(--color-ink-primary)]">
+                {reviewExcerpt}
+              </p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                <span className="rounded-full bg-[rgb(31_42_68_/_0.05)] px-2 py-0.5 text-[10px] text-[var(--color-ink-muted)]">
+                  {visibilityLabels[review.visibility] ?? "公開"}
+                </span>
+                <span
+                  className={`rounded-full px-2 py-0.5 text-[10px] ${
+                    review.isSpoiler
+                      ? "bg-[rgb(184_71_60_/_0.08)] text-[var(--color-accent)]"
+                      : "bg-[rgb(31_42_68_/_0.05)] text-[var(--color-ink-muted)]"
+                  }`}
+                >
+                  {review.isSpoiler ? "ネタバレあり" : "ネタバレなし"}
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <p className="text-sm font-medium text-[var(--color-ink-primary)]">
+                まだ感想はありません。
+              </p>
+              <p className="mt-1 text-xs leading-relaxed text-[var(--color-ink-muted)]">
+                読了した本について、あとで見返せる感想を残せます。
+              </p>
+            </div>
+          )}
+
+          {message && <p className="text-xs text-[var(--color-status-success)]">{message}</p>}
           <button
             type="button"
             onClick={openEditor}
-            disabled={!session?.user?.id || isLoading}
-            className="btn-primary-sm disabled:opacity-50"
+            disabled={isLoading}
+            className="btn-secondary-sm disabled:opacity-50"
           >
-            感想を書く・編集する
+            {review ? "編集する" : "感想を書く"}
           </button>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setIsOpen(false)}
-            className="btn-secondary-sm"
-          >
-            閉じる
-          </button>
-        )}
-      </div>
-
-      {!isOpen && review && reviewExcerpt && (
-        <div className="mt-3 rounded-md border border-[var(--color-border-subtle)] bg-white px-3 py-2">
-          <p className="text-xs font-medium text-[var(--color-ink-muted)]">あなたの感想</p>
-          <p className="mt-1 text-sm leading-relaxed text-[var(--color-ink-primary)]">
-            {reviewExcerpt}
-          </p>
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            <span className="rounded-full bg-[rgb(31_42_68_/_0.05)] px-2 py-0.5 text-[10px] text-[var(--color-ink-muted)]">
-              {visibilityPreviewLabels[review.visibility] ?? "公開"}
-            </span>
-            <span
-              className={`rounded-full px-2 py-0.5 text-[10px] ${
-                review.isSpoiler
-                  ? "bg-[rgb(184_71_60_/_0.08)] text-[var(--color-accent)]"
-                  : "bg-[rgb(31_42_68_/_0.05)] text-[var(--color-ink-muted)]"
-              }`}
-            >
-              {review.isSpoiler ? "ネタバレあり" : "ネタバレなし"}
-            </span>
-          </div>
         </div>
-      )}
+      ) : (
+        <div className="space-y-3">
+          <div>
+            <p className="text-sm font-medium text-[var(--color-ink-primary)]">
+              読了メモ・感想を書く
+            </p>
+            <p className="mt-1 text-xs text-[var(--color-ink-muted)]">
+              自分用のメモとして残しつつ、公開範囲を選べます。
+            </p>
+          </div>
 
-      {isOpen && (
-        <div className="mt-3 space-y-3">
           {isLoading ? (
             <p className="text-xs text-[var(--color-ink-faint)]">読み込み中...</p>
           ) : (
@@ -250,7 +281,7 @@ export default function CompletedBookImpressionEditor({
               <textarea
                 value={body}
                 onChange={(event) => setBody(event.target.value)}
-                placeholder="読了後に残しておきたいメモや、この作品の感想を書いてください。"
+                placeholder="読了後に残しておきたいことや、この本の感想を書いてください。"
                 rows={4}
                 className="w-full rounded border border-[var(--color-border-subtle)] bg-white p-3 text-sm leading-relaxed text-[var(--color-ink-primary)] outline-none transition focus:border-[var(--color-accent)]"
               />
@@ -304,28 +335,39 @@ export default function CompletedBookImpressionEditor({
                 </span>
               </label>
 
-              {message && <p className="text-xs text-[var(--color-status-success)]">{message}</p>}
               {error && <p className="text-xs text-[var(--color-accent)]">{error}</p>}
 
-              <div className="flex flex-wrap justify-end gap-2">
-                {review && (
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  {review && (
+                    <button
+                      type="button"
+                      onClick={handleDelete}
+                      disabled={isSaving || isDeleting}
+                      className="text-xs text-[var(--color-ink-faint)] hover:text-[var(--color-accent)] disabled:opacity-50"
+                    >
+                      {isDeleting ? "削除中..." : "削除する"}
+                    </button>
+                  )}
+                </div>
+                <div className="flex flex-wrap justify-end gap-2">
                   <button
                     type="button"
-                    onClick={handleDelete}
+                    onClick={handleCancel}
                     disabled={isSaving || isDeleting}
                     className="btn-secondary-sm disabled:opacity-50"
                   >
-                    {isDeleting ? "削除中..." : "削除"}
+                    キャンセル
                   </button>
-                )}
-                <button
-                  type="button"
-                  onClick={handleSave}
-                  disabled={isSaving || isDeleting || !body.trim()}
-                  className="btn-primary disabled:opacity-50"
-                >
-                  {isSaving ? "保存中..." : "保存する"}
-                </button>
+                  <button
+                    type="button"
+                    onClick={handleSave}
+                    disabled={isSaving || isDeleting || !body.trim()}
+                    className="btn-primary-sm disabled:opacity-50"
+                  >
+                    {isSaving ? "保存中..." : "保存する"}
+                  </button>
+                </div>
               </div>
             </>
           )}
