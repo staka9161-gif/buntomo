@@ -82,8 +82,8 @@ export default async function UpdatesPage({ searchParams }: UpdatesPageProps) {
         </p>
       </div>
 
-      <section className="mb-8 space-y-5 rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] p-4">
-        <form action="/updates" className="flex flex-col gap-3 sm:flex-row">
+      <section className="mb-8 space-y-4 rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] p-3 sm:p-4">
+        <form action="/updates" className="flex flex-col gap-2.5 sm:flex-row">
           <input
             type="search"
             name="q"
@@ -102,11 +102,11 @@ export default async function UpdatesPage({ searchParams }: UpdatesPageProps) {
           </button>
         </form>
 
-        <div className="flex flex-wrap items-center gap-2 text-sm">
+        <div className="flex flex-wrap items-center gap-1.5 text-xs">
           <span className="text-xs font-medium text-[var(--color-ink-muted)]">種別</span>
           <Link
             href={buildUpdatesHref({ q: query, sort, tag: selectedTag })}
-            className={`rounded-full border px-3 py-1 ${
+            className={`rounded-full border px-2.5 py-0.5 ${
               selectedType
                 ? "border-[var(--color-border-subtle)] text-[var(--color-ink-muted)] hover:border-[var(--color-accent)]"
                 : "border-[var(--color-accent)] bg-[var(--color-accent)]/10 text-[var(--color-accent)]"
@@ -118,7 +118,7 @@ export default async function UpdatesPage({ searchParams }: UpdatesPageProps) {
             <Link
               key={type}
               href={buildUpdatesHref({ q: query, sort, type, tag: selectedTag })}
-              className={`rounded-full border px-3 py-1 ${
+              className={`rounded-full border px-2.5 py-0.5 ${
                 selectedType === type
                   ? "border-[var(--color-accent)] bg-[var(--color-accent)]/10 text-[var(--color-accent)]"
                   : "border-[var(--color-border-subtle)] text-[var(--color-ink-muted)] hover:border-[var(--color-accent)]"
@@ -129,11 +129,11 @@ export default async function UpdatesPage({ searchParams }: UpdatesPageProps) {
           ))}
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 text-sm">
+        <div className="flex flex-wrap items-center gap-1.5 text-xs">
           <span className="text-xs font-medium text-[var(--color-ink-muted)]">内容タグ</span>
           <Link
             href={buildUpdatesHref({ q: query, sort, type: selectedType })}
-            className={`rounded-full border px-3 py-1 ${
+            className={`rounded-full border px-2.5 py-0.5 ${
               selectedTag
                 ? "border-[var(--color-border-subtle)] text-[var(--color-ink-muted)] hover:border-[var(--color-accent)]"
                 : "border-[var(--color-accent)] bg-[var(--color-accent)]/10 text-[var(--color-accent)]"
@@ -145,7 +145,7 @@ export default async function UpdatesPage({ searchParams }: UpdatesPageProps) {
             <Link
               key={tag}
               href={buildUpdatesHref({ q: query, sort, type: selectedType, tag })}
-              className={`rounded-full border px-3 py-1 ${
+              className={`rounded-full border px-2.5 py-0.5 ${
                 selectedTag === tag
                   ? "border-[var(--color-accent)] bg-[var(--color-accent)]/10 text-[var(--color-accent)]"
                   : "border-[var(--color-border-subtle)] text-[var(--color-ink-muted)] hover:border-[var(--color-accent)]"
@@ -156,20 +156,20 @@ export default async function UpdatesPage({ searchParams }: UpdatesPageProps) {
           ))}
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--color-border-subtle)] pt-4">
+        <div className="flex flex-wrap items-center justify-between gap-2.5 border-t border-[var(--color-border-subtle)] pt-3">
           <p className="text-sm text-[var(--color-ink-muted)]">
             {filteredUpdates.length}件のお知らせ
             {hasFilters && <span className="ml-1">を表示中</span>}
           </p>
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
             {hasFilters && (
-              <Link href="/updates" className="text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-accent)]">
+              <Link href="/updates" className="text-xs text-[var(--color-ink-muted)] hover:text-[var(--color-accent)]">
                 条件をクリア
               </Link>
             )}
             <Link
               href={buildUpdatesHref({ q: query, sort: nextSort, type: selectedType, tag: selectedTag })}
-              className="rounded-full border border-[var(--color-border-subtle)] px-3 py-1 text-sm text-[var(--color-ink-muted)] hover:border-[var(--color-accent)]"
+              className="rounded-full border border-[var(--color-border-subtle)] px-2.5 py-0.5 text-xs text-[var(--color-ink-muted)] hover:border-[var(--color-accent)]"
             >
               {sort === "asc" ? "古い順 ↑" : "新しい順 ↓"}
             </Link>
