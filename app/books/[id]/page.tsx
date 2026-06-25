@@ -207,12 +207,12 @@ export default function BookDetailPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
       <div className="card-base p-6">
-        <div className="flex flex-col gap-6 sm:flex-row">
+        <div className="grid grid-cols-[96px_minmax(0,1fr)] gap-4 sm:grid-cols-[128px_minmax(0,1fr)] sm:gap-6">
           {book.coverImageUrl ? (
             <img
               src={book.coverImageUrl}
               alt={book.title}
-              className="mx-auto h-48 w-32 shrink-0 rounded-sm object-cover shadow-[var(--shadow-cover)] sm:mx-0"
+              className="h-36 w-24 shrink-0 rounded-sm object-cover shadow-[var(--shadow-cover)] sm:h-48 sm:w-32"
               onError={(e) => {
                 const el = e.target as HTMLImageElement;
                 el.style.display = "none";
@@ -220,7 +220,7 @@ export default function BookDetailPage() {
               }}
             />
           ) : null}
-          <div className={`mx-auto flex h-48 w-32 shrink-0 items-center justify-center rounded-sm bg-[rgb(31_42_68_/_0.05)] text-sm text-[var(--color-ink-faint)] sm:mx-0 ${book.coverImageUrl ? "hidden" : ""}`}>
+          <div className={`flex h-36 w-24 shrink-0 items-center justify-center rounded-sm bg-[rgb(31_42_68_/_0.05)] text-sm text-[var(--color-ink-faint)] sm:h-48 sm:w-32 ${book.coverImageUrl ? "hidden" : ""}`}>
             No Image
           </div>
 
@@ -340,20 +340,6 @@ export default function BookDetailPage() {
                       読了日: {new Date(myReading.completedAt).toLocaleDateString("ja-JP")}
                     </p>
                   )}
-                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                    <Link
-                      href={`/books/${book.id}/chat`}
-                      className="btn-primary-sm whitespace-nowrap"
-                    >
-                      読了チャットに参加
-                    </Link>
-                    <button
-                      onClick={handleRevertToReading}
-                      className="whitespace-nowrap text-xs text-[var(--color-ink-faint)] hover:text-[var(--color-accent)]"
-                    >
-                      読みかけに戻す
-                    </button>
-                  </div>
                 </div>
               )}
             </div>
@@ -361,7 +347,24 @@ export default function BookDetailPage() {
         </div>
 
         {isCompleted && myReading && (
-          <section className="mt-6 w-full rounded-md border border-[var(--color-border-subtle)] bg-[var(--color-bg-soft)] p-4 sm:p-5">
+          <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-[var(--color-border-subtle)] pt-4 sm:gap-3">
+            <Link
+              href={`/books/${book.id}/chat`}
+              className="btn-primary-sm whitespace-nowrap"
+            >
+              読了チャットに参加
+            </Link>
+            <button
+              onClick={handleRevertToReading}
+              className="whitespace-nowrap text-xs text-[var(--color-ink-faint)] hover:text-[var(--color-accent)]"
+            >
+              読みかけに戻す
+            </button>
+          </div>
+        )}
+
+        {isCompleted && myReading && (
+          <section className="mt-5 w-full rounded-md border border-[var(--color-border-subtle)] bg-[var(--color-bg-soft)] p-4 sm:p-5">
             <div className="mb-4">
               <h2 className="text-sm font-medium text-[var(--color-ink-primary)]">
                 読了メモ・感想
