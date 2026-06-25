@@ -207,12 +207,12 @@ export default function BookDetailPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
       <div className="card-base p-6">
-        <div className="flex gap-6">
+        <div className="flex flex-col gap-6 sm:flex-row">
           {book.coverImageUrl ? (
             <img
               src={book.coverImageUrl}
               alt={book.title}
-              className="h-48 w-32 shrink-0 rounded-sm object-cover shadow-[var(--shadow-cover)]"
+              className="mx-auto h-48 w-32 shrink-0 rounded-sm object-cover shadow-[var(--shadow-cover)] sm:mx-0"
               onError={(e) => {
                 const el = e.target as HTMLImageElement;
                 el.style.display = "none";
@@ -220,11 +220,11 @@ export default function BookDetailPage() {
               }}
             />
           ) : null}
-          <div className={`flex h-48 w-32 shrink-0 items-center justify-center rounded-sm bg-[rgb(31_42_68_/_0.05)] text-sm text-[var(--color-ink-faint)] ${book.coverImageUrl ? "hidden" : ""}`}>
+          <div className={`mx-auto flex h-48 w-32 shrink-0 items-center justify-center rounded-sm bg-[rgb(31_42_68_/_0.05)] text-sm text-[var(--color-ink-faint)] sm:mx-0 ${book.coverImageUrl ? "hidden" : ""}`}>
             No Image
           </div>
 
-          <div className="flex-1">
+          <div className="min-w-0 flex-1">
             <h1 className="font-serif text-xl font-medium tracking-[0.06em] text-[var(--color-ink-primary)] md:text-2xl">{book.title}</h1>
             <p className="mt-1 text-sm text-[var(--color-ink-muted)]">{book.author}</p>
             {book.totalPages > 0 && (
@@ -340,16 +340,16 @@ export default function BookDetailPage() {
                       読了日: {new Date(myReading.completedAt).toLocaleDateString("ja-JP")}
                     </p>
                   )}
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                     <Link
                       href={`/books/${book.id}/chat`}
-                      className="btn-primary-sm"
+                      className="btn-primary-sm whitespace-nowrap"
                     >
                       読了チャットに参加
                     </Link>
                     <button
                       onClick={handleRevertToReading}
-                      className="text-xs text-[var(--color-ink-faint)] hover:text-[var(--color-accent)]"
+                      className="whitespace-nowrap text-xs text-[var(--color-ink-faint)] hover:text-[var(--color-accent)]"
                     >
                       読みかけに戻す
                     </button>
@@ -357,55 +357,42 @@ export default function BookDetailPage() {
                 </div>
               )}
             </div>
-            {isCompleted && myReading && (
-              <div className="mt-4 rounded-md border border-[var(--color-border-subtle)] bg-[var(--color-bg-soft)] p-3">
-                <div className="mb-3">
-                  <h2 className="text-sm font-medium text-[var(--color-ink-primary)]">
-                    読了メモ・感想
-                  </h2>
-                  <p className="mt-1 text-xs leading-relaxed text-[var(--color-ink-muted)]">
-                    読了した本について、自分の感想を残せます。
-                  </p>
-                </div>
-                <div className="space-y-3">
-                    <CompletedBookImpressionEditor
-                      bookId={book.id}
-                      workId={impressionWorkId}
-                      editionId={myReading.editionId}
-                    />
-                    <div className="flex flex-wrap items-center gap-3">
-                      <Link
-                        href={impressionWorkId ? `/works/${impressionWorkId}` : `/books/${book.id}/impressions`}
-                        className="text-xs text-[var(--color-accent)] hover:underline"
-                      >
-                        みんなの感想を見る
-                      </Link>
-                      <Link
-                        href="/mypage/completed"
-                        className="text-xs text-[var(--color-ink-faint)] hover:text-[var(--color-accent)]"
-                      >
-                        読了本一覧に戻る
-                      </Link>
-                    </div>
-                  </div>
-                {false ? (
-                  <div className="space-y-2">
-                    <p className="text-xs text-[var(--color-ink-muted)]">
-                      この本はまだ読了メモ・感想の投稿に対応していません。
-                    </p>
-                    <Link
-                      href="/mypage/completed"
-                      className="text-xs text-[var(--color-accent)] hover:underline"
-                    >
-                      読了本一覧に戻る
-                    </Link>
-                  </div>
-                ) : null}
-              </div>
-            )}
           </div>
         </div>
 
+        {isCompleted && myReading && (
+          <section className="mt-6 w-full rounded-md border border-[var(--color-border-subtle)] bg-[var(--color-bg-soft)] p-4 sm:p-5">
+            <div className="mb-4">
+              <h2 className="text-sm font-medium text-[var(--color-ink-primary)]">
+                読了メモ・感想
+              </h2>
+              <p className="mt-1 text-xs leading-relaxed text-[var(--color-ink-muted)]">
+                読了した本について、自分の感想を残せます。
+              </p>
+            </div>
+            <div className="space-y-3">
+              <CompletedBookImpressionEditor
+                bookId={book.id}
+                workId={impressionWorkId}
+                editionId={myReading.editionId}
+              />
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                <Link
+                  href={impressionWorkId ? `/works/${impressionWorkId}` : `/books/${book.id}/impressions`}
+                  className="whitespace-nowrap text-xs text-[var(--color-accent)] hover:underline"
+                >
+                  みんなの感想を見る
+                </Link>
+                <Link
+                  href="/mypage/completed"
+                  className="whitespace-nowrap text-xs text-[var(--color-ink-faint)] hover:text-[var(--color-accent)]"
+                >
+                  読了本一覧に戻る
+                </Link>
+              </div>
+            </div>
+          </section>
+        )}
       </div>
 
       {/* 今読んでいる人 */}
