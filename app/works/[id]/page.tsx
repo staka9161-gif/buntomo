@@ -72,6 +72,8 @@ interface Review {
   edition: { id: string; format: string; publisher: string | null } | null;
 }
 
+type ReviewVisibility = "public" | "friends" | "private";
+
 export default function WorkPage() {
   const params = useParams();
   const workId = params.id as string;
@@ -81,6 +83,7 @@ export default function WorkPage() {
   const [data, setData] = useState<WorkData | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [selectedEditionId, setSelectedEditionId] = useState<string | null>(null);
+  const [defaultReviewVisibility, setDefaultReviewVisibility] = useState<ReviewVisibility>("public");
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
 
@@ -110,6 +113,13 @@ export default function WorkPage() {
       if (res.ok) {
         const json = await res.json();
         setReviews(json.reviews);
+        if (
+          json.defaultReviewVisibility === "public" ||
+          json.defaultReviewVisibility === "friends" ||
+          json.defaultReviewVisibility === "private"
+        ) {
+          setDefaultReviewVisibility(json.defaultReviewVisibility);
+        }
       }
     } catch {
       // network error
@@ -229,11 +239,12 @@ export default function WorkPage() {
         </div>
         <ReviewList reviews={reviews} editionFilter={selectedEditionId} />
         <ReviewForm
-          key={myReview?.id ?? "new-review"}
+          key={`${myReview?.id ?? "new-review"}-${defaultReviewVisibility}`}
           workId={data.work.id}
           editionId={selectedEditionId}
           isLoggedIn={!!session}
           existingReview={myReview}
+          defaultVisibility={defaultReviewVisibility}
           onSubmitted={fetchReviews}
         />
       </div>

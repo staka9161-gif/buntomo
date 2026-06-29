@@ -20,6 +20,18 @@ interface Visibility {
 
 const DEFAULT_VIS: Visibility = { bio: "public", area: "public", links: "public", readings: "public" };
 
+type ReviewVisibility = "public" | "friends" | "private";
+
+const reviewVisibilityOptions: Array<{
+  value: ReviewVisibility;
+  label: string;
+  description: string;
+}> = [
+  { value: "public", label: "公開", description: "だれでも見ることができます" },
+  { value: "friends", label: "友だちのみ", description: "友だちだけが見ることができます" },
+  { value: "private", label: "非公開", description: "自分だけが見ることができます" },
+];
+
 function VisToggle({ value, onChange, label }: { value: "public" | "friends"; onChange: (v: "public" | "friends") => void; label?: string }) {
   const isPublic = value === "public";
   return (
@@ -77,6 +89,7 @@ export default function ProfileEditPage() {
   });
   const [customLinks, setCustomLinks] = useState<CustomLink[]>([]);
   const [visibility, setVisibility] = useState<Visibility>({ ...DEFAULT_VIS });
+  const [defaultReviewVisibility, setDefaultReviewVisibility] = useState<ReviewVisibility>("public");
   const [nameCollision, setNameCollision] = useState<number | null>(null);
   const nameDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -134,6 +147,7 @@ export default function ProfileEditPage() {
           setHandleInput(data.profile.handle || "");
           setCustomLinks(data.profile.customLinks || []);
           if (data.profile.visibility) setVisibility(data.profile.visibility);
+          setDefaultReviewVisibility(data.profile.defaultReviewVisibility || "public");
           setAccountForm((prev) => ({ ...prev, email: data.profile.email || "" }));
         }
       })
@@ -246,6 +260,7 @@ export default function ProfileEditPage() {
           handle: handleInput.trim(),
           customLinks: validCustomLinks,
           visibility,
+          defaultReviewVisibility,
         }),
       });
       if (res.ok) {
@@ -558,6 +573,42 @@ export default function ProfileEditPage() {
 
         {/* 読書記録の公開範囲 */}
         <VisToggle label="読書記録の公開範囲" value={visibility.readings} onChange={(v) => setVisibility({ ...visibility, readings: v })} />
+
+        {/* 読了メモ・感想の初期公開範囲 */}
+        <fieldset className="space-y-2 rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-bg-soft)] p-4">
+          <legend className="px-1 text-sm font-medium text-[var(--color-ink-primary)]">
+            読了メモ・感想の初期公開範囲
+          </legend>
+          <p className="text-xs leading-relaxed text-[var(--color-ink-muted)]">
+            新しく読了メモ・感想を書くときの最初の公開範囲です。保存済みの感想には影響しません。
+          </p>
+          <div className="grid gap-2 sm:grid-cols-3">
+            {reviewVisibilityOptions.map((option) => (
+              <label
+                key={option.value}
+                className={`rounded border px-3 py-2 text-sm ${
+                  defaultReviewVisibility === option.value
+                    ? "border-[var(--color-accent)] bg-[var(--color-accent-soft)]"
+                    : "border-[var(--color-border-subtle)] bg-[var(--color-bg-base)]"
+                }`}
+              >
+                <span className="flex items-center gap-2 font-medium text-[var(--color-ink-primary)]">
+                  <input
+                    type="radio"
+                    name="default-review-visibility"
+                    value={option.value}
+                    checked={defaultReviewVisibility === option.value}
+                    onChange={() => setDefaultReviewVisibility(option.value)}
+                  />
+                  {option.label}
+                </span>
+                <span className="mt-1 block text-xs text-[var(--color-ink-muted)]">
+                  {option.description}
+                </span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
 
         {/* 保存 */}
         <div className="flex items-center gap-3">

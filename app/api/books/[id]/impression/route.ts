@@ -5,6 +5,17 @@ import { requireActiveUser } from "@/lib/active-user";
 
 const ALLOWED_VISIBILITIES = new Set(["public", "friends", "private"]);
 
+async function getDefaultReviewVisibility(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { defaultReviewVisibility: true },
+  });
+
+  return ALLOWED_VISIBILITIES.has(user?.defaultReviewVisibility ?? "")
+    ? user!.defaultReviewVisibility
+    : "public";
+}
+
 type ImpressionTarget =
   | {
       bookId: string;
@@ -109,8 +120,11 @@ export async function GET(
       return targetErrorResponse(target.error);
     }
 
-    const review = await findOwnReview(session.user.id, target);
-    return NextResponse.json({ review });
+    const [review, defaultVisibility] = await Promise.all([
+      findOwnReview(session.user.id, target),
+      getDefaultReviewVisibility(session.user.id),
+    ]);
+    return NextResponse.json({ review, defaultVisibility });
   } catch (error) {
     console.error("Book impression GET error:", error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
@@ -166,9 +180,12 @@ export async function POST(
       }
     }
 
-    const existing = await findOwnReview(activeUser.userId, target);
+    const [existing, defaultVisibility] = await Promise.all([
+      findOwnReview(activeUser.userId, target),
+      getDefaultReviewVisibility(activeUser.userId),
+    ]);
     const visibility =
-      typeof payload.visibility === "string" ? payload.visibility : existing?.visibility ?? "public";
+      typeof payload.visibility === "string" ? payload.visibility : existing?.visibility ?? defaultVisibility;
     if (!ALLOWED_VISIBILITIES.has(visibility)) {
       return NextResponse.json({ error: "Invalid visibility" }, { status: 400 });
     }

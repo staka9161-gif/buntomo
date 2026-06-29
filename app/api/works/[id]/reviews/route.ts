@@ -5,6 +5,17 @@ import { requireActiveUser } from "@/lib/active-user";
 
 const ALLOWED_VISIBILITIES = new Set(["public", "friends", "private"]);
 
+async function getDefaultReviewVisibility(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { defaultReviewVisibility: true },
+  });
+
+  return ALLOWED_VISIBILITIES.has(user?.defaultReviewVisibility ?? "")
+    ? user!.defaultReviewVisibility
+    : "public";
+}
+
 // GET /api/works/:id/reviews
 export async function GET(
   request: NextRequest,
@@ -15,7 +26,8 @@ export async function GET(
     const session = await auth();
     const viewerId = session?.user?.id ?? null;
 
-    const reviews = await prisma.review.findMany({
+    const [reviews, defaultReviewVisibility] = await Promise.all([
+      prisma.review.findMany({
       where: {
         workId: id,
         user: { deactivatedAt: null },
@@ -54,7 +66,9 @@ export async function GET(
         },
       },
       orderBy: { postedAt: "desc" },
-    });
+      }),
+      viewerId ? getDefaultReviewVisibility(viewerId) : Promise.resolve("public"),
+    ]);
 
     const { getDisplayNames } = await import("@/lib/user-display");
     const reviewDisplayNames = await getDisplayNames(reviews.map((r) => r.user.id));
@@ -62,7 +76,7 @@ export async function GET(
       ...r,
       user: { ...r.user, displayName: reviewDisplayNames.get(r.user.id) ?? r.user.name },
     }));
-    return NextResponse.json({ reviews: enriched });
+    return NextResponse.json({ reviews: enriched, defaultReviewVisibility });
   } catch (e) {
     console.error("Reviews GET error:", e);
     return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });
@@ -120,7 +134,8 @@ export async function POST(
       where: { userId_workId: { userId: myId, workId } },
     });
 
-    const visibility = typeof body.visibility === "string" ? body.visibility : existing?.visibility ?? "public";
+    const defaultVisibility = await getDefaultReviewVisibility(myId);
+    const visibility = typeof body.visibility === "string" ? body.visibility : existing?.visibility ?? defaultVisibility;
     if (!ALLOWED_VISIBILITIES.has(visibility)) {
       return NextResponse.json({ error: "公開範囲が正しくありません" }, { status: 400 });
     }

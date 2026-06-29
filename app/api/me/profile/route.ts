@@ -18,7 +18,10 @@ const PROFILE_SELECT = {
   area: true,
   customLinks: true,
   visibility: true,
+  defaultReviewVisibility: true,
 } as const;
+
+const ALLOWED_REVIEW_VISIBILITIES = new Set(["public", "friends", "private"]);
 
 export async function GET() {
   try {
@@ -126,6 +129,16 @@ export async function PATCH(request: NextRequest) {
 
     if (body.visibility !== undefined) {
       updateData.visibility = JSON.stringify(body.visibility);
+    }
+
+    if (body.defaultReviewVisibility !== undefined) {
+      if (
+        typeof body.defaultReviewVisibility !== "string" ||
+        !ALLOWED_REVIEW_VISIBILITIES.has(body.defaultReviewVisibility)
+      ) {
+        return NextResponse.json({ error: "読了メモ・感想の初期公開範囲が正しくありません" }, { status: 400 });
+      }
+      updateData.defaultReviewVisibility = body.defaultReviewVisibility;
     }
 
     if (body.customLinks !== undefined) {

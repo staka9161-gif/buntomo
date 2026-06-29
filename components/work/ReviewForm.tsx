@@ -18,6 +18,7 @@ interface ReviewFormProps {
   editionId: string | null;
   isLoggedIn: boolean;
   existingReview: ExistingReview | null;
+  defaultVisibility: ReviewVisibility;
   onSubmitted: () => void;
 }
 
@@ -26,11 +27,12 @@ export default function ReviewForm({
   editionId,
   isLoggedIn,
   existingReview,
+  defaultVisibility,
   onSubmitted,
 }: ReviewFormProps) {
   const [body, setBody] = useState(existingReview?.body ?? "");
   const [rating, setRating] = useState<number | null>(existingReview?.rating ?? null);
-  const [visibility, setVisibility] = useState<ReviewVisibility>(existingReview?.visibility ?? "public");
+  const [visibility, setVisibility] = useState<ReviewVisibility>(existingReview?.visibility ?? defaultVisibility);
   const [isSpoiler, setIsSpoiler] = useState(existingReview?.isSpoiler ?? false);
   const [submitting, setSubmitting] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -78,7 +80,7 @@ export default function ReviewForm({
       if (res.ok) {
         setBody("");
         setRating(null);
-        setVisibility("public");
+        setVisibility(defaultVisibility);
         setIsSpoiler(false);
         onSubmitted();
       } else {

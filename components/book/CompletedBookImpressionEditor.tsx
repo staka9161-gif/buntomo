@@ -44,6 +44,10 @@ function createExcerpt(value: string, maxLength = 110) {
   return normalized.length > maxLength ? `${normalized.slice(0, maxLength)}...` : normalized;
 }
 
+function normalizeVisibility(value: unknown): ReviewVisibility {
+  return value === "friends" || value === "private" || value === "public" ? value : "public";
+}
+
 export default function CompletedBookImpressionEditor({
   bookId,
   workId,
@@ -56,19 +60,20 @@ export default function CompletedBookImpressionEditor({
   const [body, setBody] = useState("");
   const [rating, setRating] = useState<number | null>(null);
   const [visibility, setVisibility] = useState<ReviewVisibility>("public");
+  const [defaultVisibility, setDefaultVisibility] = useState<ReviewVisibility>("public");
   const [isSpoiler, setIsSpoiler] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const applyReview = (nextReview: ExistingReview | null) => {
+  const applyReview = useCallback((nextReview: ExistingReview | null, fallbackVisibility = defaultVisibility) => {
     setReview(nextReview);
     setBody(nextReview?.body ?? "");
     setRating(nextReview?.rating ?? null);
-    setVisibility(nextReview?.visibility ?? "public");
+    setVisibility(nextReview?.visibility ?? fallbackVisibility);
     setIsSpoiler(nextReview?.isSpoiler ?? false);
-  };
+  }, [defaultVisibility]);
 
   const loadReview = useCallback(
     async ({ showLoading = true }: { showLoading?: boolean } = {}) => {
@@ -91,14 +96,16 @@ export default function CompletedBookImpressionEditor({
         }
 
         const data = await res.json();
-        applyReview((data.review as ExistingReview | null | undefined) ?? null);
+        const nextDefaultVisibility = normalizeVisibility(data.defaultVisibility);
+        setDefaultVisibility(nextDefaultVisibility);
+        applyReview((data.review as ExistingReview | null | undefined) ?? null, nextDefaultVisibility);
       } finally {
         if (showLoading) {
           setIsLoading(false);
         }
       }
     },
-    [bookId, session?.user?.id]
+    [applyReview, bookId, session?.user?.id]
   );
 
   useEffect(() => {
@@ -113,7 +120,9 @@ export default function CompletedBookImpressionEditor({
 
         const data = await res.json();
         if (!ignore) {
-          applyReview((data.review as ExistingReview | null | undefined) ?? null);
+          const nextDefaultVisibility = normalizeVisibility(data.defaultVisibility);
+          setDefaultVisibility(nextDefaultVisibility);
+          applyReview((data.review as ExistingReview | null | undefined) ?? null, nextDefaultVisibility);
         }
       } catch {
         // Opening the editor will surface loading errors if needed.
@@ -124,7 +133,7 @@ export default function CompletedBookImpressionEditor({
     return () => {
       ignore = true;
     };
-  }, [bookId, session?.user?.id]);
+  }, [applyReview, bookId, session?.user?.id]);
 
   const reviewExcerpt = useMemo(() => {
     return review ? createExcerpt(review.body) : null;
