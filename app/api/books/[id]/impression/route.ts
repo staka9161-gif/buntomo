@@ -24,6 +24,18 @@ type ImpressionTarget =
     }
   | { error: "book_not_found" | "not_completed" };
 
+async function findExistingWorkId(candidates: Array<string | null | undefined>) {
+  const candidateIds = Array.from(new Set(candidates.filter((id): id is string => Boolean(id))));
+  if (candidateIds.length === 0) return null;
+
+  const existingWorks = await prisma.work.findMany({
+    where: { id: { in: candidateIds } },
+    select: { id: true },
+  });
+  const existingIds = new Set(existingWorks.map((work) => work.id));
+  return candidateIds.find((id) => existingIds.has(id)) ?? null;
+}
+
 async function resolveImpressionTarget(bookId: string, userId: string): Promise<ImpressionTarget> {
   const [book, reading] = await Promise.all([
     prisma.book.findUnique({
@@ -61,14 +73,16 @@ async function resolveImpressionTarget(bookId: string, userId: string): Promise<
     return { error: "not_completed" };
   }
 
+  const workId = await findExistingWorkId([
+    reading.workId,
+    reading.edition?.workId,
+    reading.book?.migratedWorkId,
+    book.migratedWorkId,
+  ]);
+
   return {
     bookId: book.id,
-    workId:
-      reading.workId ??
-      reading.edition?.workId ??
-      reading.book?.migratedWorkId ??
-      book.migratedWorkId ??
-      null,
+    workId,
     editionId: reading.editionId,
   };
 }

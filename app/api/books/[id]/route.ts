@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 
+async function findExistingWorkId(workId: string | null | undefined) {
+  if (!workId) return null;
+  const work = await prisma.work.findUnique({
+    where: { id: workId },
+    select: { id: true },
+  });
+  return work?.id ?? null;
+}
+
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -29,6 +38,7 @@ export async function GET(
         },
       }),
     ]);
+    const migratedWorkId = await findExistingWorkId(book.migratedWorkId);
 
     let readingCount = 0;
     let completedCount = 0;
@@ -38,11 +48,14 @@ export async function GET(
     }
 
     return NextResponse.json({
-      book,
+      book: {
+        ...book,
+        migratedWorkId,
+      },
       readingCount,
       completedCount,
       eventCount,
-      migratedWorkId: book.migratedWorkId,
+      migratedWorkId,
     });
   } catch (e) {
     console.error("Book detail GET error:", e);

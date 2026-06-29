@@ -28,6 +28,13 @@ export default async function BookImpressionsPage({ params }: BookImpressionsPag
     notFound();
   }
 
+  const migratedWork = book.migratedWorkId
+    ? await prisma.work.findUnique({
+        where: { id: book.migratedWorkId },
+        select: { id: true },
+      })
+    : null;
+
   const reviews = await prisma.review.findMany({
     where: {
       bookId,
@@ -97,9 +104,9 @@ export default async function BookImpressionsPage({ params }: BookImpressionsPag
         <p className="mt-2 text-sm leading-relaxed text-[var(--color-ink-muted)]">
           {book.title} / {book.author}
         </p>
-        {book.migratedWorkId ? (
+        {migratedWork ? (
           <p className="mt-3 text-sm">
-            <Link href={`/works/${book.migratedWorkId}`} className="text-[var(--color-accent)] hover:underline">
+            <Link href={`/works/${migratedWork.id}`} className="text-[var(--color-accent)] hover:underline">
               作品ページのみんなの感想を見る
             </Link>
           </p>

@@ -24,6 +24,20 @@ export async function GET(request: NextRequest) {
       orderBy: { updatedAt: "desc" },
     });
     const validReadings = readings.filter((r) => r.book != null);
+    const candidateWorkIds = Array.from(
+      new Set(
+        validReadings
+          .flatMap((r) => [r.workId, r.edition?.workId, r.book?.migratedWorkId])
+          .filter((id): id is string => Boolean(id))
+      )
+    );
+    const existingWorks = candidateWorkIds.length
+      ? await prisma.work.findMany({
+          where: { id: { in: candidateWorkIds } },
+          select: { id: true },
+        })
+      : [];
+    const existingWorkIds = new Set(existingWorks.map((work) => work.id));
 
     // 各書籍の読書中・読了カウント＋読書会数を取得
     const bookIds = validReadings.map((r) => r.bookId).filter((id): id is string => id != null);
@@ -74,6 +88,17 @@ export async function GET(request: NextRequest) {
 
     const readingsWithCounts = validReadings.map((r) => ({
       ...r,
+      workId: r.workId && existingWorkIds.has(r.workId) ? r.workId : null,
+      edition: r.edition && existingWorkIds.has(r.edition.workId) ? r.edition : null,
+      book: r.book
+        ? {
+            ...r.book,
+            migratedWorkId:
+              r.book.migratedWorkId && existingWorkIds.has(r.book.migratedWorkId)
+                ? r.book.migratedWorkId
+                : null,
+          }
+        : null,
       readingCount: (r.bookId ? countMap.get(r.bookId)?.reading : 0) ?? 0,
       completedCount: (r.bookId ? countMap.get(r.bookId)?.completed : 0) ?? 0,
       eventCount: (r.bookId ? eventCountMap.get(r.bookId) : 0) ?? 0,
