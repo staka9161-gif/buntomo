@@ -19,13 +19,27 @@ const statusOptions = [
   { value: "suspended", label: "停止中" },
   { value: "deactivated", label: "退会済み" },
   { value: "scheduledDeletion", label: "削除予定" },
+  { value: "admin", label: "管理者" },
 ];
 
 function formatDate(value: Date | string | null) {
-  if (!value) return "-";
+  if (!value) return "—";
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "-";
+  if (Number.isNaN(date.getTime())) return "—";
   return date.toISOString().slice(0, 10);
+}
+
+function formatDateTime(value: Date | string | null) {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  return new Intl.DateTimeFormat("ja-JP", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
 }
 
 function buildHref(params: {
@@ -69,10 +83,12 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
       </div>
 
       <section className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <SummaryCard label="総ユーザー数" value={data.summary.totalUsers} />
-        <SummaryCard label="利用中" value={data.summary.activeUsers} />
+        <SummaryCard label="登録アカウント数" value={data.summary.registeredAccounts} />
+        <SummaryCard label="一般利用者" value={data.summary.generalUsers} />
+        <SummaryCard label="有効利用者" value={data.summary.activeGeneralUsers} />
         <SummaryCard label="停止中" value={data.summary.suspendedUsers} />
         <SummaryCard label="退会済み" value={data.summary.deactivatedUsers} />
+        <SummaryCard label="削除予定" value={data.summary.scheduledDeletionUsers} />
         <SummaryCard label="管理者" value={data.summary.adminUsers} />
       </section>
 
@@ -178,7 +194,7 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-[1180px] w-full text-left text-sm">
+            <table className="min-w-[1260px] w-full text-left text-sm">
               <thead className="bg-gray-50 text-xs uppercase tracking-wide text-gray-500">
                 <tr>
                   <th className="px-4 py-3">表示名</th>
@@ -192,6 +208,7 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
                   <th className="px-4 py-3">読書記録</th>
                   <th className="px-4 py-3">友だち</th>
                   <th className="px-4 py-3">登録日</th>
+                  <th className="px-4 py-3">最終操作日</th>
                   <th className="px-4 py-3">更新日</th>
                   <th className="px-4 py-3">削除予定日</th>
                 </tr>
@@ -249,6 +266,9 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
                     <td className="px-4 py-3 tabular-nums text-gray-700">{user.readingCount}</td>
                     <td className="px-4 py-3 tabular-nums text-gray-700">{user.friendCount}</td>
                     <td className="px-4 py-3 text-gray-600">{formatDate(user.createdAt)}</td>
+                    <td className="whitespace-nowrap px-4 py-3 text-gray-600">
+                      {formatDateTime(user.lastActivityAt)}
+                    </td>
                     <td className="px-4 py-3 text-gray-600">{formatDate(user.updatedAt)}</td>
                     <td className="px-4 py-3 text-gray-600">{formatDate(user.scheduledDeletionAt)}</td>
                   </tr>

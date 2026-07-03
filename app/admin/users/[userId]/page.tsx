@@ -29,6 +29,19 @@ function formatDateTime(value: Date | string | null) {
   }).format(date);
 }
 
+function formatLastActivityDateTime(value: Date | string | null) {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  return new Intl.DateTimeFormat("ja-JP", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+}
+
 function valueOrUnset(value: string | null) {
   return value?.trim() || "未設定";
 }
@@ -129,6 +142,7 @@ export default async function AdminUserDetailPage({ params }: AdminUserDetailPag
             <InfoItem label="画像" value={user.hasImage ? "画像あり" : "画像なし"} />
             <InfoItem label="外部画像URL" value={user.hasExternalImage ? "あり" : "なし"} />
             <InfoItem label="登録日" value={formatDate(user.createdAt)} />
+            <InfoItem label="最後にブントモで操作した日" value={formatLastActivityDateTime(user.lastActivityAt)} />
             <InfoItem label="更新日" value={formatDate(user.updatedAt)} />
             <InfoItem label="退会日時" value={formatDate(user.deactivatedAt)} />
             <InfoItem label="削除予定日" value={formatDate(user.scheduledDeletionAt)} />

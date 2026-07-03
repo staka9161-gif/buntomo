@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { isAdmin } from "@/lib/admin";
 import { prisma } from "@/lib/db";
+import { getAdminUserSummary } from "@/lib/admin-users";
 
 export const metadata = {
   title: "管理",
@@ -124,9 +125,7 @@ export default async function AdminPage() {
   const [
     pendingReports,
     reviewingReports,
-    suspendedUsers,
-    deactivatedUsers,
-    scheduledDeletionUsers,
+    userSummary,
     pendingSuspensionAppeals,
     reviewingSuspensionAppeals,
     publishedAnnouncements,
@@ -137,9 +136,7 @@ export default async function AdminPage() {
   ] = await Promise.all([
     prisma.report.count({ where: { status: "pending" } }),
     prisma.report.count({ where: { status: "reviewing" } }),
-    prisma.user.count({ where: { accountStatus: "suspended", deactivatedAt: null } }),
-    prisma.user.count({ where: { deactivatedAt: { not: null } } }),
-    prisma.user.count({ where: { scheduledDeletionAt: { not: null } } }),
+    getAdminUserSummary(),
     prisma.suspensionAppeal.count({ where: { status: "pending" } }),
     prisma.suspensionAppeal.count({ where: { status: "reviewing" } }),
     prisma.importantAnnouncement.count({ where: { status: "published" } }),
@@ -169,6 +166,30 @@ export default async function AdminPage() {
 
   const summaryCards = [
     {
+      label: "登録アカウント数",
+      value: userSummary.registeredAccounts,
+      href: "/admin/users",
+      tone: "gray",
+    },
+    {
+      label: "一般利用者",
+      value: userSummary.generalUsers,
+      href: "/admin/users",
+      tone: "gray",
+    },
+    {
+      label: "有効利用者",
+      value: userSummary.activeGeneralUsers,
+      href: "/admin/users?status=active",
+      tone: "gray",
+    },
+    {
+      label: "管理者",
+      value: userSummary.adminUsers,
+      href: "/admin/users?status=admin",
+      tone: "gray",
+    },
+    {
       label: "未対応通報",
       value: pendingReports,
       href: "/admin/reports?status=pending",
@@ -182,21 +203,21 @@ export default async function AdminPage() {
     },
     {
       label: "停止中ユーザー",
-      value: suspendedUsers,
+      value: userSummary.suspendedUsers,
       href: "/admin/users?status=suspended",
-      tone: suspendedUsers > 0 ? "amber" : "gray",
+      tone: userSummary.suspendedUsers > 0 ? "amber" : "gray",
     },
     {
       label: "退会済みユーザー",
-      value: deactivatedUsers,
+      value: userSummary.deactivatedUsers,
       href: "/admin/users?status=deactivated",
       tone: "gray",
     },
     {
       label: "削除予定ユーザー",
-      value: scheduledDeletionUsers,
+      value: userSummary.scheduledDeletionUsers,
       href: "/admin/users?status=scheduledDeletion",
-      tone: scheduledDeletionUsers > 0 ? "amber" : "gray",
+      tone: userSummary.scheduledDeletionUsers > 0 ? "amber" : "gray",
     },
     {
       label: "停止異議 未対応",

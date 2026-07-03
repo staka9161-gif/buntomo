@@ -1,5 +1,6 @@
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
+import { getLastUserActivity, getLastUserActivityMap } from "@/lib/admin-user-activity";
 
 export type AdminUserStatusFilter =
   | "all"
@@ -114,7 +115,7 @@ function buildUserWhere(
 
   if (status === "active") {
     where.deactivatedAt = null;
-    where.accountStatus = { not: "suspended" };
+    where.accountStatus = "active";
   } else if (status === "suspended") {
     where.deactivatedAt = null;
     where.accountStatus = "suspended";
@@ -141,6 +142,38 @@ function buildUserWhere(
   return where;
 }
 
+export async function getAdminUserSummary() {
+  const [
+    registeredAccounts,
+    generalUsers,
+    activeGeneralUsers,
+    suspendedUsers,
+    deactivatedUsers,
+    scheduledDeletionUsers,
+    adminUsers,
+  ] = await prisma.$transaction([
+    prisma.user.count(),
+    prisma.user.count({ where: { isAdmin: false } }),
+    prisma.user.count({
+      where: { isAdmin: false, deactivatedAt: null, accountStatus: "active" },
+    }),
+    prisma.user.count({ where: { accountStatus: "suspended" } }),
+    prisma.user.count({ where: { deactivatedAt: { not: null } } }),
+    prisma.user.count({ where: { scheduledDeletionAt: { not: null } } }),
+    prisma.user.count({ where: { isAdmin: true } }),
+  ]);
+
+  return {
+    registeredAccounts,
+    generalUsers,
+    activeGeneralUsers,
+    suspendedUsers,
+    deactivatedUsers,
+    scheduledDeletionUsers,
+    adminUsers,
+  };
+}
+
 export async function getAdminUsers(queryParams: AdminUsersQuery) {
   const query = String(queryParams.query ?? "").trim();
   const status = normalizeAdminUserStatus(queryParams.status);
@@ -151,13 +184,9 @@ export async function getAdminUsers(queryParams: AdminUsersQuery) {
   const where = buildUserWhere(query, status, hasReports, hasOpenReports);
   const skip = (page - 1) * pageSize;
 
-  const [totalUsers, activeUsers, suspendedUsers, deactivatedUsers, adminUsers, total, users] =
-    await prisma.$transaction([
-      prisma.user.count(),
-      prisma.user.count({ where: { deactivatedAt: null, accountStatus: "active" } }),
-      prisma.user.count({ where: { deactivatedAt: null, accountStatus: "suspended" } }),
-      prisma.user.count({ where: { deactivatedAt: { not: null } } }),
-      prisma.user.count({ where: { isAdmin: true } }),
+  const [summary, total, users] =
+    await Promise.all([
+      getAdminUserSummary(),
       prisma.user.count({ where }),
       prisma.user.findMany({
         where,
@@ -193,9 +222,10 @@ export async function getAdminUsers(queryParams: AdminUsersQuery) {
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const userIds = users.map((user) => user.id);
-  const reportGroups =
+  const [reportGroups, lastActivityByUserId] =
     userIds.length > 0
-      ? await prisma.report.groupBy({
+      ? await Promise.all([
+          prisma.report.groupBy({
           by: ["targetUserId", "status"],
           where: {
             targetUserId: { in: userIds },
@@ -203,8 +233,10 @@ export async function getAdminUsers(queryParams: AdminUsersQuery) {
           _count: {
             _all: true,
           },
-        })
-      : [];
+        }),
+          getLastUserActivityMap(userIds),
+        ])
+      : [[], new Map<string, Date>()];
 
   const reportSummaryByUserId = new Map<string, { total: number; open: number }>();
 
@@ -243,17 +275,12 @@ export async function getAdminUsers(queryParams: AdminUsersQuery) {
       suspendedAt: user.suspendedAt,
       suspendedReason: user.suspendedReason,
       suspendedUntil: user.suspendedUntil,
+      lastActivityAt: lastActivityByUserId.get(user.id) ?? null,
       reportSummary: reportSummaryByUserId.get(user.id) ?? { total: 0, open: 0 },
       readingCount: user._count.readings,
       friendCount: user._count.friendshipsRequested + user._count.friendshipsReceived,
     })),
-    summary: {
-      totalUsers,
-      activeUsers,
-      suspendedUsers,
-      deactivatedUsers,
-      adminUsers,
-    },
+    summary,
     total,
     page,
     pageSize,
@@ -366,6 +393,7 @@ export async function getAdminUserDetail(userId: string) {
   const conversationIds = new Set(
     dmPairs.map((message) => (message.senderId === userId ? message.recipientId : message.senderId))
   );
+  const lastActivityAt = await getLastUserActivity(userId);
 
   return {
     user: {
@@ -384,6 +412,7 @@ export async function getAdminUserDetail(userId: string) {
       suspendedAt: user.suspendedAt,
       suspendedReason: user.suspendedReason,
       suspendedUntil: user.suspendedUntil,
+      lastActivityAt,
       hasImage: Boolean(user.image),
       hasExternalImage: hasStoredImage(user.image),
       bio: user.bio,

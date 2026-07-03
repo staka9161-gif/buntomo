@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/admin";
+import { getAdminUserSummary } from "@/lib/admin-users";
 
 // GET /api/admin/stats
 // Work/Edition の統計情報
@@ -39,9 +40,7 @@ export async function GET() {
       updateNoticePublished,
       updateNoticeDraft,
       updateNoticeArchived,
-      suspendedUsers,
-      deactivatedUsers,
-      scheduledDeletionUsers,
+      userSummary,
       recentPendingReports,
     ] = await Promise.all([
       prisma.work.count(),
@@ -75,9 +74,7 @@ export async function GET() {
       prisma.updateNotice.count({ where: { status: "published" } }),
       prisma.updateNotice.count({ where: { status: "draft" } }),
       prisma.updateNotice.count({ where: { status: "archived" } }),
-      prisma.user.count({ where: { accountStatus: "suspended", deactivatedAt: null } }),
-      prisma.user.count({ where: { deactivatedAt: { not: null } } }),
-      prisma.user.count({ where: { scheduledDeletionAt: { not: null } } }),
+      getAdminUserSummary(),
       prisma.report.findMany({
         where: { status: "pending" },
         orderBy: { createdAt: "desc" },
@@ -138,10 +135,11 @@ export async function GET() {
         draft: updateNoticeDraft,
         archived: updateNoticeArchived,
       },
+      userStats: userSummary,
       userModerationStats: {
-        suspended: suspendedUsers,
-        deactivated: deactivatedUsers,
-        scheduledDeletion: scheduledDeletionUsers,
+        suspended: userSummary.suspendedUsers,
+        deactivated: userSummary.deactivatedUsers,
+        scheduledDeletion: userSummary.scheduledDeletionUsers,
       },
       recentPendingReports,
     });
