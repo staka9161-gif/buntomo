@@ -57,6 +57,7 @@ function BookSearchClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const restoredQueryRef = useRef<string | null>(null);
+  const pendingScrollRestoreRef = useRef<string | null>(null);
   const [query, setQuery] = useState("");
   const [activeReturnTo, setActiveReturnTo] = useState("/books/search");
   const [results, setResults] = useState<SearchResult[]>([]);
@@ -82,12 +83,12 @@ function BookSearchClient() {
       const res = await fetch(apiUrl(`/api/books/search?q=${encodeURIComponent(trimmedQuery)}`));
       if (!res.ok) throw new Error();
       const data = await res.json();
+      if (restoreScrollForUrl) {
+        pendingScrollRestoreRef.current = restoreScrollForUrl;
+      }
       setResults(data.books || []);
       setSource(data.meta?.source || "");
       setDbBookCount(data.meta?.dbBookCount || 0);
-      if (restoreScrollForUrl) {
-        restoreSearchScroll(restoreScrollForUrl);
-      }
     } catch {
       setResults([]);
     } finally {
@@ -105,6 +106,14 @@ function BookSearchClient() {
     setQuery(urlQuery);
     void runSearch(urlQuery, nextReturnTo);
   }, [runSearch, searchParams]);
+
+  useEffect(() => {
+    if (loading || results.length === 0 || !pendingScrollRestoreRef.current) return;
+
+    const searchUrl = pendingScrollRestoreRef.current;
+    pendingScrollRestoreRef.current = null;
+    restoreSearchScroll(searchUrl);
+  }, [loading, results.length]);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
