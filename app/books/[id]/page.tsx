@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { apiUrl } from "@/lib/api";
 import ProgressBar from "@/components/book/ProgressBar";
@@ -41,6 +41,7 @@ export default function BookDetailPage() {
   const bookId = params.id as string;
   const { data: session, status: sessionStatus } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [book, setBook] = useState<Book | null>(null);
   const [myReading, setMyReading] = useState<MyReading | null>(null);
   const [readingCount, setReadingCount] = useState(0);
@@ -203,9 +204,24 @@ export default function BookDetailPage() {
       myReading.book?.migratedWorkId ??
       book.migratedWorkId
     : null;
+  const searchReturnTo = getSafeSearchReturnTo(searchParams.get("returnTo"));
+  const appendReturnTo = (href: string) =>
+    searchReturnTo
+      ? `${href}${href.includes("?") ? "&" : "?"}returnTo=${encodeURIComponent(searchReturnTo)}`
+      : href;
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
+      {searchReturnTo && (
+        <div className="mb-3">
+          <Link
+            href={searchReturnTo}
+            className="text-sm text-[var(--color-accent)] hover:underline"
+          >
+            ← 検索結果に戻る
+          </Link>
+        </div>
+      )}
       <div className="card-base p-6">
         <div className="grid grid-cols-[96px_minmax(0,1fr)] gap-4 sm:grid-cols-[128px_minmax(0,1fr)] sm:gap-6">
           {book.coverImageUrl ? (
@@ -381,7 +397,9 @@ export default function BookDetailPage() {
               />
               <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
                 <Link
-                  href={impressionWorkId ? `/works/${impressionWorkId}` : `/books/${book.id}/impressions`}
+                  href={appendReturnTo(
+                    impressionWorkId ? `/works/${impressionWorkId}` : `/books/${book.id}/impressions`
+                  )}
                   className="whitespace-nowrap text-xs text-[var(--color-accent)] hover:underline"
                 >
                   みんなの感想を見る
@@ -419,4 +437,18 @@ export default function BookDetailPage() {
       </div>
     </div>
   );
+}
+
+function getSafeSearchReturnTo(value: string | null) {
+  if (!value || typeof window === "undefined") return null;
+
+  try {
+    const url = new URL(value, window.location.origin);
+    if (url.origin !== window.location.origin) return null;
+    if (url.pathname !== "/books/search") return null;
+
+    return `${url.pathname}${url.search}`;
+  } catch {
+    return null;
+  }
 }

@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
-import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { apiUrl } from "@/lib/api";
 import WorkHeader from "@/components/work/WorkHeader";
 import EditionSelector from "@/components/work/EditionSelector";
@@ -79,6 +80,7 @@ export default function WorkPage() {
   const workId = params.id as string;
   const { data: session } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [data, setData] = useState<WorkData | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -177,9 +179,21 @@ export default function WorkPage() {
   const myReview = session?.user?.id
     ? reviews.find((review) => review.user.id === session.user.id) ?? null
     : null;
+  const searchReturnTo = getSafeSearchReturnTo(searchParams.get("returnTo"));
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
+      {searchReturnTo && (
+        <div className="mb-3">
+          <Link
+            href={searchReturnTo}
+            className="text-sm text-[var(--color-accent)] hover:underline"
+          >
+            ← 検索結果に戻る
+          </Link>
+        </div>
+      )}
+
       {/* 1. 作品ヘッダー */}
       <div className="card-base p-6">
         <WorkHeader
@@ -259,4 +273,18 @@ export default function WorkPage() {
       </div>
     </div>
   );
+}
+
+function getSafeSearchReturnTo(value: string | null) {
+  if (!value || typeof window === "undefined") return null;
+
+  try {
+    const url = new URL(value, window.location.origin);
+    if (url.origin !== window.location.origin) return null;
+    if (url.pathname !== "/books/search") return null;
+
+    return `${url.pathname}${url.search}`;
+  } catch {
+    return null;
+  }
 }

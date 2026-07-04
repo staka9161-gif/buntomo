@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { apiUrl } from "@/lib/api";
 
@@ -24,6 +24,8 @@ interface SearchResult {
 export default function BookSearchPage() {
   const { data: session } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const restoredQueryRef = useRef<string | null>(null);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -40,22 +42,66 @@ export default function BookSearchPage() {
   });
   const [manualSubmitting, setManualSubmitting] = useState(false);
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!query.trim()) return;
+  const runSearch = useCallback(async (nextQuery: string, restoreScroll = false) => {
+    const trimmedQuery = nextQuery.trim();
+    if (!trimmedQuery) return;
     setLoading(true);
     try {
-      const res = await fetch(apiUrl(`/api/books/search?q=${encodeURIComponent(query)}`));
+      const res = await fetch(apiUrl(`/api/books/search?q=${encodeURIComponent(trimmedQuery)}`));
       if (!res.ok) throw new Error();
       const data = await res.json();
       setResults(data.books || []);
       setSource(data.meta?.source || "");
       setDbBookCount(data.meta?.dbBookCount || 0);
+      if (restoreScroll) {
+        restoreSearchScroll();
+      }
     } catch {
       setResults([]);
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  useEffect(() => {
+    const urlQuery = searchParams.get("q") ?? "";
+    if (!urlQuery.trim() || restoredQueryRef.current === urlQuery) return;
+
+    restoredQueryRef.current = urlQuery;
+    setQuery(urlQuery);
+    void runSearch(urlQuery, true);
+  }, [runSearch, searchParams]);
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) return;
+
+    router.replace(`/books/search?q=${encodeURIComponent(trimmedQuery)}`, { scroll: false });
+    restoredQueryRef.current = trimmedQuery;
+    await runSearch(trimmedQuery);
+  };
+
+  const currentReturnTo = (() => {
+    const params = searchParams.toString();
+    if (params) return `/books/search?${params}`;
+    const trimmedQuery = query.trim();
+    return trimmedQuery ? `/books/search?q=${encodeURIComponent(trimmedQuery)}` : "/books/search";
+  })();
+
+  const rememberSearchState = () => {
+    if (typeof window === "undefined") return;
+    try {
+      sessionStorage.setItem("bookSearch:lastUrl", currentReturnTo);
+      sessionStorage.setItem("bookSearch:scrollY", String(window.scrollY));
+    } catch {
+      // sessionStorage may be unavailable.
+    }
+  };
+
+  const buildReturnHref = (path: string, hash = "") => {
+    const separator = path.includes("?") ? "&" : "?";
+    return `${path}${separator}returnTo=${encodeURIComponent(currentReturnTo)}${hash}`;
   };
 
   // 学習シグナル送信（バックグラウンド）
@@ -91,11 +137,13 @@ export default function BookSearchPage() {
       });
 
       if (statusRes.ok) {
-        router.push(`/books/${registeredBook.id}`);
+        rememberSearchState();
+        router.push(buildReturnHref(`/books/${registeredBook.id}`));
       } else {
         const err = await statusRes.json();
         if (err.error?.includes("既に")) {
-          router.push(`/books/${registeredBook.id}`);
+          rememberSearchState();
+          router.push(buildReturnHref(`/books/${registeredBook.id}`));
         } else {
           alert(err.error || "登録に失敗しました");
         }
@@ -140,11 +188,13 @@ export default function BookSearchPage() {
       });
 
       if (statusRes.ok) {
-        router.push(`/books/${registeredBook.id}`);
+        rememberSearchState();
+        router.push(buildReturnHref(`/books/${registeredBook.id}`));
       } else {
         const err = await statusRes.json();
         if (err.error?.includes("既に")) {
-          router.push(`/books/${registeredBook.id}`);
+          rememberSearchState();
+          router.push(buildReturnHref(`/books/${registeredBook.id}`));
         } else {
           alert(err.error || "登録に失敗しました");
         }
@@ -328,7 +378,8 @@ export default function BookSearchPage() {
                     </span>
                     {book.bookDbId ? (
                       <Link
-                        href={`/books/${book.bookDbId}#events`}
+                        href={buildReturnHref(`/books/${book.bookDbId}`, "#events")}
+                        onClick={rememberSearchState}
                         className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs ${book.eventCount > 0 ? "bg-[var(--color-accent-soft)] text-[var(--color-accent)] hover:bg-[var(--color-accent-soft)]" : "bg-[rgb(31_42_68_/_0.04)] text-[var(--color-ink-faint)]"}`}
                       >
                         📅 {book.eventCount}件の読書会
@@ -345,6 +396,15 @@ export default function BookSearchPage() {
                     </p>
                   )}
                   <div className="mt-auto flex gap-2 pt-2">
+                    {book.bookDbId && (
+                      <Link
+                        href={buildReturnHref(`/books/${book.bookDbId}`)}
+                        onClick={rememberSearchState}
+                        className="border border-[var(--color-border-subtle)] bg-transparent px-3 py-1 text-xs tracking-[0.08em] text-[var(--color-ink-muted)] transition-colors hover:bg-[var(--color-bg-soft)] hover:text-[var(--color-accent)]"
+                      >
+                        本ページを見る
+                      </Link>
+                    )}
                     <button
                       onClick={() => handleAddBook(book, i, "READING")}
                       disabled={addingIndex === i}
@@ -377,4 +437,17 @@ export default function BookSearchPage() {
       )}
     </div>
   );
+}
+
+function restoreSearchScroll() {
+  if (typeof window === "undefined") return;
+  try {
+    const savedScrollY = Number(sessionStorage.getItem("bookSearch:scrollY") ?? "");
+    if (!Number.isFinite(savedScrollY) || savedScrollY <= 0) return;
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: savedScrollY });
+    });
+  } catch {
+    // sessionStorage may be unavailable.
+  }
 }
