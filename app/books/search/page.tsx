@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -22,6 +22,20 @@ interface SearchResult {
 }
 
 export default function BookSearchPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="mx-auto max-w-3xl px-4 py-8">
+          <p className="text-[var(--color-ink-faint)]">読み込み中...</p>
+        </div>
+      }
+    >
+      <BookSearchClient />
+    </Suspense>
+  );
+}
+
+function BookSearchClient() {
   const { data: session } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
