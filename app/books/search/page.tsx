@@ -16,9 +16,26 @@ interface SearchResult {
   coverImageUrl: string | null;
   description: string | null;
   bookDbId: string | null;
+  workDbId?: string | null;
+  workId?: string | null;
+  migratedWorkId?: string | null;
   readingCount: number;
   completedCount: number;
   eventCount: number;
+}
+
+function buildSearchReturnTo(params: URLSearchParams, fallbackQuery: string) {
+  const nextParams = new URLSearchParams(params.toString());
+  nextParams.delete("returnTo");
+  const queryString = nextParams.toString();
+  if (queryString) return `/books/search?${queryString}`;
+
+  const trimmedQuery = fallbackQuery.trim();
+  return trimmedQuery ? `/books/search?q=${encodeURIComponent(trimmedQuery)}` : "/books/search";
+}
+
+function buildScrollStorageKey(searchUrl: string) {
+  return `bookSearch:scrollY:${encodeURIComponent(searchUrl)}`;
 }
 
 export default function BookSearchPage() {
@@ -41,6 +58,7 @@ function BookSearchClient() {
   const searchParams = useSearchParams();
   const restoredQueryRef = useRef<string | null>(null);
   const [query, setQuery] = useState("");
+  const [activeReturnTo, setActiveReturnTo] = useState("/books/search");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [addingIndex, setAddingIndex] = useState<number | null>(null);
@@ -56,7 +74,7 @@ function BookSearchClient() {
   });
   const [manualSubmitting, setManualSubmitting] = useState(false);
 
-  const runSearch = useCallback(async (nextQuery: string, restoreScroll = false) => {
+  const runSearch = useCallback(async (nextQuery: string, restoreScrollForUrl?: string) => {
     const trimmedQuery = nextQuery.trim();
     if (!trimmedQuery) return;
     setLoading(true);
@@ -67,8 +85,8 @@ function BookSearchClient() {
       setResults(data.books || []);
       setSource(data.meta?.source || "");
       setDbBookCount(data.meta?.dbBookCount || 0);
-      if (restoreScroll) {
-        restoreSearchScroll();
+      if (restoreScrollForUrl) {
+        restoreSearchScroll(restoreScrollForUrl);
       }
     } catch {
       setResults([]);
@@ -81,9 +99,11 @@ function BookSearchClient() {
     const urlQuery = searchParams.get("q") ?? "";
     if (!urlQuery.trim() || restoredQueryRef.current === urlQuery) return;
 
+    const nextReturnTo = buildSearchReturnTo(searchParams, urlQuery);
     restoredQueryRef.current = urlQuery;
+    setActiveReturnTo(nextReturnTo);
     setQuery(urlQuery);
-    void runSearch(urlQuery, true);
+    void runSearch(urlQuery, nextReturnTo);
   }, [runSearch, searchParams]);
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -91,23 +111,19 @@ function BookSearchClient() {
     const trimmedQuery = query.trim();
     if (!trimmedQuery) return;
 
-    router.replace(`/books/search?q=${encodeURIComponent(trimmedQuery)}`, { scroll: false });
+    const nextReturnTo = `/books/search?q=${encodeURIComponent(trimmedQuery)}`;
+    setActiveReturnTo(nextReturnTo);
+    router.replace(nextReturnTo, { scroll: false });
     restoredQueryRef.current = trimmedQuery;
     await runSearch(trimmedQuery);
   };
 
-  const currentReturnTo = (() => {
-    const params = searchParams.toString();
-    if (params) return `/books/search?${params}`;
-    const trimmedQuery = query.trim();
-    return trimmedQuery ? `/books/search?q=${encodeURIComponent(trimmedQuery)}` : "/books/search";
-  })();
+  const currentReturnTo = activeReturnTo;
 
   const rememberSearchState = () => {
     if (typeof window === "undefined") return;
     try {
-      sessionStorage.setItem("bookSearch:lastUrl", currentReturnTo);
-      sessionStorage.setItem("bookSearch:scrollY", String(window.scrollY));
+      sessionStorage.setItem(buildScrollStorageKey(currentReturnTo), String(window.scrollY));
     } catch {
       // sessionStorage may be unavailable.
     }
@@ -116,6 +132,19 @@ function BookSearchClient() {
   const buildReturnHref = (path: string, hash = "") => {
     const separator = path.includes("?") ? "&" : "?";
     return `${path}${separator}returnTo=${encodeURIComponent(currentReturnTo)}${hash}`;
+  };
+
+  const getResultDetailLink = (book: SearchResult) => {
+    if (book.bookDbId) {
+      return { href: buildReturnHref(`/books/${book.bookDbId}`), label: "本ページを見る" };
+    }
+
+    const workId = book.workDbId || book.workId || book.migratedWorkId;
+    if (workId) {
+      return { href: buildReturnHref(`/works/${workId}`), label: "作品ページを見る" };
+    }
+
+    return null;
   };
 
   // 学習シグナル送信（バックグラウンド）
@@ -346,7 +375,10 @@ function BookSearchClient() {
       {results.length > 0 && (
         <>
           <div className="space-y-4">
-            {results.map((book, i) => (
+            {results.map((book, i) => {
+              const detailLink = getResultDetailLink(book);
+
+              return (
               <div
                 key={`${book.isbn || book.title}-${i}`}
                 className="card-base flex gap-4 p-4"
@@ -409,14 +441,14 @@ function BookSearchClient() {
                       {book.description}
                     </p>
                   )}
-                  <div className="mt-auto flex gap-2 pt-2">
-                    {book.bookDbId && (
+                  <div className="mt-auto flex flex-wrap items-center gap-2 pt-2">
+                    {detailLink && (
                       <Link
-                        href={buildReturnHref(`/books/${book.bookDbId}`)}
+                        href={detailLink.href}
                         onClick={rememberSearchState}
-                        className="border border-[var(--color-border-subtle)] bg-transparent px-3 py-1 text-xs tracking-[0.08em] text-[var(--color-ink-muted)] transition-colors hover:bg-[var(--color-bg-soft)] hover:text-[var(--color-accent)]"
+                        className="inline-flex min-h-8 items-center justify-center whitespace-nowrap rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-elevated)] px-3 py-1.5 text-xs font-medium tracking-[0.06em] text-[var(--color-ink-muted)] transition-colors hover:border-[var(--color-accent)] hover:bg-[var(--color-accent-soft)] hover:text-[var(--color-accent)]"
                       >
-                        本ページを見る
+                        {detailLink.label}
                       </Link>
                     )}
                     <button
@@ -436,7 +468,8 @@ function BookSearchClient() {
                   </div>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         </>
       )}
@@ -453,13 +486,15 @@ function BookSearchClient() {
   );
 }
 
-function restoreSearchScroll() {
+function restoreSearchScroll(searchUrl: string) {
   if (typeof window === "undefined") return;
   try {
-    const savedScrollY = Number(sessionStorage.getItem("bookSearch:scrollY") ?? "");
+    const savedScrollY = Number(sessionStorage.getItem(buildScrollStorageKey(searchUrl)) ?? "");
     if (!Number.isFinite(savedScrollY) || savedScrollY <= 0) return;
     window.requestAnimationFrame(() => {
-      window.scrollTo({ top: savedScrollY });
+      window.requestAnimationFrame(() => {
+        window.scrollTo({ top: savedScrollY });
+      });
     });
   } catch {
     // sessionStorage may be unavailable.
