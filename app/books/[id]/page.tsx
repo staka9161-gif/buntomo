@@ -9,6 +9,7 @@ import ProgressBar from "@/components/book/ProgressBar";
 import CurrentlyReadingList from "@/components/book/CurrentlyReadingList";
 import ReadingEvents from "@/components/book/ReadingEvents";
 import CompletedBookImpressionEditor from "@/components/book/CompletedBookImpressionEditor";
+import ReadingStatusRemoveButton from "@/components/book/ReadingStatusRemoveButton";
 
 interface Book {
   id: string;
@@ -53,8 +54,6 @@ export default function BookDetailPage() {
   const [totalPagesInputStr, setTotalPagesInputStr] = useState("");
   const [showNoTotal, setShowNoTotal] = useState(false);
   const [updating, setUpdating] = useState(false);
-  const [removingReading, setRemovingReading] = useState(false);
-  const [readingActionError, setReadingActionError] = useState<string | null>(null);
 
   const fetchBook = useCallback(async () => {
     try {
@@ -138,33 +137,11 @@ export default function BookDetailPage() {
     setReadersRefreshKey((k) => k + 1);
   };
 
-  const handleRemoveReading = async () => {
-    if (!myReading || removingReading) return;
-    if (!confirm("この本を読みかけ一覧から削除します。本の情報や感想は削除されません。")) return;
-
-    setRemovingReading(true);
-    setReadingActionError(null);
-    try {
-      const res = await fetch(
-        apiUrl(`/api/me/readings?readingStatusId=${encodeURIComponent(myReading.id)}`),
-        { method: "DELETE" }
-      );
-      if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        throw new Error(data?.error || "読みかけの解除に失敗しました");
-      }
-
-      setMyReading(null);
-      setPageInputStr("");
-      await fetchBook();
-      setReadersRefreshKey((key) => key + 1);
-    } catch (error) {
-      setReadingActionError(
-        error instanceof Error ? error.message : "読みかけの解除に失敗しました"
-      );
-    } finally {
-      setRemovingReading(false);
-    }
+  const handleReadingRemoved = () => {
+    setMyReading(null);
+    setPageInputStr("");
+    void fetchBook();
+    setReadersRefreshKey((key) => key + 1);
   };
 
   const pageInput = parseInt(pageInputStr, 10) || 0;
@@ -377,19 +354,12 @@ export default function BookDetailPage() {
                     >
                       読了にする
                     </button>
-                    <button
-                      onClick={handleRemoveReading}
-                      disabled={removingReading}
-                      className="btn-secondary-sm disabled:opacity-50"
-                    >
-                      {removingReading ? "解除中..." : "読みかけを解除"}
-                    </button>
+                    <ReadingStatusRemoveButton
+                      readingStatusId={myReading.id}
+                      bookTitle={book.title}
+                      onRemoved={handleReadingRemoved}
+                    />
                   </div>
-                  {readingActionError && (
-                    <p className="text-xs text-red-600" role="alert">
-                      {readingActionError}
-                    </p>
-                  )}
                 </div>
               ) : (
                 <div className="space-y-2">
