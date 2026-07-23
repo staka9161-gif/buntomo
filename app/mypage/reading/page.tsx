@@ -46,6 +46,7 @@ export default function ReadingPage() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (status === "authenticated") fetchReadings();
   }, [status]);
 
@@ -67,11 +68,18 @@ export default function ReadingPage() {
     fetchReadings();
   };
 
-  const handleDelete = async (readingId: string) => {
-    const res = await fetch(apiUrl(`/api/me/readings/${readingId}`), { method: "DELETE" });
-    if (res.ok) {
-      fetchReadings();
+  const handleRemoveReading = async (bookId: string) => {
+    const res = await fetch(
+      apiUrl(`/api/me/readings?bookId=${encodeURIComponent(bookId)}`),
+      { method: "DELETE" }
+    );
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      throw new Error(data?.error || "読みかけの解除に失敗しました");
     }
+
+    setReadings((current) => current.filter((reading) => reading.book?.id !== bookId));
+    await fetchReadings();
   };
 
   if (loading) {
@@ -110,7 +118,7 @@ export default function ReadingPage() {
               eventCount={r.eventCount}
               onUpdatePage={handleUpdatePage}
               onStatusChange={handleStatusChange}
-              onDelete={handleDelete}
+              onRemoveReading={handleRemoveReading}
             />
           ))}
         </div>

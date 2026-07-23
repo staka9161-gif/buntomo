@@ -111,6 +111,46 @@ export async function GET(request: NextRequest) {
   }
 }
 
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
+    }
+
+    const activeUser = await requireActiveUser();
+    if (!activeUser.ok) {
+      return NextResponse.json({ error: activeUser.error }, { status: activeUser.status });
+    }
+
+    const bookId = request.nextUrl.searchParams.get("bookId")?.trim();
+    if (!bookId) {
+      return NextResponse.json({ error: "bookId は必須です" }, { status: 400 });
+    }
+
+    const book = await prisma.book.findUnique({
+      where: { id: bookId },
+      select: { id: true },
+    });
+    if (!book) {
+      return NextResponse.json({ error: "本が見つかりません" }, { status: 404 });
+    }
+
+    const result = await prisma.readingStatus.deleteMany({
+      where: {
+        userId: activeUser.userId,
+        bookId,
+        status: "READING",
+      },
+    });
+
+    return NextResponse.json({ success: true, removed: result.count > 0 });
+  } catch (error) {
+    console.error("Readings DELETE error:", error);
+    return NextResponse.json({ error: "読みかけの解除に失敗しました" }, { status: 500 });
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const session = await auth();

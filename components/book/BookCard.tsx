@@ -22,6 +22,7 @@ interface BookCardProps {
   onStatusChange?: (readingId: string, status: string) => void;
   onCompletedAtChange?: (readingId: string, completedAt: string) => Promise<boolean> | boolean;
   onDelete?: (readingId: string) => void;
+  onRemoveReading?: (bookId: string) => Promise<void> | void;
   showCompletedDate?: boolean;
   impressionHref?: string;
   impressionEditor?: ReactNode;
@@ -57,6 +58,7 @@ export default function BookCard({
   onStatusChange,
   onCompletedAtChange,
   onDelete,
+  onRemoveReading,
   showCompletedDate = false,
   impressionHref,
   impressionEditor,
@@ -66,6 +68,8 @@ export default function BookCard({
   const [isEditingCompletedAt, setIsEditingCompletedAt] = useState(false);
   const [completedAtInput, setCompletedAtInput] = useState(toDateInputValue(completedAt));
   const [isSavingCompletedAt, setIsSavingCompletedAt] = useState(false);
+  const [isRemovingReading, setIsRemovingReading] = useState(false);
+  const [removeReadingError, setRemoveReadingError] = useState<string | null>(null);
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setLocalPageStr(currentPage ? String(currentPage) : ""); }, [currentPage]);
   const localPageNum = parseInt(localPageStr, 10) || 0;
@@ -85,6 +89,23 @@ export default function BookCard({
       }
     } finally {
       setIsSavingCompletedAt(false);
+    }
+  };
+
+  const handleRemoveReading = async () => {
+    if (!onRemoveReading || isRemovingReading) return;
+    if (!confirm("この本を読みかけ一覧から削除します。本の情報や感想は削除されません。")) return;
+
+    setIsRemovingReading(true);
+    setRemoveReadingError(null);
+    try {
+      await onRemoveReading(id);
+    } catch (error) {
+      setRemoveReadingError(
+        error instanceof Error ? error.message : "読みかけの解除に失敗しました"
+      );
+    } finally {
+      setIsRemovingReading(false);
     }
   };
 
@@ -182,7 +203,7 @@ export default function BookCard({
                 </>
               )}
 
-              <div className="mt-2 flex gap-2">
+              <div className="mt-2 flex flex-wrap gap-2">
                 {readingId && onStatusChange && (
                   <button
                     onClick={() => onStatusChange(readingId, "COMPLETED")}
@@ -191,17 +212,21 @@ export default function BookCard({
                     読了にする
                   </button>
                 )}
-                {readingId && onDelete && (
+                {readingId && onRemoveReading && (
                   <button
-                    onClick={() => {
-                      if (confirm("この本を本棚から削除しますか？")) onDelete(readingId);
-                    }}
-                    className="btn-secondary-sm"
+                    onClick={handleRemoveReading}
+                    disabled={isRemovingReading}
+                    className="btn-secondary-sm disabled:opacity-50"
                   >
-                    削除
+                    {isRemovingReading ? "解除中..." : "読みかけを解除"}
                   </button>
                 )}
               </div>
+              {removeReadingError && (
+                <p className="mt-2 text-xs text-red-600" role="alert">
+                  {removeReadingError}
+                </p>
+              )}
             </div>
           )}
 

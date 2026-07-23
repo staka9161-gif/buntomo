@@ -53,6 +53,8 @@ export default function BookDetailPage() {
   const [totalPagesInputStr, setTotalPagesInputStr] = useState("");
   const [showNoTotal, setShowNoTotal] = useState(false);
   const [updating, setUpdating] = useState(false);
+  const [removingReading, setRemovingReading] = useState(false);
+  const [readingActionError, setReadingActionError] = useState<string | null>(null);
 
   const fetchBook = useCallback(async () => {
     try {
@@ -134,6 +136,33 @@ export default function BookDetailPage() {
     });
     await refreshAll();
     setReadersRefreshKey((k) => k + 1);
+  };
+
+  const handleRemoveReading = async () => {
+    if (!myReading || removingReading) return;
+    if (!confirm("この本を読みかけ一覧から削除します。本の情報や感想は削除されません。")) return;
+
+    setRemovingReading(true);
+    setReadingActionError(null);
+    try {
+      const res = await fetch(
+        apiUrl(`/api/me/readings?bookId=${encodeURIComponent(bookId)}`),
+        { method: "DELETE" }
+      );
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error || "読みかけの解除に失敗しました");
+      }
+
+      await refreshAll();
+      setReadersRefreshKey((key) => key + 1);
+    } catch (error) {
+      setReadingActionError(
+        error instanceof Error ? error.message : "読みかけの解除に失敗しました"
+      );
+    } finally {
+      setRemovingReading(false);
+    }
   };
 
   const pageInput = parseInt(pageInputStr, 10) || 0;
@@ -339,12 +368,26 @@ export default function BookDetailPage() {
                     <p className="text-xs text-amber-600">総ページ数が入力されていません</p>
                   )}
 
-                  <button
-                    onClick={handleMarkCompleted}
-                    className="border border-[rgb(184_71_60_/_0.4)] text-[var(--color-accent)] bg-transparent px-3.5 py-1.5 rounded text-xs tracking-[0.08em] hover:bg-[var(--color-accent-soft)] transition-colors"
-                  >
-                    読了にする
-                  </button>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={handleMarkCompleted}
+                      className="border border-[rgb(184_71_60_/_0.4)] text-[var(--color-accent)] bg-transparent px-3.5 py-1.5 rounded text-xs tracking-[0.08em] hover:bg-[var(--color-accent-soft)] transition-colors"
+                    >
+                      読了にする
+                    </button>
+                    <button
+                      onClick={handleRemoveReading}
+                      disabled={removingReading}
+                      className="btn-secondary-sm disabled:opacity-50"
+                    >
+                      {removingReading ? "解除中..." : "読みかけを解除"}
+                    </button>
+                  </div>
+                  {readingActionError && (
+                    <p className="text-xs text-red-600" role="alert">
+                      {readingActionError}
+                    </p>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-2">
