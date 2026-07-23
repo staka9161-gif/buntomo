@@ -68,9 +68,9 @@ export default function ReadingPage() {
     fetchReadings();
   };
 
-  const handleRemoveReading = async (bookId: string) => {
+  const handleRemoveReading = async (readingStatusId: string) => {
     const res = await fetch(
-      apiUrl(`/api/me/readings?bookId=${encodeURIComponent(bookId)}`),
+      apiUrl(`/api/me/readings?readingStatusId=${encodeURIComponent(readingStatusId)}`),
       { method: "DELETE" }
     );
     if (!res.ok) {
@@ -78,8 +78,7 @@ export default function ReadingPage() {
       throw new Error(data?.error || "読みかけの解除に失敗しました");
     }
 
-    setReadings((current) => current.filter((reading) => reading.book?.id !== bookId));
-    await fetchReadings();
+    setReadings((current) => current.filter((reading) => reading.id !== readingStatusId));
   };
 
   if (loading) {

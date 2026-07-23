@@ -146,7 +146,7 @@ export default function BookDetailPage() {
     setReadingActionError(null);
     try {
       const res = await fetch(
-        apiUrl(`/api/me/readings?bookId=${encodeURIComponent(bookId)}`),
+        apiUrl(`/api/me/readings?readingStatusId=${encodeURIComponent(myReading.id)}`),
         { method: "DELETE" }
       );
       if (!res.ok) {
@@ -154,7 +154,9 @@ export default function BookDetailPage() {
         throw new Error(data?.error || "読みかけの解除に失敗しました");
       }
 
-      await refreshAll();
+      setMyReading(null);
+      setPageInputStr("");
+      await fetchBook();
       setReadersRefreshKey((key) => key + 1);
     } catch (error) {
       setReadingActionError(

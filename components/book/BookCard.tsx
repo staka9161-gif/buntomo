@@ -22,7 +22,7 @@ interface BookCardProps {
   onStatusChange?: (readingId: string, status: string) => void;
   onCompletedAtChange?: (readingId: string, completedAt: string) => Promise<boolean> | boolean;
   onDelete?: (readingId: string) => void;
-  onRemoveReading?: (bookId: string) => Promise<void> | void;
+  onRemoveReading?: (readingStatusId: string) => Promise<void> | void;
   showCompletedDate?: boolean;
   impressionHref?: string;
   impressionEditor?: ReactNode;
@@ -93,13 +93,13 @@ export default function BookCard({
   };
 
   const handleRemoveReading = async () => {
-    if (!onRemoveReading || isRemovingReading) return;
+    if (!readingId || !onRemoveReading || isRemovingReading) return;
     if (!confirm("この本を読みかけ一覧から削除します。本の情報や感想は削除されません。")) return;
 
     setIsRemovingReading(true);
     setRemoveReadingError(null);
     try {
-      await onRemoveReading(id);
+      await onRemoveReading(readingId);
     } catch (error) {
       setRemoveReadingError(
         error instanceof Error ? error.message : "読みかけの解除に失敗しました"

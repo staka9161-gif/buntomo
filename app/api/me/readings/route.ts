@@ -123,28 +123,41 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: activeUser.error }, { status: activeUser.status });
     }
 
+    const readingStatusId = request.nextUrl.searchParams.get("readingStatusId")?.trim();
     const bookId = request.nextUrl.searchParams.get("bookId")?.trim();
-    if (!bookId) {
-      return NextResponse.json({ error: "bookId は必須です" }, { status: 400 });
+    if (!readingStatusId && !bookId) {
+      return NextResponse.json(
+        { error: "readingStatusId または bookId は必須です" },
+        { status: 400 }
+      );
     }
 
-    const book = await prisma.book.findUnique({
-      where: { id: bookId },
-      select: { id: true },
-    });
-    if (!book) {
-      return NextResponse.json({ error: "本が見つかりません" }, { status: 404 });
+    if (!readingStatusId && bookId) {
+      const book = await prisma.book.findUnique({
+        where: { id: bookId },
+        select: { id: true },
+      });
+      if (!book) {
+        return NextResponse.json({ error: "本が見つかりません" }, { status: 404 });
+      }
     }
 
     const result = await prisma.readingStatus.deleteMany({
       where: {
+        ...(readingStatusId ? { id: readingStatusId } : { bookId }),
         userId: activeUser.userId,
-        bookId,
         status: "READING",
       },
     });
 
-    return NextResponse.json({ success: true, removed: result.count > 0 });
+    if (result.count !== 1) {
+      return NextResponse.json(
+        { error: "読みかけの記録が見つからないか、解除できません" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ ok: true });
   } catch (error) {
     console.error("Readings DELETE error:", error);
     return NextResponse.json({ error: "読みかけの解除に失敗しました" }, { status: 500 });
