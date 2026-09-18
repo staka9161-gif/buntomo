@@ -442,6 +442,7 @@ model ReadingStatus {
   editionId   String?
   status      ReadingStatusType
   currentPage Int               @default(0)
+  totalPages  Int?
   rating      Int?              // 1-5
   startedAt   DateTime?
   completedAt DateTime?

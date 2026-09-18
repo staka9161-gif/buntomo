@@ -29,6 +29,7 @@ interface Reading {
   id: string;
   status: string;
   currentPage: number;
+  totalPages: number | null;
   book: {
     id: string;
     title: string;
@@ -248,9 +249,9 @@ export default function UserProfilePage() {
                   <p className="truncate font-serif text-sm font-medium text-[var(--color-ink-primary)]">{r.book.title}</p>
                   <p className="truncate text-xs text-[var(--color-ink-muted)]">{r.book.author}</p>
                 </div>
-                {r.book.totalPages > 0 && (
+                {r.totalPages != null && r.totalPages > 0 && (
                   <span className="shrink-0 text-xs font-mono text-[var(--color-ink-faint)]">
-                    {r.currentPage}/{r.book.totalPages}p
+                    {r.currentPage}/{r.totalPages}p
                   </span>
                 )}
               </Link>

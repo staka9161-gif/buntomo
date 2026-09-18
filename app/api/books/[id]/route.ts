@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 
@@ -63,30 +63,17 @@ export async function GET(
   }
 }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH() {
   try {
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: "ログインが必要です" }, { status: 401 });
     }
 
-    const { id } = await params;
-    const body = await request.json();
-
-    const book = await prisma.book.findUnique({ where: { id } });
-    if (!book) {
-      return NextResponse.json({ error: "本が見つかりません" }, { status: 404 });
-    }
-
-    const updated = await prisma.book.update({
-      where: { id },
-      data: { totalPages: body.totalPages },
-    });
-
-    return NextResponse.json({ book: updated });
+    return NextResponse.json(
+      { error: "共有の書籍情報は変更できません。画面を再読み込みし、読書記録の総ページ数を更新してください" },
+      { status: 405, headers: { Allow: "GET" } }
+    );
   } catch (e) {
     console.error("Book PATCH error:", e);
     return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });

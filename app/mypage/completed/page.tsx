@@ -13,6 +13,7 @@ interface Reading {
   editionId: string | null;
   status: string;
   currentPage: number;
+  totalPages: number | null;
   completedAt: string | null;
   book: {
     id: string;
@@ -220,7 +221,7 @@ export default function CompletedPage() {
                 title={r.book.title}
                 author={r.book.author}
                 coverImageUrl={r.book.coverImageUrl}
-                totalPages={r.book.totalPages}
+                totalPages={r.totalPages ?? 0}
                 status={r.status}
                 completedAt={r.completedAt}
                 readingId={r.id}

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { requireActiveUser } from "@/lib/active-user";
+import { isValidTotalPages } from "@/lib/reading-pages";
 
 export async function GET(request: NextRequest) {
   try {
@@ -177,10 +178,14 @@ export async function POST(request: NextRequest) {
     }
     const myId = activeUser.userId;
 
-    const { bookId, status } = await request.json();
+    const { bookId, status, totalPages } = await request.json();
 
     if (!bookId || !status) {
       return NextResponse.json({ error: "bookId と status は必須です" }, { status: 400 });
+    }
+
+    if (totalPages !== undefined && !isValidTotalPages(totalPages)) {
+      return NextResponse.json({ error: "総ページ数は1〜100000の整数で指定してください" }, { status: 400 });
     }
 
     const book = await prisma.book.findUnique({ where: { id: bookId } });
@@ -200,6 +205,7 @@ export async function POST(request: NextRequest) {
         userId: myId,
         bookId,
         status: status.toUpperCase(),
+        totalPages: totalPages ?? (book.totalPages > 0 ? book.totalPages : null),
         startedAt: status.toUpperCase() === "READING" ? new Date() : null,
         completedAt: status.toUpperCase() === "COMPLETED" ? new Date() : null,
       },

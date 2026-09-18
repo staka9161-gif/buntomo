@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { requireActiveUser } from "@/lib/active-user";
+import { isValidCurrentPage, isValidTotalPages } from "@/lib/reading-pages";
 
 export async function PATCH(
   request: NextRequest,
@@ -28,6 +29,26 @@ export async function PATCH(
     }
 
     const updateData: Record<string, unknown> = {};
+
+    if (body.totalPages !== undefined) {
+      if (!isValidTotalPages(body.totalPages)) {
+        return NextResponse.json({ error: "総ページ数は1〜100000の整数で指定してください" }, { status: 400 });
+      }
+      updateData.totalPages = body.totalPages;
+    }
+
+    if (body.currentPage !== undefined && !isValidCurrentPage(body.currentPage)) {
+      return NextResponse.json({ error: "現在ページは0〜100000の整数で指定してください" }, { status: 400 });
+    }
+
+    // Validate page edits together, without blocking unrelated status/date edits.
+    if (body.currentPage !== undefined || body.totalPages !== undefined) {
+      const totalPages = body.totalPages ?? reading.totalPages;
+      const currentPage = body.currentPage ?? reading.currentPage;
+      if (totalPages != null && currentPage > totalPages) {
+        return NextResponse.json({ error: "現在ページが総ページ数を超えています" }, { status: 400 });
+      }
+    }
 
     if (body.completedAt !== undefined) {
       if (reading.status !== "COMPLETED" || !reading.bookId) {
@@ -69,7 +90,7 @@ export async function PATCH(
     }
 
     const updated = await prisma.readingStatus.update({
-      where: { id },
+      where: { id, userId: myId },
       data: updateData,
       include: { book: true },
     });

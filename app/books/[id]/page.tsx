@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -10,6 +10,7 @@ import CurrentlyReadingList from "@/components/book/CurrentlyReadingList";
 import ReadingEvents from "@/components/book/ReadingEvents";
 import CompletedBookImpressionEditor from "@/components/book/CompletedBookImpressionEditor";
 import ReadingStatusRemoveButton from "@/components/book/ReadingStatusRemoveButton";
+import { isValidCurrentPage, isValidTotalPages } from "@/lib/reading-pages";
 
 interface Book {
   id: string;
@@ -31,6 +32,7 @@ interface MyReading {
   editionId: string | null;
   status: string;
   currentPage: number;
+  totalPages: number | null;
   completedAt: string | null;
   edition: {
     workId: string;
@@ -52,8 +54,9 @@ export default function BookDetailPage() {
   const [readersRefreshKey, setReadersRefreshKey] = useState(0);
   const [pageInputStr, setPageInputStr] = useState("");
   const [totalPagesInputStr, setTotalPagesInputStr] = useState("");
-  const [showNoTotal, setShowNoTotal] = useState(false);
+  const [pageError, setPageError] = useState<string | null>(null);
   const [updating, setUpdating] = useState(false);
+  const updatingRef = useRef(false);
 
   const fetchBook = useCallback(async () => {
     try {
@@ -65,7 +68,6 @@ export default function BookDetailPage() {
         ...data.book,
         migratedWorkId: data.book?.migratedWorkId ?? data.migratedWorkId ?? null,
       });
-      setTotalPagesInputStr(data.book.totalPages ? String(data.book.totalPages) : "");
       setReadingCount(data.readingCount ?? 0);
       setCompletedCount(data.completedCount ?? 0);
       setEventCount(data.eventCount ?? 0);
@@ -85,9 +87,11 @@ export default function BookDetailPage() {
       if (found) {
         setMyReading(found);
         setPageInputStr(found.currentPage ? String(found.currentPage) : "");
+        setTotalPagesInputStr(found.totalPages ? String(found.totalPages) : "");
       } else {
         setMyReading(null);
         setPageInputStr("");
+        setTotalPagesInputStr("");
       }
     } catch {
       // network error
@@ -140,36 +144,39 @@ export default function BookDetailPage() {
   const handleReadingRemoved = () => {
     setMyReading(null);
     setPageInputStr("");
+    setTotalPagesInputStr("");
+    setPageError(null);
     void fetchBook();
     setReadersRefreshKey((key) => key + 1);
   };
 
-  const pageInput = parseInt(pageInputStr, 10) || 0;
-  const totalPagesInput = parseInt(totalPagesInputStr, 10) || 0;
+  const pageInput = Number(pageInputStr);
+  const totalPagesInput = Number(totalPagesInputStr);
   const pageExceedsTotal = totalPagesInput > 0 && pageInput > totalPagesInput;
 
   const handleUpdatePage = async () => {
-    if (!myReading || updating || pageExceedsTotal) return;
-    if (totalPagesInput === 0) { setShowNoTotal(true); return; }
+    if (!myReading || updatingRef.current || pageExceedsTotal) return;
+    if (!isValidTotalPages(totalPagesInput) || !isValidCurrentPage(pageInput)) {
+      setPageError("現在ページは0〜100000、総ページ数は1〜100000の整数で入力してください");
+      return;
+    }
+    updatingRef.current = true;
     setUpdating(true);
+    setPageError(null);
     try {
-      // 総ページ数が変更されていたら先に更新
-      if (totalPagesInput > 0 && book && totalPagesInput !== book.totalPages) {
-        await fetch(apiUrl(`/api/books/${book.id}`), {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ totalPages: totalPagesInput }),
-        });
-      }
-      // 現在ページ数を更新
-      await fetch(apiUrl(`/api/me/readings/${myReading.id}`), {
+      const res = await fetch(apiUrl(`/api/me/readings/${myReading.id}`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ currentPage: pageInput }),
+        body: JSON.stringify({ currentPage: pageInput, totalPages: totalPagesInput }),
       });
-      await refreshAll();
+      const data = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(data?.error || "ページ数の更新に失敗しました");
+      setMyReading((reading) => reading && ({ ...reading, currentPage: data.reading.currentPage, totalPages: data.reading.totalPages }));
       setReadersRefreshKey((k) => k + 1);
+    } catch (error) {
+      setPageError(error instanceof Error ? error.message : "ページ数の更新に失敗しました");
     } finally {
+      updatingRef.current = false;
       setUpdating(false);
     }
   };
@@ -201,9 +208,10 @@ export default function BookDetailPage() {
     );
   }
 
+  const personalTotalPages = myReading?.totalPages ?? 0;
   const progress =
-    book.totalPages > 0 && myReading
-      ? Math.min(100, Math.floor((myReading.currentPage / book.totalPages) * 100))
+    personalTotalPages > 0 && myReading
+      ? Math.min(100, Math.floor((myReading.currentPage / personalTotalPages) * 100))
       : 0;
   const isCompleted = myReading?.status === "COMPLETED";
   const impressionWorkId = isCompleted
@@ -252,7 +260,7 @@ export default function BookDetailPage() {
             <h1 className="font-serif text-xl font-medium tracking-[0.06em] text-[var(--color-ink-primary)] md:text-2xl">{book.title}</h1>
             <p className="mt-1 text-sm text-[var(--color-ink-muted)]">{book.author}</p>
             {book.totalPages > 0 && (
-              <p className="mt-1 text-xs font-mono text-[var(--color-ink-faint)]">{book.totalPages}ページ</p>
+              <p className="mt-1 text-xs font-mono text-[var(--color-ink-faint)]">書籍情報: {book.totalPages}ページ</p>
             )}
             {book.isbn && (
               <p className="mt-1 text-xs font-mono text-[var(--color-ink-faint)]">ISBN: {book.isbn}</p>
@@ -289,45 +297,53 @@ export default function BookDetailPage() {
                   </span>
 
                   {/* プログレスバー: totalPages がある時のみ */}
-                  {book.totalPages > 0 && <ProgressBar percent={progress} />}
+                  {personalTotalPages > 0 && <ProgressBar percent={progress} />}
 
                   <p className="text-xs text-[var(--color-ink-muted)]">
                     {myReading.currentPage}
-                    {book.totalPages > 0
-                      ? ` / ${book.totalPages} ページ（`
-                      : " ページ読了"}
-                    {book.totalPages > 0 && <span className="font-mono font-medium text-[var(--color-accent)]">{progress}%</span>}
-                    {book.totalPages > 0 && "）"}
+                    {personalTotalPages > 0
+                      ? ` / ${personalTotalPages} ページ（`
+                      : " ページ / 総ページ数未設定"}
+                    {personalTotalPages > 0 && <span className="font-mono font-medium text-[var(--color-accent)]">{progress}%</span>}
+                    {personalTotalPages > 0 && "）"}
                   </p>
 
                   {/* ページ数入力フォーム */}
                   <div className="flex flex-wrap items-center gap-2">
-                    <div className="flex items-center gap-1">
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                        value={pageInputStr}
-                        onChange={(e) => { setPageInputStr(e.target.value.replace(/[^0-9]/g, "")); setShowNoTotal(false); }}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") handleUpdatePage();
-                        }}
-                        className="w-20 rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-2 py-1 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
-                        placeholder="現在"
-                      />
-                      <span className="text-[var(--color-ink-faint)]">/</span>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                        value={totalPagesInputStr}
-                        onChange={(e) => { setTotalPagesInputStr(e.target.value.replace(/[^0-9]/g, "")); setShowNoTotal(false); }}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") handleUpdatePage();
-                        }}
-                        className="w-20 rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-2 py-1 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
-                        placeholder="総ページ"
-                      />
+                    <div className="flex flex-wrap items-end gap-2">
+                      <label className="text-xs text-[var(--color-ink-muted)]">
+                        現在ページ
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          value={pageInputStr}
+                          disabled={updating}
+                          onChange={(e) => { setPageInputStr(e.target.value.replace(/[^0-9]/g, "")); setPageError(null); }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") handleUpdatePage();
+                          }}
+                          className="mt-1 block w-20 rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-2 py-1 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
+                          placeholder="現在"
+                        />
+                      </label>
+                      <label className="text-xs text-[var(--color-ink-muted)]">
+                        総ページ数（自分用）
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          value={totalPagesInputStr}
+                          aria-label="この読書記録の総ページ数"
+                          disabled={updating}
+                          onChange={(e) => { setTotalPagesInputStr(e.target.value.replace(/[^0-9]/g, "")); setPageError(null); }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") handleUpdatePage();
+                          }}
+                          className="mt-1 block w-20 rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-2 py-1 text-sm focus:border-[var(--color-accent)] focus:outline-none transition-colors"
+                          placeholder="総ページ"
+                        />
+                      </label>
                     </div>
                     <button
                       type="button"
@@ -343,8 +359,8 @@ export default function BookDetailPage() {
                   {pageExceedsTotal && (
                     <p className="text-xs text-red-600">総ページ数を超えた値が入力されています</p>
                   )}
-                  {showNoTotal && (
-                    <p className="text-xs text-amber-600">総ページ数が入力されていません</p>
+                  {pageError && (
+                    <p role="alert" className="text-xs text-red-600">{pageError}</p>
                   )}
 
                   <div className="flex flex-wrap gap-2">
@@ -366,6 +382,9 @@ export default function BookDetailPage() {
                   <span className="badge-completed">
                     読了
                   </span>
+                  <p className="text-xs text-[var(--color-ink-faint)]">
+                    {personalTotalPages > 0 ? `総ページ数: ${personalTotalPages}` : "総ページ数未設定"}
+                  </p>
                   {myReading.completedAt && (
                     <p className="text-xs font-mono text-[var(--color-ink-faint)]">
                       読了日: {new Date(myReading.completedAt).toLocaleDateString("ja-JP")}

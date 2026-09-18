@@ -34,7 +34,7 @@ export async function GET(
         displayName: displayNames.get(r.user.id) ?? r.user.name,
         image: r.user.image,
         currentPage: r.currentPage,
-        progressPercent: calculateProgress(r.currentPage, book.totalPages),
+        progressPercent: calculateProgress(r.currentPage, r.totalPages ?? 0),
       }));
 
     return NextResponse.json({ users });

@@ -11,6 +11,7 @@ interface Reading {
   id: string;
   status: string;
   currentPage: number;
+  totalPages: number | null;
   completedAt: string | null;
   book: {
     id: string;
@@ -106,13 +107,17 @@ export default function MyPage() {
     fetchAll();
   };
 
-  const handleUpdatePage = async (readingId: string, page: number) => {
-    await fetch(apiUrl(`/api/me/readings/${readingId}`), {
+  const handleUpdatePage = async (readingId: string, page: number, totalPages: number) => {
+    const res = await fetch(apiUrl(`/api/me/readings/${readingId}`), {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ currentPage: page }),
+      body: JSON.stringify({ currentPage: page, totalPages }),
     });
-    fetchAll();
+    const data = await res.json().catch(() => null);
+    if (!res.ok) throw new Error(data?.error || "ページ数の更新に失敗しました");
+    setReadingBooks((current) => current.map((reading) => reading.id === readingId
+      ? { ...reading, currentPage: data.reading.currentPage, totalPages: data.reading.totalPages }
+      : reading));
   };
 
   const handleReadingRemoved = (readingStatusId: string) => {
@@ -249,7 +254,7 @@ export default function MyPage() {
                 author={r.book.author}
                 coverImageUrl={r.book.coverImageUrl}
                 currentPage={r.currentPage}
-                totalPages={r.book.totalPages}
+                totalPages={r.totalPages ?? 0}
                 status={r.status}
                 readingId={r.id}
                 readingCount={r.readingCount}
@@ -280,7 +285,7 @@ export default function MyPage() {
                 title={r.book.title}
                 author={r.book.author}
                 coverImageUrl={r.book.coverImageUrl}
-                totalPages={r.book.totalPages}
+                totalPages={r.totalPages ?? 0}
                 status={r.status}
                 completedAt={r.completedAt}
                 readingId={r.id}
