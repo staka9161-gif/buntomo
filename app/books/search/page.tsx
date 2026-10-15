@@ -1,10 +1,11 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { startTransition, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { apiUrl } from "@/lib/api";
+import IsbnSearchPanel from "@/components/book/IsbnSearchPanel";
 
 interface SearchResult {
   isbn: string | null;
@@ -57,14 +58,14 @@ function BookSearchClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const restoredQueryRef = useRef<string | null>(null);
+  const searchRequestRef = useRef<AbortController | null>(null);
   const pendingScrollRestoreRef = useRef<string | null>(null);
   const [query, setQuery] = useState("");
-  const [activeReturnTo, setActiveReturnTo] = useState("/books/search");
+  const [searchedQuery, setSearchedQuery] = useState("");
+  const [searchError, setSearchError] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [addingIndex, setAddingIndex] = useState<number | null>(null);
-  const [source, setSource] = useState<string>("");
-  const [dbBookCount, setDbBookCount] = useState<number>(0);
   const [showManual, setShowManual] = useState(false);
   const [manualForm, setManualForm] = useState({
     title: "",
@@ -78,34 +79,58 @@ function BookSearchClient() {
   const runSearch = useCallback(async (nextQuery: string, restoreScrollForUrl?: string) => {
     const trimmedQuery = nextQuery.trim();
     if (!trimmedQuery) return;
+    searchRequestRef.current?.abort();
+    const controller = new AbortController();
+    searchRequestRef.current = controller;
+    pendingScrollRestoreRef.current = null;
     setLoading(true);
+    setResults([]);
+    setSearchError("");
+    setSearchedQuery(trimmedQuery);
     try {
-      const res = await fetch(apiUrl(`/api/books/search?q=${encodeURIComponent(trimmedQuery)}`));
-      if (!res.ok) throw new Error();
+      const res = await fetch(apiUrl(`/api/books/search?q=${encodeURIComponent(trimmedQuery)}`), { signal: controller.signal });
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "検索に失敗しました。再度お試しください。");
+      if (controller.signal.aborted) return;
       if (restoreScrollForUrl) {
         pendingScrollRestoreRef.current = restoreScrollForUrl;
       }
       setResults(data.books || []);
-      setSource(data.meta?.source || "");
-      setDbBookCount(data.meta?.dbBookCount || 0);
-    } catch {
+    } catch (error) {
+      if (controller.signal.aborted) return;
       setResults([]);
+      setSearchError(error instanceof Error ? error.message : "検索に失敗しました。再度お試しください。");
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
+    // Old ISBN links belong exclusively to IsbnSearchPanel.
+    if (searchParams.get("mode") === "isbn") return;
     const urlQuery = searchParams.get("q") ?? "";
-    if (!urlQuery.trim() || restoredQueryRef.current === urlQuery) return;
+    if (restoredQueryRef.current === urlQuery) return;
 
     const nextReturnTo = buildSearchReturnTo(searchParams, urlQuery);
     restoredQueryRef.current = urlQuery;
-    setActiveReturnTo(nextReturnTo);
-    setQuery(urlQuery);
-    void runSearch(urlQuery, nextReturnTo);
+    startTransition(() => {
+      setQuery(urlQuery);
+      if (urlQuery.trim()) {
+        void runSearch(urlQuery, nextReturnTo);
+      } else {
+        searchRequestRef.current?.abort();
+        setResults([]);
+        setSearchedQuery("");
+        setSearchError("");
+        setLoading(false);
+      }
+    });
   }, [runSearch, searchParams]);
+
+  useEffect(() => () => {
+    searchRequestRef.current?.abort();
+    restoredQueryRef.current = null;
+  }, []);
 
   useEffect(() => {
     if (loading || results.length === 0 || !pendingScrollRestoreRef.current) return;
@@ -120,14 +145,15 @@ function BookSearchClient() {
     const trimmedQuery = query.trim();
     if (!trimmedQuery) return;
 
-    const nextReturnTo = `/books/search?q=${encodeURIComponent(trimmedQuery)}`;
-    setActiveReturnTo(nextReturnTo);
-    router.replace(nextReturnTo, { scroll: false });
+    const currentParams = new URLSearchParams(window.location.search);
+    const isbn = currentParams.get("isbn") ?? (currentParams.get("mode") === "isbn" ? currentParams.get("q") : null);
+    const nextReturnTo = `/books/search?q=${encodeURIComponent(trimmedQuery)}${isbn ? `&isbn=${encodeURIComponent(isbn)}` : ""}`;
     restoredQueryRef.current = trimmedQuery;
+    window.history.replaceState(null, "", nextReturnTo);
     await runSearch(trimmedQuery);
   };
 
-  const currentReturnTo = activeReturnTo;
+  const currentReturnTo = buildSearchReturnTo(searchParams, searchedQuery);
 
   const rememberSearchState = () => {
     if (typeof window === "undefined") return;
@@ -260,23 +286,30 @@ function BookSearchClient() {
     <div className="mx-auto max-w-3xl px-4 py-8">
       <h1 className="mb-6 font-serif text-xl font-medium tracking-[0.05em] text-[var(--color-ink-primary)] md:text-2xl">本を探す</h1>
 
-      {/* 検索フォーム */}
-      <form onSubmit={handleSearch} className="mb-4 flex gap-2">
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="書名、著者名、ISBNで検索"
-          className="flex-1 rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-4 py-3 text-base focus:border-[var(--color-accent)] focus:outline-none transition-colors"
-        />
-        <button
-          type="submit"
-          disabled={loading}
-          className="btn-primary disabled:opacity-50"
-        >
-          {loading ? "検索中..." : "検索"}
-        </button>
-      </form>
+      <div className="mb-4 space-y-4">
+        <form onSubmit={handleSearch} aria-label="書名・著者名検索">
+          <label htmlFor="book-keyword" className="mb-1.5 block text-sm font-medium text-[var(--color-ink-primary)]">
+            書名・著者名で検索
+          </label>
+          <div className="flex gap-2">
+            <input
+              id="book-keyword"
+              type="text"
+              value={query}
+              onChange={event => setQuery(event.target.value)}
+              placeholder="書名・著者名を入力"
+              className="min-w-0 flex-1 rounded border border-[var(--color-border-subtle)] bg-[var(--color-bg-base)] px-3 py-3 text-base focus:border-[var(--color-accent)] focus:outline-none transition-colors"
+            />
+            <button type="submit" disabled={loading} className="btn-primary shrink-0 whitespace-nowrap disabled:opacity-50">
+              {loading ? "検索中..." : "検索"}
+            </button>
+          </div>
+        </form>
+
+        {searchError && <p role="alert" className="text-sm text-red-700">{searchError}</p>}
+        {loading && <p role="status" className="text-sm text-[var(--color-ink-muted)]">検索中...</p>}
+        <IsbnSearchPanel />
+      </div>
 
       {/* 手動登録ボタン */}
       <div className="mb-6 text-right">
@@ -383,6 +416,7 @@ function BookSearchClient() {
       {/* 検索結果 */}
       {results.length > 0 && (
         <>
+          <h2 className="mb-3 text-sm font-medium text-[var(--color-ink-primary)]">書名・著者名の検索結果</h2>
           <div className="space-y-4">
             {results.map((book, i) => {
               const detailLink = getResultDetailLink(book);
@@ -410,7 +444,7 @@ function BookSearchClient() {
                 >
                   No Image
                 </div>
-                <div className="flex flex-1 flex-col">
+                <div className="flex min-w-0 flex-1 flex-col">
                   <h3 className="font-serif text-base font-medium text-[var(--color-ink-primary)]">{book.title}</h3>
                   <p className="text-sm text-[var(--color-ink-muted)]">{book.author}</p>
                   <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5">
@@ -483,9 +517,9 @@ function BookSearchClient() {
         </>
       )}
 
-      {!loading && results.length === 0 && query && (
+      {!loading && !searchError && results.length === 0 && searchedQuery && (
         <div className="card-base p-8 text-center">
-          <p className="text-[var(--color-ink-muted)]">「{query}」の検索結果がありません</p>
+          <p className="break-words text-[var(--color-ink-muted)]">「{searchedQuery}」の検索結果がありません</p>
           <p className="mt-2 text-sm text-[var(--color-ink-faint)]">
             上の「手動で登録」から直接本を追加できます
           </p>
