@@ -85,10 +85,14 @@ describe("personal reading page counts (mock database only)", () => {
       return { ...reading };
     });
     mocks.updateReading.mockImplementation(async ({ where, data }: {
-      where: { id: string; userId: string }; data: Partial<Reading>;
+      where: { id: string; userId: string } & Partial<Reading>; data: Partial<Reading>;
     }) => {
       const reading = readings.get(where.id);
       if (!reading || reading.userId !== where.userId) throw new Error("Missing owner constraint");
+      if (("currentPage" in where && reading.currentPage !== where.currentPage) ||
+          ("totalPages" in where && reading.totalPages !== where.totalPages) ||
+          ("status" in where && reading.status !== where.status))
+        throw Object.assign(new Error("Concurrent update"), { code: "P2025" });
       Object.assign(reading, data);
       return { ...reading };
     });
@@ -127,7 +131,9 @@ describe("personal reading page counts (mock database only)", () => {
       .toEqual([310, 300, 320]);
     expect(readings.get(a.id)?.currentPage).toBe(120);
     expect(readings.get(b.id)?.currentPage).toBe(80);
-    expect(mocks.updateReading).toHaveBeenLastCalledWith(expect.objectContaining({ where: { id: b.id, userId: "B" } }));
+    expect(mocks.updateReading).toHaveBeenLastCalledWith(expect.objectContaining({
+      where: { id: b.id, userId: "B", currentPage: 0, totalPages: 320, status: "READING" },
+    }));
   });
 
   it("unknown metadata stays 0 and never inherits A's manual 280 for B", async () => {
@@ -208,6 +214,30 @@ describe("personal reading page counts (mock database only)", () => {
     const a = await create("A", "unknown");
     expect((await patch(a.id, { currentPage: 10 })).status).toBe(200);
     expect(readings.get(a.id)).toMatchObject({ currentPage: 10, totalPages: null });
+  });
+
+  it("rejects a total change if a concurrent page increment invalidates its snapshot", async () => {
+    const a = await create("A");
+    await patch(a.id, { currentPage: 100 });
+    const update = mocks.updateReading.getMockImplementation()!;
+    mocks.updateReading.mockImplementationOnce(async (args) => {
+      readings.get(a.id)!.currentPage = 101;
+      return update(args);
+    });
+    const response = await patch(a.id, { totalPages: 100 });
+    expect(response.status).toBe(409);
+    expect(readings.get(a.id)).toMatchObject({ currentPage: 101, totalPages: 320 });
+  });
+
+  it("does not overwrite another tab's total or status with a stale page edit", async () => {
+    const a = await create("A");
+    const update = mocks.updateReading.getMockImplementation()!;
+    mocks.updateReading.mockImplementationOnce(async (args) => {
+      Object.assign(readings.get(a.id)!, { totalPages: 500, status: "COMPLETED" });
+      return update(args);
+    });
+    expect((await patch(a.id, { currentPage: 100 })).status).toBe(409);
+    expect(readings.get(a.id)).toMatchObject({ currentPage: 0, totalPages: 500, status: "COMPLETED" });
   });
 
   it("retains authorization and active-user restrictions", async () => {

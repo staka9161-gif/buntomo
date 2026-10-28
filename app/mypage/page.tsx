@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { apiUrl } from "@/lib/api";
 import BookCard from "@/components/book/BookCard";
+import ForestSummary from "@/components/forest/ForestSummary";
 
 interface Reading {
   id: string;
@@ -236,6 +237,8 @@ export default function MyPage() {
           <p className="mt-2 text-[11px] tracking-[0.05em] text-[var(--color-ink-muted)] md:text-xs">本を探す</p>
         </Link>
       </div>
+
+      <ForestSummary refreshKey={[...validReadingBooks, ...validCompletedBooks].map((r) => `${r.id}:${r.status}:${r.currentPage}:${r.totalPages}`).join(",")} />
 
       {validReadingBooks.length > 0 && (
         <section className="mb-8">

@@ -244,6 +244,13 @@ export default function Header() {
               読了者が多い本トップ10
             </Link>
             <Link
+              href="/mypage/forest/world"
+              onClick={() => setMenuOpen(false)}
+              className="block py-3 text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)] border-b border-[var(--color-border-subtle)] transition-colors"
+            >
+              読書マップ
+            </Link>
+            <Link
               href="/updates"
               onClick={() => setMenuOpen(false)}
               className="block py-3 text-sm text-[var(--color-ink-muted)] hover:text-[var(--color-ink-primary)] border-b border-[var(--color-border-subtle)] transition-colors"

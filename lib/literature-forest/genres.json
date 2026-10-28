@@ -1,0 +1,2809 @@
+{
+  "schemaVersion": 1,
+  "catalogId": "literary-forest-jp-genre-v1",
+  "language": "ja-JP",
+  "selectionRules": {
+    "mainGenre": "exactly_one_when_user_configures",
+    "subgenres": "zero_or_more_from_selected_main",
+    "maxSubgenres": null,
+    "allowCustomTags": true
+  },
+  "attributionNote": "独自編集の一般読書サービス向け分類。BISACの全文・分類コードの転載ではない。分類は将来拡張可能。",
+  "sourceReferences": [
+    {
+      "name": "新潮社 書籍ジャンル",
+      "url": "https://www.shinchosha.co.jp/format/book/"
+    },
+    {
+      "name": "実業之日本社 書籍ジャンル",
+      "url": "https://www.j-n.co.jp/books/genrelist/"
+    },
+    {
+      "name": "丸善ジュンク堂 カテゴリー",
+      "url": "https://www.maruzenjunkudo.co.jp/pages/category"
+    },
+    {
+      "name": "日本図書館協会 NDC",
+      "url": "https://www.jla.or.jp/ndc/"
+    },
+    {
+      "name": "BISG BISAC Fiction",
+      "url": "https://www.bisg.org/fiction"
+    },
+    {
+      "name": "BISG BISAC Headings 2025",
+      "url": "https://www.bisg.org/complete-bisac-subject-headings-list"
+    }
+  ],
+  "mainGenres": [
+    {
+      "id": "fiction",
+      "label": "小説",
+      "treeStyleId": "broadleaf",
+      "groups": [
+        {
+          "label": "文学性・形式",
+          "subgenres": [
+            {
+              "id": "fiction_4578faadb003",
+              "label": "純文学",
+              "aliases": [
+                "文学小説"
+              ]
+            },
+            {
+              "id": "fiction_085804bf7734",
+              "label": "大衆文学"
+            },
+            {
+              "id": "fiction_5a537b9eccbb",
+              "label": "文芸小説"
+            },
+            {
+              "id": "fiction_b4257053601c",
+              "label": "古典小説"
+            },
+            {
+              "id": "fiction_ed6a7064f8b1",
+              "label": "私小説"
+            },
+            {
+              "id": "fiction_2a8d69cdf3fd",
+              "label": "心理小説"
+            },
+            {
+              "id": "fiction_31e1bdf459df",
+              "label": "教養小説"
+            },
+            {
+              "id": "fiction_47264e0309d8",
+              "label": "成長小説"
+            },
+            {
+              "id": "fiction_86d750111910",
+              "label": "実験小説"
+            },
+            {
+              "id": "fiction_e7072ed03f65",
+              "label": "不条理小説"
+            },
+            {
+              "id": "fiction_98916669cf83",
+              "label": "メタフィクション"
+            },
+            {
+              "id": "fiction_c76deecce38f",
+              "label": "マジックリアリズム"
+            },
+            {
+              "id": "fiction_4f0a34c9ebcf",
+              "label": "風刺小説"
+            },
+            {
+              "id": "fiction_30f5b2e76165",
+              "label": "ユーモア小説"
+            },
+            {
+              "id": "fiction_1b3f89ebe24d",
+              "label": "短編小説"
+            },
+            {
+              "id": "fiction_5fa838ed454e",
+              "label": "連作短編"
+            },
+            {
+              "id": "fiction_79fd0d65f561",
+              "label": "掌編・ショートショート"
+            },
+            {
+              "id": "fiction_62f3a3f7166e",
+              "label": "長編小説"
+            },
+            {
+              "id": "fiction_a74c75f737bb",
+              "label": "群像劇"
+            }
+          ]
+        },
+        {
+          "label": "ミステリー・サスペンス",
+          "subgenres": [
+            {
+              "id": "fiction_896f4eec151b",
+              "label": "ミステリー",
+              "aliases": [
+                "推理小説"
+              ]
+            },
+            {
+              "id": "fiction_2a2b316fde50",
+              "label": "本格ミステリー"
+            },
+            {
+              "id": "fiction_92aa2e40f029",
+              "label": "新本格ミステリー"
+            },
+            {
+              "id": "fiction_9ba9ee8f3f1e",
+              "label": "社会派ミステリー"
+            },
+            {
+              "id": "fiction_b819728ec743",
+              "label": "日常の謎"
+            },
+            {
+              "id": "fiction_75bd380cffbd",
+              "label": "クローズドサークル"
+            },
+            {
+              "id": "fiction_452ef0193162",
+              "label": "倒叙ミステリー"
+            },
+            {
+              "id": "fiction_29ec97db19d8",
+              "label": "叙述トリック"
+            },
+            {
+              "id": "fiction_170f05212d81",
+              "label": "警察小説"
+            },
+            {
+              "id": "fiction_173a0338f69b",
+              "label": "法廷ミステリー"
+            },
+            {
+              "id": "fiction_fd7e79913671",
+              "label": "医療ミステリー"
+            },
+            {
+              "id": "fiction_964b07977fb1",
+              "label": "歴史ミステリー"
+            },
+            {
+              "id": "fiction_bb5b67bb65d5",
+              "label": "ハードボイルド"
+            },
+            {
+              "id": "fiction_ea036b31e4cc",
+              "label": "ノワール"
+            },
+            {
+              "id": "fiction_41ad506ccc07",
+              "label": "サスペンス"
+            },
+            {
+              "id": "fiction_1061633ac5c0",
+              "label": "心理サスペンス"
+            },
+            {
+              "id": "fiction_648720553e3c",
+              "label": "サイコスリラー"
+            },
+            {
+              "id": "fiction_c8c2ea6cd01f",
+              "label": "クライムノベル"
+            },
+            {
+              "id": "fiction_94fd0130e6eb",
+              "label": "スパイスリラー"
+            },
+            {
+              "id": "fiction_6d0ed3b8e638",
+              "label": "政治スリラー"
+            },
+            {
+              "id": "fiction_ff53a0dc025c",
+              "label": "企業スリラー"
+            },
+            {
+              "id": "fiction_a7fd6af01a12",
+              "label": "テクノスリラー"
+            },
+            {
+              "id": "fiction_5a68ab426496",
+              "label": "デスゲーム"
+            }
+          ]
+        },
+        {
+          "label": "SF",
+          "subgenres": [
+            {
+              "id": "fiction_decf47b65db8",
+              "label": "SF",
+              "aliases": [
+                "サイエンスフィクション",
+                "Sci-Fi",
+                "Science Fiction"
+              ]
+            },
+            {
+              "id": "fiction_ece991efc673",
+              "label": "ハードSF",
+              "aliases": [
+                "ハードサイエンスフィクション"
+              ]
+            },
+            {
+              "id": "fiction_70e7ea073497",
+              "label": "ソフトSF"
+            },
+            {
+              "id": "fiction_d3c5d1616a56",
+              "label": "スペースオペラ"
+            },
+            {
+              "id": "fiction_801c249af89d",
+              "label": "宇宙探査SF"
+            },
+            {
+              "id": "fiction_ff78c10a14c2",
+              "label": "ファーストコンタクト"
+            },
+            {
+              "id": "fiction_a2c87966172d",
+              "label": "ロボット・AI"
+            },
+            {
+              "id": "fiction_806cf2ad2a0e",
+              "label": "サイバーパンク"
+            },
+            {
+              "id": "fiction_3a1feb8049b4",
+              "label": "スチームパンク"
+            },
+            {
+              "id": "fiction_8b12789d85c0",
+              "label": "バイオパンク"
+            },
+            {
+              "id": "fiction_66e7aec06089",
+              "label": "タイムトラベル"
+            },
+            {
+              "id": "fiction_cdfcac11aa67",
+              "label": "タイムループ"
+            },
+            {
+              "id": "fiction_f7f7157652fa",
+              "label": "パラレルワールド"
+            },
+            {
+              "id": "fiction_fc855d745680",
+              "label": "ディストピア"
+            },
+            {
+              "id": "fiction_077b3c843318",
+              "label": "ユートピア"
+            },
+            {
+              "id": "fiction_a0fccd85af5a",
+              "label": "ポストアポカリプス",
+              "aliases": [
+                "終末後",
+                "ポスト・アポカリプス"
+              ]
+            },
+            {
+              "id": "fiction_287c3b1bd5ca",
+              "label": "終末SF"
+            },
+            {
+              "id": "fiction_cf50512c199a",
+              "label": "ミリタリーSF"
+            },
+            {
+              "id": "fiction_66fb46c83492",
+              "label": "近未来SF"
+            },
+            {
+              "id": "fiction_65578eb1c2ff",
+              "label": "社会派SF"
+            },
+            {
+              "id": "fiction_ec42805070a9",
+              "label": "SFミステリー"
+            },
+            {
+              "id": "fiction_e68a0b829fd0",
+              "label": "架空歴史SF"
+            },
+            {
+              "id": "fiction_67ca25cbd944",
+              "label": "気候SF"
+            }
+          ]
+        },
+        {
+          "label": "ファンタジー",
+          "subgenres": [
+            {
+              "id": "fiction_310842f8a827",
+              "label": "ファンタジー"
+            },
+            {
+              "id": "fiction_9497d9b85c08",
+              "label": "ハイファンタジー"
+            },
+            {
+              "id": "fiction_96d3ceda44c0",
+              "label": "ローファンタジー"
+            },
+            {
+              "id": "fiction_b9c2826a401f",
+              "label": "ダークファンタジー"
+            },
+            {
+              "id": "fiction_bc477cbdaf64",
+              "label": "アーバンファンタジー"
+            },
+            {
+              "id": "fiction_7c6c5dff486f",
+              "label": "現代ファンタジー"
+            },
+            {
+              "id": "fiction_c853a94b7cba",
+              "label": "異世界転生"
+            },
+            {
+              "id": "fiction_1834bcf272c5",
+              "label": "異世界転移"
+            },
+            {
+              "id": "fiction_c8990f4143bd",
+              "label": "剣と魔法"
+            },
+            {
+              "id": "fiction_263db40c9333",
+              "label": "神話ファンタジー"
+            },
+            {
+              "id": "fiction_27b5e1ed8351",
+              "label": "和風ファンタジー"
+            },
+            {
+              "id": "fiction_ab5be29511a6",
+              "label": "歴史ファンタジー"
+            },
+            {
+              "id": "fiction_11c7cd6b37b5",
+              "label": "魔法学校"
+            },
+            {
+              "id": "fiction_066dbea6d225",
+              "label": "魔女・魔法"
+            },
+            {
+              "id": "fiction_e3bfad8d4927",
+              "label": "冒険ファンタジー"
+            },
+            {
+              "id": "fiction_d8d5f60ca949",
+              "label": "コージーファンタジー"
+            },
+            {
+              "id": "fiction_f801eb5e7f48",
+              "label": "ゲーム世界・VRMMO"
+            }
+          ]
+        },
+        {
+          "label": "ホラー・怪奇",
+          "subgenres": [
+            {
+              "id": "fiction_f87cec9c42ba",
+              "label": "ホラー"
+            },
+            {
+              "id": "fiction_5fce7302c1b2",
+              "label": "怪奇小説"
+            },
+            {
+              "id": "fiction_82fa85f9f666",
+              "label": "ゴシックホラー"
+            },
+            {
+              "id": "fiction_292a49924315",
+              "label": "心理ホラー"
+            },
+            {
+              "id": "fiction_c25e7597d49e",
+              "label": "オカルトホラー"
+            },
+            {
+              "id": "fiction_cc00ef642965",
+              "label": "和製ホラー"
+            },
+            {
+              "id": "fiction_da198795fe53",
+              "label": "モンスターホラー"
+            },
+            {
+              "id": "fiction_e7a1bc3719f1",
+              "label": "コズミックホラー"
+            },
+            {
+              "id": "fiction_add6a9cc22be",
+              "label": "民俗ホラー"
+            },
+            {
+              "id": "fiction_c19330218cac",
+              "label": "サバイバルホラー"
+            },
+            {
+              "id": "fiction_d3c6c0fea6f7",
+              "label": "ゾンビ"
+            },
+            {
+              "id": "fiction_1c761f953654",
+              "label": "怪談"
+            },
+            {
+              "id": "fiction_749e033a5637",
+              "label": "スプラッター"
+            }
+          ]
+        },
+        {
+          "label": "恋愛・青春・人間ドラマ",
+          "subgenres": [
+            {
+              "id": "fiction_91957d3e2d36",
+              "label": "恋愛小説",
+              "aliases": [
+                "恋愛"
+              ]
+            },
+            {
+              "id": "fiction_eb6b7cbfc857",
+              "label": "ロマンス"
+            },
+            {
+              "id": "fiction_56cb5661bc39",
+              "label": "ラブコメディ"
+            },
+            {
+              "id": "fiction_19e169cdb844",
+              "label": "青春小説"
+            },
+            {
+              "id": "fiction_031eb19850fa",
+              "label": "学園小説"
+            },
+            {
+              "id": "fiction_cde8c74b20db",
+              "label": "家族小説"
+            },
+            {
+              "id": "fiction_077969790fc0",
+              "label": "友情小説"
+            },
+            {
+              "id": "fiction_d7758fb1862a",
+              "label": "ヒューマンドラマ"
+            },
+            {
+              "id": "fiction_d0dbf317d0d4",
+              "label": "お仕事小説"
+            },
+            {
+              "id": "fiction_5de7480b7c2f",
+              "label": "医療ドラマ"
+            },
+            {
+              "id": "fiction_92c1fe654373",
+              "label": "グルメ小説"
+            },
+            {
+              "id": "fiction_c7d43664c450",
+              "label": "スポーツ小説"
+            },
+            {
+              "id": "fiction_6a5f79b6ae2f",
+              "label": "動物小説"
+            },
+            {
+              "id": "fiction_2250027fd987",
+              "label": "ライト文芸"
+            },
+            {
+              "id": "fiction_a2ae2ecf0c92",
+              "label": "キャラクター文芸"
+            },
+            {
+              "id": "fiction_584e5b661efd",
+              "label": "ライトノベル",
+              "aliases": [
+                "ラノベ"
+              ]
+            },
+            {
+              "id": "fiction_ea84acbec5e2",
+              "label": "ヤングアダルト小説"
+            },
+            {
+              "id": "fiction_1fb294cd2868",
+              "label": "BL",
+              "aliases": [
+                "ボーイズラブ"
+              ]
+            },
+            {
+              "id": "fiction_28f7a70baad1",
+              "label": "GL",
+              "aliases": [
+                "ガールズラブ"
+              ]
+            }
+          ]
+        },
+        {
+          "label": "歴史・社会・戦争",
+          "subgenres": [
+            {
+              "id": "fiction_310ddcf9d37b",
+              "label": "歴史小説"
+            },
+            {
+              "id": "fiction_09b9f5000dd6",
+              "label": "時代小説"
+            },
+            {
+              "id": "fiction_51064bf522c7",
+              "label": "戦国小説"
+            },
+            {
+              "id": "fiction_15fcc3dcc683",
+              "label": "江戸時代小説"
+            },
+            {
+              "id": "fiction_e2336f344598",
+              "label": "幕末小説"
+            },
+            {
+              "id": "fiction_e2468b555603",
+              "label": "海外歴史小説"
+            },
+            {
+              "id": "fiction_c3e4a7245bdf",
+              "label": "戦争小説"
+            },
+            {
+              "id": "fiction_a21efcb0d10b",
+              "label": "戦記小説"
+            },
+            {
+              "id": "fiction_be959738576f",
+              "label": "架空戦記"
+            },
+            {
+              "id": "fiction_bf01d084822d",
+              "label": "経済小説"
+            },
+            {
+              "id": "fiction_7cb9429e59d0",
+              "label": "企業小説"
+            },
+            {
+              "id": "fiction_e8d0083964b6",
+              "label": "政治小説"
+            },
+            {
+              "id": "fiction_c22d93886ff6",
+              "label": "社会問題小説"
+            },
+            {
+              "id": "fiction_8d858d444e49",
+              "label": "パンデミック小説"
+            }
+          ]
+        },
+        {
+          "label": "冒険・アクション",
+          "subgenres": [
+            {
+              "id": "fiction_aba416c90ce6",
+              "label": "アクション",
+              "aliases": [
+                "アクション小説"
+              ]
+            },
+            {
+              "id": "fiction_6469e8c47621",
+              "label": "冒険小説"
+            },
+            {
+              "id": "fiction_043dc29435eb",
+              "label": "トレジャーハント"
+            },
+            {
+              "id": "fiction_8d7a27223fa8",
+              "label": "海洋冒険"
+            },
+            {
+              "id": "fiction_252337ad95fc",
+              "label": "サバイバル"
+            },
+            {
+              "id": "fiction_8d820862d8a2",
+              "label": "バトル"
+            },
+            {
+              "id": "fiction_c5a550cd95a4",
+              "label": "格闘"
+            },
+            {
+              "id": "fiction_0f5a3801dde6",
+              "label": "剣戟・チャンバラ"
+            },
+            {
+              "id": "fiction_0a8a62fef6ab",
+              "label": "スパイアクション"
+            },
+            {
+              "id": "fiction_796a4ff05153",
+              "label": "ミリタリーアクション"
+            },
+            {
+              "id": "fiction_87624501276c",
+              "label": "パニック"
+            },
+            {
+              "id": "fiction_b3c4807e8689",
+              "label": "災害もの"
+            },
+            {
+              "id": "fiction_308f4553f5e4",
+              "label": "アクションスリラー"
+            },
+            {
+              "id": "fiction_115031b02ceb",
+              "label": "アウトロー"
+            },
+            {
+              "id": "fiction_ef3c8be174b7",
+              "label": "スーパーヒーロー"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "essay",
+      "label": "エッセイ・随筆",
+      "treeStyleId": "maple",
+      "groups": [
+        {
+          "label": "題材",
+          "subgenres": [
+            {
+              "id": "essay_72cd1752c5d5",
+              "label": "日常エッセイ"
+            },
+            {
+              "id": "essay_b8edd4466504",
+              "label": "生活随筆"
+            },
+            {
+              "id": "essay_830fd98d90db",
+              "label": "旅エッセイ"
+            },
+            {
+              "id": "essay_f3bf9839509e",
+              "label": "食エッセイ"
+            },
+            {
+              "id": "essay_302918138861",
+              "label": "読書エッセイ"
+            },
+            {
+              "id": "essay_d90b84db5553",
+              "label": "文学随筆"
+            },
+            {
+              "id": "essay_918c234aab13",
+              "label": "仕事エッセイ"
+            },
+            {
+              "id": "essay_b2e627218102",
+              "label": "子育てエッセイ"
+            },
+            {
+              "id": "essay_2a542e925035",
+              "label": "家族エッセイ"
+            },
+            {
+              "id": "essay_c17c3e749ba6",
+              "label": "恋愛エッセイ"
+            },
+            {
+              "id": "essay_3f0512aad4e2",
+              "label": "社会批評エッセイ"
+            },
+            {
+              "id": "essay_65dbbb046624",
+              "label": "人生論エッセイ"
+            },
+            {
+              "id": "essay_e6d658585f31",
+              "label": "芸能人エッセイ"
+            },
+            {
+              "id": "essay_e499c4d01b22",
+              "label": "コミックエッセイ"
+            },
+            {
+              "id": "essay_e33d9c02fdfa",
+              "label": "ユーモアエッセイ"
+            },
+            {
+              "id": "essay_268009fbc58d",
+              "label": "哲学エッセイ"
+            },
+            {
+              "id": "essay_a92fb66c113f",
+              "label": "自然エッセイ"
+            },
+            {
+              "id": "essay_171cfecbb0fd",
+              "label": "闘病エッセイ"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "business",
+      "label": "ビジネス書・経済",
+      "treeStyleId": "conifer",
+      "groups": [
+        {
+          "label": "経営・仕事",
+          "subgenres": [
+            {
+              "id": "business_05ee9f598236",
+              "label": "経営戦略"
+            },
+            {
+              "id": "business_92f2006d1d2d",
+              "label": "起業・スタートアップ",
+              "aliases": [
+                "スタートアップ",
+                "創業"
+              ]
+            },
+            {
+              "id": "business_a8aa0c6e699c",
+              "label": "新規事業"
+            },
+            {
+              "id": "business_b4fd1ba365ca",
+              "label": "組織開発"
+            },
+            {
+              "id": "business_fdc6da9ef0ad",
+              "label": "リーダーシップ"
+            },
+            {
+              "id": "business_1f3539a361d7",
+              "label": "マネジメント"
+            },
+            {
+              "id": "business_e33b94ff37d4",
+              "label": "人事・採用"
+            },
+            {
+              "id": "business_9d33be55f4ff",
+              "label": "チームビルディング"
+            },
+            {
+              "id": "business_3d497f8d03c9",
+              "label": "人材育成"
+            },
+            {
+              "id": "business_fa718b88a79f",
+              "label": "働き方改革"
+            },
+            {
+              "id": "business_b501923abb91",
+              "label": "生産性向上"
+            },
+            {
+              "id": "business_dc26a9c3bad3",
+              "label": "業務改善"
+            },
+            {
+              "id": "business_9431cc0c9aa0",
+              "label": "プロジェクト管理"
+            },
+            {
+              "id": "business_6fadc9e28dda",
+              "label": "交渉術"
+            },
+            {
+              "id": "business_365601d64d91",
+              "label": "営業・セールス"
+            },
+            {
+              "id": "business_15889dd9f739",
+              "label": "マーケティング"
+            },
+            {
+              "id": "business_99580e1226f0",
+              "label": "ブランディング"
+            },
+            {
+              "id": "business_0ec386b57a54",
+              "label": "広告・PR"
+            },
+            {
+              "id": "business_12271f7c3ed2",
+              "label": "顧客体験・UX"
+            },
+            {
+              "id": "business_8ac82cb52e03",
+              "label": "デザイン思考"
+            }
+          ]
+        },
+        {
+          "label": "経済・お金",
+          "subgenres": [
+            {
+              "id": "business_2da058efd010",
+              "label": "ミクロ経済"
+            },
+            {
+              "id": "business_6f648c845a3c",
+              "label": "マクロ経済"
+            },
+            {
+              "id": "business_472e7be34f62",
+              "label": "経済史"
+            },
+            {
+              "id": "business_ea1216b8ebb4",
+              "label": "国際経済"
+            },
+            {
+              "id": "business_21c941d504c7",
+              "label": "行動経済学"
+            },
+            {
+              "id": "business_b0f26129764a",
+              "label": "金融"
+            },
+            {
+              "id": "business_5de7d80c94ca",
+              "label": "会計・簿記"
+            },
+            {
+              "id": "business_e28fd0e64334",
+              "label": "財務・ファイナンス"
+            },
+            {
+              "id": "business_3b67cf647555",
+              "label": "税務"
+            },
+            {
+              "id": "business_ec29fd810cda",
+              "label": "株式投資"
+            },
+            {
+              "id": "business_5f38a1295c40",
+              "label": "投資信託"
+            },
+            {
+              "id": "business_4c8f7d8f2270",
+              "label": "不動産投資"
+            },
+            {
+              "id": "business_40c5ee07717c",
+              "label": "資産形成"
+            },
+            {
+              "id": "business_f7f3242dc0d4",
+              "label": "企業分析"
+            },
+            {
+              "id": "business_9e1aa6f07f65",
+              "label": "産業研究"
+            },
+            {
+              "id": "business_4e4c8bac6582",
+              "label": "事業承継"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "selfhelp",
+      "label": "自己啓発・キャリア",
+      "treeStyleId": "ginkgo",
+      "groups": [
+        {
+          "label": "思考・習慣",
+          "subgenres": [
+            {
+              "id": "selfhelp_5ab49f7b9d5b",
+              "label": "習慣化"
+            },
+            {
+              "id": "selfhelp_2e442fdbe5a4",
+              "label": "時間管理"
+            },
+            {
+              "id": "selfhelp_fac583f90370",
+              "label": "目標設定"
+            },
+            {
+              "id": "selfhelp_bcdc2296df35",
+              "label": "モチベーション"
+            },
+            {
+              "id": "selfhelp_ff83d5042d42",
+              "label": "マインドセット"
+            },
+            {
+              "id": "selfhelp_bb9fff8e9ebb",
+              "label": "自己肯定感"
+            },
+            {
+              "id": "selfhelp_7974da6d8ea4",
+              "label": "レジリエンス"
+            },
+            {
+              "id": "selfhelp_f88b04fdcd1f",
+              "label": "集中力"
+            },
+            {
+              "id": "selfhelp_8beb1c5b06e9",
+              "label": "意思決定"
+            },
+            {
+              "id": "selfhelp_54d6f5b79f33",
+              "label": "問題解決"
+            },
+            {
+              "id": "selfhelp_7378d3302c0c",
+              "label": "ロジカルシンキング"
+            },
+            {
+              "id": "selfhelp_f2067f4d6dad",
+              "label": "クリティカルシンキング"
+            },
+            {
+              "id": "selfhelp_9a3e85c519b8",
+              "label": "創造性"
+            },
+            {
+              "id": "selfhelp_c7fe6309ff49",
+              "label": "メンタル整理"
+            }
+          ]
+        },
+        {
+          "label": "生き方・仕事",
+          "subgenres": [
+            {
+              "id": "selfhelp_c03c2b5e7fe1",
+              "label": "キャリア設計"
+            },
+            {
+              "id": "selfhelp_3927327e3e13",
+              "label": "転職・就職"
+            },
+            {
+              "id": "selfhelp_28dfb46e4c22",
+              "label": "副業"
+            },
+            {
+              "id": "selfhelp_30c4d9ccc30f",
+              "label": "フリーランス"
+            },
+            {
+              "id": "selfhelp_d9c9a7571ac7",
+              "label": "コミュニケーション術"
+            },
+            {
+              "id": "selfhelp_6a014cc2fb62",
+              "label": "プレゼンテーション"
+            },
+            {
+              "id": "selfhelp_297dcf5fb2cb",
+              "label": "スピーチ"
+            },
+            {
+              "id": "selfhelp_bd9937a3eb5f",
+              "label": "人間関係"
+            },
+            {
+              "id": "selfhelp_e97c17c6a666",
+              "label": "生き方・人生設計"
+            },
+            {
+              "id": "selfhelp_3c641ae50203",
+              "label": "ライフプランニング"
+            },
+            {
+              "id": "selfhelp_6040bba487ea",
+              "label": "断捨離・シンプルライフ"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "nonfiction",
+      "label": "ノンフィクション・伝記",
+      "treeStyleId": "beech",
+      "groups": [
+        {
+          "label": "事実・人物",
+          "subgenres": [
+            {
+              "id": "nonfiction_feb8624d5a0d",
+              "label": "ノンフィクション一般"
+            },
+            {
+              "id": "nonfiction_7857feb36bc7",
+              "label": "ルポルタージュ"
+            },
+            {
+              "id": "nonfiction_15108c30c2d5",
+              "label": "ドキュメンタリー"
+            },
+            {
+              "id": "nonfiction_02d0e16a6f93",
+              "label": "調査報道"
+            },
+            {
+              "id": "nonfiction_23ee70a19c30",
+              "label": "社会派ノンフィクション"
+            },
+            {
+              "id": "nonfiction_13c34b3aae34",
+              "label": "事件・犯罪"
+            },
+            {
+              "id": "nonfiction_bd4c2d34a5c8",
+              "label": "裁判記録"
+            },
+            {
+              "id": "nonfiction_b93e47c56b7a",
+              "label": "戦争体験記"
+            },
+            {
+              "id": "nonfiction_3284b7106cf5",
+              "label": "災害体験記"
+            },
+            {
+              "id": "nonfiction_45efe7977a5e",
+              "label": "記録文学"
+            },
+            {
+              "id": "nonfiction_b81edb440f0c",
+              "label": "自伝"
+            },
+            {
+              "id": "nonfiction_d645fc607ca8",
+              "label": "回想録"
+            },
+            {
+              "id": "nonfiction_cd7b50387db5",
+              "label": "評伝"
+            },
+            {
+              "id": "nonfiction_00f4b5f1ca48",
+              "label": "伝記"
+            },
+            {
+              "id": "nonfiction_4cbc5299e335",
+              "label": "インタビュー集"
+            },
+            {
+              "id": "nonfiction_005c55d3fce1",
+              "label": "オーラルヒストリー"
+            }
+          ]
+        },
+        {
+          "label": "テーマ",
+          "subgenres": [
+            {
+              "id": "nonfiction_4c70cc03c0c2",
+              "label": "スポーツノンフィクション"
+            },
+            {
+              "id": "nonfiction_5160f280e0b5",
+              "label": "科学ノンフィクション"
+            },
+            {
+              "id": "nonfiction_3d8e5b5b6db3",
+              "label": "医療ノンフィクション"
+            },
+            {
+              "id": "nonfiction_57063b187609",
+              "label": "政治ノンフィクション"
+            },
+            {
+              "id": "nonfiction_3c677c84aa44",
+              "label": "経済ノンフィクション"
+            },
+            {
+              "id": "nonfiction_837e8bec955c",
+              "label": "探検記"
+            },
+            {
+              "id": "nonfiction_122c3a62713c",
+              "label": "生き物・自然記録"
+            },
+            {
+              "id": "nonfiction_75d5e22c7aaf",
+              "label": "アートノンフィクション"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "history",
+      "label": "歴史・地理・考古",
+      "treeStyleId": "zelkova",
+      "groups": [
+        {
+          "label": "歴史分野",
+          "subgenres": [
+            {
+              "id": "history_033c3fca9b7d",
+              "label": "日本史"
+            },
+            {
+              "id": "history_4341dad6b1eb",
+              "label": "世界史"
+            },
+            {
+              "id": "history_2ae5afd12317",
+              "label": "古代史"
+            },
+            {
+              "id": "history_2f8443abb4bc",
+              "label": "中世史"
+            },
+            {
+              "id": "history_4fd2ff664c62",
+              "label": "近世史"
+            },
+            {
+              "id": "history_675a235f9a1b",
+              "label": "近現代史"
+            },
+            {
+              "id": "history_c5d3b1eb641c",
+              "label": "地域史"
+            },
+            {
+              "id": "history_b0dc3bc2f0c2",
+              "label": "文化史"
+            },
+            {
+              "id": "history_3c27d637e6d9",
+              "label": "社会史"
+            },
+            {
+              "id": "history_a0153bc61c15",
+              "label": "政治史"
+            },
+            {
+              "id": "history_9e5a05281c27",
+              "label": "経済史"
+            },
+            {
+              "id": "history_25e0abb65f75",
+              "label": "軍事史"
+            },
+            {
+              "id": "history_43ce54c6cdf0",
+              "label": "女性史"
+            },
+            {
+              "id": "history_316811fe1ba3",
+              "label": "思想史"
+            },
+            {
+              "id": "history_b23a7df781b9",
+              "label": "美術史"
+            },
+            {
+              "id": "history_d0e645c92856",
+              "label": "歴史人物"
+            },
+            {
+              "id": "history_7d598e981195",
+              "label": "歴史研究方法"
+            }
+          ]
+        },
+        {
+          "label": "地理・遺跡",
+          "subgenres": [
+            {
+              "id": "history_f99573edf05a",
+              "label": "地理学"
+            },
+            {
+              "id": "history_fc4eb7737fc0",
+              "label": "人文地理"
+            },
+            {
+              "id": "history_1029f4a31ad7",
+              "label": "自然地理"
+            },
+            {
+              "id": "history_2d8fa8bd1e8b",
+              "label": "地図・地図史"
+            },
+            {
+              "id": "history_661212c7dbf2",
+              "label": "考古学"
+            },
+            {
+              "id": "history_1eb69791cfa1",
+              "label": "遺跡・発掘"
+            },
+            {
+              "id": "history_1136d98645e8",
+              "label": "史料・古文書"
+            },
+            {
+              "id": "history_621f10535e2f",
+              "label": "世界遺産"
+            },
+            {
+              "id": "history_d658c3a01b64",
+              "label": "民俗史"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "humanities",
+      "label": "哲学・思想・人文",
+      "treeStyleId": "hinoki",
+      "groups": [
+        {
+          "label": "哲学・思想",
+          "subgenres": [
+            {
+              "id": "humanities_78439054e373",
+              "label": "西洋哲学"
+            },
+            {
+              "id": "humanities_9e98616f3602",
+              "label": "東洋哲学"
+            },
+            {
+              "id": "humanities_8f9f7c67204e",
+              "label": "日本思想"
+            },
+            {
+              "id": "humanities_cdd33b2c2cc6",
+              "label": "倫理学"
+            },
+            {
+              "id": "humanities_bbbbd17a62cc",
+              "label": "論理学"
+            },
+            {
+              "id": "humanities_acace1c9dd22",
+              "label": "認識論"
+            },
+            {
+              "id": "humanities_691f6f87f971",
+              "label": "形而上学"
+            },
+            {
+              "id": "humanities_b86152229345",
+              "label": "美学"
+            },
+            {
+              "id": "humanities_d8e4a3597510",
+              "label": "政治哲学"
+            },
+            {
+              "id": "humanities_ca53195d73a8",
+              "label": "科学哲学"
+            },
+            {
+              "id": "humanities_5ae2fd62ab14",
+              "label": "現象学"
+            },
+            {
+              "id": "humanities_c55fa3968670",
+              "label": "実存主義"
+            },
+            {
+              "id": "humanities_bac00d8d2d0f",
+              "label": "批判理論"
+            },
+            {
+              "id": "humanities_5db0771103df",
+              "label": "思想史"
+            }
+          ]
+        },
+        {
+          "label": "人文研究",
+          "subgenres": [
+            {
+              "id": "humanities_ed9c1f286166",
+              "label": "文化研究"
+            },
+            {
+              "id": "humanities_f4a98ce3b5d8",
+              "label": "文学研究・文芸評論"
+            },
+            {
+              "id": "humanities_55623e88727b",
+              "label": "言語学"
+            },
+            {
+              "id": "humanities_964cf3d16b1f",
+              "label": "記号論"
+            },
+            {
+              "id": "humanities_0186c1ddc6ff",
+              "label": "人類学"
+            },
+            {
+              "id": "humanities_1da81aec1055",
+              "label": "ジェンダー研究"
+            },
+            {
+              "id": "humanities_e556aa6438c8",
+              "label": "メディア論"
+            },
+            {
+              "id": "humanities_3a0dd86401ec",
+              "label": "比較文化論"
+            },
+            {
+              "id": "humanities_8a14d9fa236d",
+              "label": "古典研究"
+            },
+            {
+              "id": "humanities_28b23d9baf53",
+              "label": "書誌学・出版文化"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "society",
+      "label": "社会・政治・法律",
+      "treeStyleId": "pine",
+      "groups": [
+        {
+          "label": "社会と政治",
+          "subgenres": [
+            {
+              "id": "society_fc4d9def2fd8",
+              "label": "社会学"
+            },
+            {
+              "id": "society_a6202224490b",
+              "label": "政治学"
+            },
+            {
+              "id": "society_0a3195eeed84",
+              "label": "日本政治"
+            },
+            {
+              "id": "society_379cb15446f7",
+              "label": "国際政治"
+            },
+            {
+              "id": "society_040fed6f9987",
+              "label": "外交・安全保障"
+            },
+            {
+              "id": "society_f41276525e03",
+              "label": "公共政策"
+            },
+            {
+              "id": "society_833fd200298d",
+              "label": "行政"
+            },
+            {
+              "id": "society_824e41b304f4",
+              "label": "地方自治"
+            },
+            {
+              "id": "society_c90f7a7d5987",
+              "label": "都市・まちづくり"
+            },
+            {
+              "id": "society_0aec9793dd9d",
+              "label": "人権"
+            },
+            {
+              "id": "society_3bab2010497f",
+              "label": "ジェンダー・多様性"
+            },
+            {
+              "id": "society_058ab6a527e7",
+              "label": "貧困・格差"
+            },
+            {
+              "id": "society_120f2ef68e50",
+              "label": "労働問題"
+            },
+            {
+              "id": "society_4de1286c18a7",
+              "label": "人口・少子高齢化"
+            },
+            {
+              "id": "society_3a16657e0d4d",
+              "label": "環境政策"
+            },
+            {
+              "id": "society_46317ff36160",
+              "label": "福祉政策"
+            },
+            {
+              "id": "society_2a3c4805579d",
+              "label": "メディア・報道"
+            },
+            {
+              "id": "society_ed44a9aca81c",
+              "label": "国際協力"
+            },
+            {
+              "id": "society_59e0265743e4",
+              "label": "社会運動"
+            }
+          ]
+        },
+        {
+          "label": "法律・制度",
+          "subgenres": [
+            {
+              "id": "society_a0d23c98761b",
+              "label": "法学入門"
+            },
+            {
+              "id": "society_d3785a40ac56",
+              "label": "憲法"
+            },
+            {
+              "id": "society_b1833a6e7dcf",
+              "label": "民法"
+            },
+            {
+              "id": "society_8b96e250ac70",
+              "label": "刑法"
+            },
+            {
+              "id": "society_d87a4f1ca287",
+              "label": "商法・会社法"
+            },
+            {
+              "id": "society_f4989985eae6",
+              "label": "労働法"
+            },
+            {
+              "id": "society_c7a6ffbaf059",
+              "label": "知的財産法"
+            },
+            {
+              "id": "society_f576f8b63ebf",
+              "label": "国際法"
+            },
+            {
+              "id": "society_74dd2ba173dc",
+              "label": "消費者法"
+            },
+            {
+              "id": "society_aedec42b9182",
+              "label": "判例解説"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "religion",
+      "label": "宗教・神話・民俗",
+      "treeStyleId": "sacred",
+      "groups": [
+        {
+          "label": "宗教・思想",
+          "subgenres": [
+            {
+              "id": "religion_b8c023fa296f",
+              "label": "宗教学"
+            },
+            {
+              "id": "religion_93921039b7cd",
+              "label": "仏教"
+            },
+            {
+              "id": "religion_bcfa5d8e0bb2",
+              "label": "神道"
+            },
+            {
+              "id": "religion_99b344e6fad6",
+              "label": "キリスト教"
+            },
+            {
+              "id": "religion_639dd3bbb366",
+              "label": "イスラム教"
+            },
+            {
+              "id": "religion_68d3154fcfe3",
+              "label": "ユダヤ教"
+            },
+            {
+              "id": "religion_f76bbdc460f2",
+              "label": "ヒンドゥー教"
+            },
+            {
+              "id": "religion_8dabdbd2ef41",
+              "label": "東洋宗教"
+            },
+            {
+              "id": "religion_8e3720c49861",
+              "label": "宗教史"
+            },
+            {
+              "id": "religion_036a7082c31f",
+              "label": "宗教哲学"
+            },
+            {
+              "id": "religion_460ef1e6c079",
+              "label": "比較宗教"
+            }
+          ]
+        },
+        {
+          "label": "伝承・民俗",
+          "subgenres": [
+            {
+              "id": "religion_37f3684eaa45",
+              "label": "神話"
+            },
+            {
+              "id": "religion_d5991aea7903",
+              "label": "伝説"
+            },
+            {
+              "id": "religion_8fe63c1bc976",
+              "label": "民間信仰"
+            },
+            {
+              "id": "religion_2acdc52869d7",
+              "label": "民俗学"
+            },
+            {
+              "id": "religion_ac9c3bf23873",
+              "label": "妖怪・怪異研究"
+            },
+            {
+              "id": "religion_a893e686edce",
+              "label": "祭礼・年中行事"
+            },
+            {
+              "id": "religion_24f35477c63d",
+              "label": "スピリチュアル"
+            },
+            {
+              "id": "religion_41f0b7ac8ed5",
+              "label": "占い・運勢"
+            },
+            {
+              "id": "religion_ccbf6f510880",
+              "label": "瞑想・修行"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "psychology",
+      "label": "心理学・人間関係",
+      "treeStyleId": "birch",
+      "groups": [
+        {
+          "label": "心理学",
+          "subgenres": [
+            {
+              "id": "psychology_de791d984bcd",
+              "label": "心理学入門"
+            },
+            {
+              "id": "psychology_f9bea8d13239",
+              "label": "認知心理学"
+            },
+            {
+              "id": "psychology_f6c2ddf72d21",
+              "label": "社会心理学"
+            },
+            {
+              "id": "psychology_92df5272b79b",
+              "label": "発達心理学"
+            },
+            {
+              "id": "psychology_040a1230c33d",
+              "label": "臨床心理学"
+            },
+            {
+              "id": "psychology_f22d7a059f8b",
+              "label": "教育心理学"
+            },
+            {
+              "id": "psychology_a26d44858755",
+              "label": "行動心理学"
+            },
+            {
+              "id": "psychology_8f25a60cec52",
+              "label": "パーソナリティ心理学"
+            },
+            {
+              "id": "psychology_85234bd73fb2",
+              "label": "ポジティブ心理学"
+            },
+            {
+              "id": "psychology_f1c50e2ec722",
+              "label": "神経心理学"
+            },
+            {
+              "id": "psychology_0147244e99b0",
+              "label": "心理学史"
+            }
+          ]
+        },
+        {
+          "label": "対人・感情",
+          "subgenres": [
+            {
+              "id": "psychology_596a4b283ac0",
+              "label": "対人コミュニケーション"
+            },
+            {
+              "id": "psychology_70de10d762cc",
+              "label": "恋愛心理"
+            },
+            {
+              "id": "psychology_bd132bfd3c9b",
+              "label": "家族関係"
+            },
+            {
+              "id": "psychology_9bac48aed4cb",
+              "label": "親子関係"
+            },
+            {
+              "id": "psychology_5e4d0743e977",
+              "label": "感情調整"
+            },
+            {
+              "id": "psychology_6a5aa88db1b8",
+              "label": "ストレス対処"
+            },
+            {
+              "id": "psychology_6c9e24c6a86a",
+              "label": "カウンセリング"
+            },
+            {
+              "id": "psychology_c0e86f951785",
+              "label": "心理療法"
+            },
+            {
+              "id": "psychology_2deeac90c077",
+              "label": "愛着理論"
+            },
+            {
+              "id": "psychology_52623a018356",
+              "label": "孤独・つながり"
+            },
+            {
+              "id": "psychology_7608006bce12",
+              "label": "メンタルウェルビーイング"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "science",
+      "label": "自然科学・数学",
+      "treeStyleId": "redwood",
+      "groups": [
+        {
+          "label": "数理・宇宙",
+          "subgenres": [
+            {
+              "id": "science_c66df211f9c8",
+              "label": "数学"
+            },
+            {
+              "id": "science_fc3ceaa1daef",
+              "label": "数学史"
+            },
+            {
+              "id": "science_339c42f9c558",
+              "label": "統計学"
+            },
+            {
+              "id": "science_ec8b6ee44091",
+              "label": "確率論"
+            },
+            {
+              "id": "science_56691f27b7ba",
+              "label": "物理学"
+            },
+            {
+              "id": "science_11333d2d2c05",
+              "label": "量子力学"
+            },
+            {
+              "id": "science_722b0f292e29",
+              "label": "相対性理論"
+            },
+            {
+              "id": "science_b7b7c70d97e7",
+              "label": "天文学"
+            },
+            {
+              "id": "science_9ced236d83b0",
+              "label": "宇宙論"
+            },
+            {
+              "id": "science_18ac8d094ab5",
+              "label": "地球科学"
+            },
+            {
+              "id": "science_5eefd2af9210",
+              "label": "気象学"
+            },
+            {
+              "id": "science_26a8025f741f",
+              "label": "気候科学"
+            }
+          ]
+        },
+        {
+          "label": "生命・化学・自然",
+          "subgenres": [
+            {
+              "id": "science_75a513675599",
+              "label": "化学"
+            },
+            {
+              "id": "science_652e1b3fad7f",
+              "label": "生物学"
+            },
+            {
+              "id": "science_a8c2725db875",
+              "label": "進化論"
+            },
+            {
+              "id": "science_fe7997fe0d76",
+              "label": "遺伝学"
+            },
+            {
+              "id": "science_4a33220d6a59",
+              "label": "分子生物学"
+            },
+            {
+              "id": "science_89ff0c3a3a5b",
+              "label": "生態学"
+            },
+            {
+              "id": "science_8041fcb3f434",
+              "label": "動物学"
+            },
+            {
+              "id": "science_dd986e25b64c",
+              "label": "植物学"
+            },
+            {
+              "id": "science_50c470a8f755",
+              "label": "海洋科学"
+            },
+            {
+              "id": "science_dd9829158465",
+              "label": "環境科学"
+            },
+            {
+              "id": "science_7223062ac9b5",
+              "label": "脳科学"
+            },
+            {
+              "id": "science_ca9526c5c4f6",
+              "label": "科学史"
+            },
+            {
+              "id": "science_13d5e928bd02",
+              "label": "科学読み物"
+            },
+            {
+              "id": "science_1167ad2703b5",
+              "label": "科学哲学（一般向け）"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "technology",
+      "label": "IT・工学・技術",
+      "treeStyleId": "metasequoia",
+      "groups": [
+        {
+          "label": "IT・情報",
+          "subgenres": [
+            {
+              "id": "technology_b6df0c26c63f",
+              "label": "プログラミング"
+            },
+            {
+              "id": "technology_cb89a6e8dfd9",
+              "label": "Web開発"
+            },
+            {
+              "id": "technology_2b9f0f2a1e54",
+              "label": "モバイルアプリ開発"
+            },
+            {
+              "id": "technology_10c9409f8960",
+              "label": "ソフトウェア設計"
+            },
+            {
+              "id": "technology_afc10548e727",
+              "label": "アルゴリズム・データ構造"
+            },
+            {
+              "id": "technology_eeba1ac12fdd",
+              "label": "データベース"
+            },
+            {
+              "id": "technology_d5313b500671",
+              "label": "クラウド・インフラ"
+            },
+            {
+              "id": "technology_3d80fbd29d56",
+              "label": "ネットワーク"
+            },
+            {
+              "id": "technology_b057d149a6dc",
+              "label": "セキュリティ"
+            },
+            {
+              "id": "technology_3d0ff8ef1027",
+              "label": "AI・機械学習",
+              "aliases": [
+                "人工知能",
+                "機械学習"
+              ]
+            },
+            {
+              "id": "technology_819bf119d54c",
+              "label": "生成AI"
+            },
+            {
+              "id": "technology_da75c930e153",
+              "label": "データサイエンス"
+            },
+            {
+              "id": "technology_53ede8278ed1",
+              "label": "IoT"
+            },
+            {
+              "id": "technology_9b7ef0b83d95",
+              "label": "ロボティクス"
+            },
+            {
+              "id": "technology_947754678080",
+              "label": "コンピュータ史"
+            }
+          ]
+        },
+        {
+          "label": "工学・ものづくり",
+          "subgenres": [
+            {
+              "id": "technology_134faa997f8f",
+              "label": "機械工学"
+            },
+            {
+              "id": "technology_49bcb6617b45",
+              "label": "電気電子工学"
+            },
+            {
+              "id": "technology_b42beb235799",
+              "label": "情報工学"
+            },
+            {
+              "id": "technology_5b76b47cdfa8",
+              "label": "土木工学"
+            },
+            {
+              "id": "technology_7d5eb7b7c05a",
+              "label": "建築工学"
+            },
+            {
+              "id": "technology_f0f862b1bf23",
+              "label": "材料工学"
+            },
+            {
+              "id": "technology_dbb46e7032cb",
+              "label": "化学工学"
+            },
+            {
+              "id": "technology_98051cda4206",
+              "label": "エネルギー技術"
+            },
+            {
+              "id": "technology_35a4bdd5c8fe",
+              "label": "宇宙工学"
+            },
+            {
+              "id": "technology_a660966ab31a",
+              "label": "自動車技術"
+            },
+            {
+              "id": "technology_38f589cde17c",
+              "label": "ものづくり・製造"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "health",
+      "label": "医療・健康・福祉",
+      "treeStyleId": "olive",
+      "groups": [
+        {
+          "label": "医療",
+          "subgenres": [
+            {
+              "id": "health_a5a9e9866467",
+              "label": "医学一般"
+            },
+            {
+              "id": "health_b41a9f7674cb",
+              "label": "病気・治療"
+            },
+            {
+              "id": "health_fe2bff713bee",
+              "label": "予防医学"
+            },
+            {
+              "id": "health_d5ec083d3d74",
+              "label": "看護"
+            },
+            {
+              "id": "health_87f897a82e00",
+              "label": "リハビリテーション"
+            },
+            {
+              "id": "health_4921e63118d7",
+              "label": "公衆衛生"
+            },
+            {
+              "id": "health_b0a1004fdae8",
+              "label": "医療制度"
+            },
+            {
+              "id": "health_d6c2c121fff0",
+              "label": "薬学"
+            },
+            {
+              "id": "health_a0a0ce4a46bd",
+              "label": "介護・高齢者福祉"
+            },
+            {
+              "id": "health_c764f2c35528",
+              "label": "障害福祉"
+            },
+            {
+              "id": "health_d820c9140e79",
+              "label": "医療倫理"
+            }
+          ]
+        },
+        {
+          "label": "健康・生活",
+          "subgenres": [
+            {
+              "id": "health_a4a19f4ec3f4",
+              "label": "栄養学"
+            },
+            {
+              "id": "health_b5132f5d1371",
+              "label": "食事・健康法"
+            },
+            {
+              "id": "health_dcd6cbd10a70",
+              "label": "運動・フィットネス"
+            },
+            {
+              "id": "health_2ce88711386d",
+              "label": "睡眠"
+            },
+            {
+              "id": "health_75b2a06aa854",
+              "label": "メンタルヘルス"
+            },
+            {
+              "id": "health_eeb4ddd2cb27",
+              "label": "女性の健康"
+            },
+            {
+              "id": "health_b17d301c1c80",
+              "label": "子どもの健康"
+            },
+            {
+              "id": "health_f6d6f4174d21",
+              "label": "健康寿命"
+            },
+            {
+              "id": "health_7f735dfd0bec",
+              "label": "セルフケア"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "education",
+      "label": "教育・学習・語学",
+      "treeStyleId": "flowering",
+      "groups": [
+        {
+          "label": "教育・学び",
+          "subgenres": [
+            {
+              "id": "education_eb3b2c17bccb",
+              "label": "教育学"
+            },
+            {
+              "id": "education_3065b39d1364",
+              "label": "学習法"
+            },
+            {
+              "id": "education_ff43c86016c1",
+              "label": "記憶術"
+            },
+            {
+              "id": "education_75ebf029444e",
+              "label": "学校教育"
+            },
+            {
+              "id": "education_9e790ac2f4c6",
+              "label": "幼児教育"
+            },
+            {
+              "id": "education_d7331c6b9ef6",
+              "label": "初等教育"
+            },
+            {
+              "id": "education_8861864188d5",
+              "label": "中等教育"
+            },
+            {
+              "id": "education_db2ad32bdbed",
+              "label": "高等教育"
+            },
+            {
+              "id": "education_9d5fd9f1ede0",
+              "label": "特別支援教育"
+            },
+            {
+              "id": "education_6523e144b565",
+              "label": "家庭教育"
+            },
+            {
+              "id": "education_5c7b1ce24510",
+              "label": "子育て"
+            },
+            {
+              "id": "education_6ce3f7e6464d",
+              "label": "教材・授業設計"
+            },
+            {
+              "id": "education_ae1c359f1515",
+              "label": "受験・試験対策"
+            },
+            {
+              "id": "education_bf190e401604",
+              "label": "資格学習"
+            }
+          ]
+        },
+        {
+          "label": "語学・言葉",
+          "subgenres": [
+            {
+              "id": "education_2a66c1490bc0",
+              "label": "英語学習"
+            },
+            {
+              "id": "education_a746f2db1edc",
+              "label": "日本語学習"
+            },
+            {
+              "id": "education_1930b250ff71",
+              "label": "中国語学習"
+            },
+            {
+              "id": "education_812d3a1d25c6",
+              "label": "韓国語学習"
+            },
+            {
+              "id": "education_e153fcbc3ff1",
+              "label": "フランス語学習"
+            },
+            {
+              "id": "education_2b1df2bce5f3",
+              "label": "ドイツ語学習"
+            },
+            {
+              "id": "education_186be903e45b",
+              "label": "スペイン語学習"
+            },
+            {
+              "id": "education_a2d0bc639ee5",
+              "label": "その他外国語"
+            },
+            {
+              "id": "education_854b786761bc",
+              "label": "文法"
+            },
+            {
+              "id": "education_5028c392001d",
+              "label": "語彙・単語"
+            },
+            {
+              "id": "education_b5d85c8c1094",
+              "label": "翻訳・通訳"
+            },
+            {
+              "id": "education_f33821160ee3",
+              "label": "文章術・作文"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "arts",
+      "label": "芸術・音楽・映画",
+      "treeStyleId": "jacaranda",
+      "groups": [
+        {
+          "label": "美術・デザイン",
+          "subgenres": [
+            {
+              "id": "arts_d88381d57810",
+              "label": "美術史"
+            },
+            {
+              "id": "arts_0bef8175524b",
+              "label": "絵画"
+            },
+            {
+              "id": "arts_1b68548ab5ed",
+              "label": "イラスト"
+            },
+            {
+              "id": "arts_cec8d84f652b",
+              "label": "彫刻"
+            },
+            {
+              "id": "arts_9940df83f85a",
+              "label": "写真"
+            },
+            {
+              "id": "arts_46208239b43b",
+              "label": "建築"
+            },
+            {
+              "id": "arts_25461fcf7b6c",
+              "label": "デザイン"
+            },
+            {
+              "id": "arts_ec08c892b60c",
+              "label": "グラフィックデザイン"
+            },
+            {
+              "id": "arts_d057adcc9da8",
+              "label": "ファッション"
+            },
+            {
+              "id": "arts_d55a0938306b",
+              "label": "工芸・工芸史"
+            },
+            {
+              "id": "arts_f91dbde2cce9",
+              "label": "美術鑑賞"
+            },
+            {
+              "id": "arts_768fd0b9180c",
+              "label": "アート批評"
+            }
+          ]
+        },
+        {
+          "label": "舞台・メディア",
+          "subgenres": [
+            {
+              "id": "arts_04c3bd7c60f8",
+              "label": "音楽史"
+            },
+            {
+              "id": "arts_ea3408dd4b03",
+              "label": "音楽理論"
+            },
+            {
+              "id": "arts_bd355b18f08a",
+              "label": "演奏法"
+            },
+            {
+              "id": "arts_6673d515c4ab",
+              "label": "クラシック音楽"
+            },
+            {
+              "id": "arts_92255dc58955",
+              "label": "ポピュラー音楽"
+            },
+            {
+              "id": "arts_4248513e5911",
+              "label": "ジャズ"
+            },
+            {
+              "id": "arts_566273909191",
+              "label": "映画史"
+            },
+            {
+              "id": "arts_1eee31d887e9",
+              "label": "映画批評"
+            },
+            {
+              "id": "arts_89b77203e90b",
+              "label": "映像制作"
+            },
+            {
+              "id": "arts_5496bb0f1ba6",
+              "label": "演劇"
+            },
+            {
+              "id": "arts_d2aa2211cd1e",
+              "label": "舞台芸術"
+            },
+            {
+              "id": "arts_5c97775633cc",
+              "label": "アニメーション研究"
+            },
+            {
+              "id": "arts_1a1041f7ee6d",
+              "label": "ポップカルチャー"
+            },
+            {
+              "id": "arts_ddc4f4bc9c0c",
+              "label": "芸能史"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lifestyle",
+      "label": "趣味・実用・暮らし",
+      "treeStyleId": "fruit",
+      "groups": [
+        {
+          "label": "暮らし・家庭",
+          "subgenres": [
+            {
+              "id": "lifestyle_696f38e4346f",
+              "label": "料理・レシピ"
+            },
+            {
+              "id": "lifestyle_8999418d598e",
+              "label": "お菓子・パン"
+            },
+            {
+              "id": "lifestyle_41caff459c2d",
+              "label": "食文化"
+            },
+            {
+              "id": "lifestyle_c821f6d7d93c",
+              "label": "家事"
+            },
+            {
+              "id": "lifestyle_8d806ec1208c",
+              "label": "収納・整理"
+            },
+            {
+              "id": "lifestyle_8c0d92154865",
+              "label": "掃除"
+            },
+            {
+              "id": "lifestyle_ba05883ef5ae",
+              "label": "インテリア"
+            },
+            {
+              "id": "lifestyle_acd23495c3c9",
+              "label": "DIY"
+            },
+            {
+              "id": "lifestyle_62723fc8765c",
+              "label": "住まい・住宅"
+            },
+            {
+              "id": "lifestyle_26778ce819b8",
+              "label": "家計管理"
+            },
+            {
+              "id": "lifestyle_65ecf2056287",
+              "label": "節約"
+            },
+            {
+              "id": "lifestyle_856ae43e8463",
+              "label": "防災"
+            },
+            {
+              "id": "lifestyle_a1cf37924d1c",
+              "label": "ペット"
+            },
+            {
+              "id": "lifestyle_44aa9cf0d7db",
+              "label": "園芸・ガーデニング"
+            },
+            {
+              "id": "lifestyle_6dce2be559d1",
+              "label": "植物栽培"
+            }
+          ]
+        },
+        {
+          "label": "趣味・遊び",
+          "subgenres": [
+            {
+              "id": "lifestyle_8a6171187756",
+              "label": "スポーツ"
+            },
+            {
+              "id": "lifestyle_dc6f9336c764",
+              "label": "トレーニング"
+            },
+            {
+              "id": "lifestyle_2a16eee8a158",
+              "label": "ランニング"
+            },
+            {
+              "id": "lifestyle_223597b6c8e8",
+              "label": "ヨガ"
+            },
+            {
+              "id": "lifestyle_3e827886e8e9",
+              "label": "サイクリング"
+            },
+            {
+              "id": "lifestyle_71d864f4cbc9",
+              "label": "登山"
+            },
+            {
+              "id": "lifestyle_11e542fcb625",
+              "label": "キャンプ"
+            },
+            {
+              "id": "lifestyle_3b322b7a7d19",
+              "label": "釣り"
+            },
+            {
+              "id": "lifestyle_43295b1912ef",
+              "label": "ゲーム"
+            },
+            {
+              "id": "lifestyle_af0f5efc33a5",
+              "label": "ボードゲーム"
+            },
+            {
+              "id": "lifestyle_0bdd3f8feeed",
+              "label": "将棋・囲碁"
+            },
+            {
+              "id": "lifestyle_01fe2207e595",
+              "label": "手芸"
+            },
+            {
+              "id": "lifestyle_16b01e851984",
+              "label": "編み物"
+            },
+            {
+              "id": "lifestyle_a403ee9a6265",
+              "label": "裁縫"
+            },
+            {
+              "id": "lifestyle_9508d9ca61c6",
+              "label": "工作"
+            },
+            {
+              "id": "lifestyle_e2ec7c86543d",
+              "label": "コレクション"
+            },
+            {
+              "id": "lifestyle_4b8c9e335a1e",
+              "label": "自動車・バイク"
+            },
+            {
+              "id": "lifestyle_4f8c452979cc",
+              "label": "鉄道"
+            },
+            {
+              "id": "lifestyle_d79d01af84fe",
+              "label": "カメラ・撮影"
+            },
+            {
+              "id": "lifestyle_fa4b391d1a91",
+              "label": "占い（趣味）"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "travel",
+      "label": "旅行・紀行・アウトドア",
+      "treeStyleId": "palm",
+      "groups": [
+        {
+          "label": "旅の形",
+          "subgenres": [
+            {
+              "id": "travel_7a9be3e3c7e9",
+              "label": "国内旅行"
+            },
+            {
+              "id": "travel_7c85d44dea65",
+              "label": "海外旅行"
+            },
+            {
+              "id": "travel_33d343699d66",
+              "label": "一人旅"
+            },
+            {
+              "id": "travel_14dd4b1729c8",
+              "label": "家族旅行"
+            },
+            {
+              "id": "travel_fb6d502a1f92",
+              "label": "バックパッキング"
+            },
+            {
+              "id": "travel_1883fd10e4af",
+              "label": "鉄道旅行"
+            },
+            {
+              "id": "travel_a883204232ce",
+              "label": "自転車旅行"
+            },
+            {
+              "id": "travel_8c6197088d84",
+              "label": "ドライブ旅行"
+            },
+            {
+              "id": "travel_cf9fd36c8454",
+              "label": "船旅・クルーズ"
+            },
+            {
+              "id": "travel_feb139582ae7",
+              "label": "徒歩旅行・巡礼"
+            },
+            {
+              "id": "travel_0e4396997312",
+              "label": "島旅"
+            },
+            {
+              "id": "travel_9841fe4d970c",
+              "label": "自然・秘境旅"
+            }
+          ]
+        },
+        {
+          "label": "読む旅",
+          "subgenres": [
+            {
+              "id": "travel_4520f1c1c087",
+              "label": "紀行文"
+            },
+            {
+              "id": "travel_2c357f65bf27",
+              "label": "旅行記"
+            },
+            {
+              "id": "travel_309ac59ab7c1",
+              "label": "旅行ガイド"
+            },
+            {
+              "id": "travel_93f6fce293a0",
+              "label": "地図ガイド"
+            },
+            {
+              "id": "travel_8ab9e93dc397",
+              "label": "文化・街歩き"
+            },
+            {
+              "id": "travel_3c907b2d9007",
+              "label": "グルメ旅"
+            },
+            {
+              "id": "travel_58dc25a5eada",
+              "label": "旅の写真集"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "poetry_drama",
+      "label": "詩歌・戯曲",
+      "treeStyleId": "willow",
+      "groups": [
+        {
+          "label": "詩歌",
+          "subgenres": [
+            {
+              "id": "poetry_drama_154ca4ee5da5",
+              "label": "現代詩"
+            },
+            {
+              "id": "poetry_drama_a7b27ff91a62",
+              "label": "近代詩"
+            },
+            {
+              "id": "poetry_drama_69bc01bff80f",
+              "label": "古典詩"
+            },
+            {
+              "id": "poetry_drama_8705878ba9d9",
+              "label": "自由詩"
+            },
+            {
+              "id": "poetry_drama_dbf95d5d1a85",
+              "label": "散文詩"
+            },
+            {
+              "id": "poetry_drama_477cb141e384",
+              "label": "短歌"
+            },
+            {
+              "id": "poetry_drama_a9c65afe045e",
+              "label": "俳句"
+            },
+            {
+              "id": "poetry_drama_78bce951a993",
+              "label": "川柳"
+            },
+            {
+              "id": "poetry_drama_02c04cbfb48c",
+              "label": "和歌"
+            },
+            {
+              "id": "poetry_drama_1f6c07165f8b",
+              "label": "漢詩"
+            },
+            {
+              "id": "poetry_drama_dc5cda64d7a2",
+              "label": "海外詩"
+            },
+            {
+              "id": "poetry_drama_ebb149a199a4",
+              "label": "詩論・詩歌評論"
+            }
+          ]
+        },
+        {
+          "label": "戯曲・脚本",
+          "subgenres": [
+            {
+              "id": "poetry_drama_dd35134c5b01",
+              "label": "演劇戯曲"
+            },
+            {
+              "id": "poetry_drama_09081b9a0f18",
+              "label": "古典戯曲"
+            },
+            {
+              "id": "poetry_drama_c0d871c564f8",
+              "label": "現代戯曲"
+            },
+            {
+              "id": "poetry_drama_400c36ceec02",
+              "label": "映画脚本"
+            },
+            {
+              "id": "poetry_drama_14e4eed1e1e7",
+              "label": "テレビ脚本"
+            },
+            {
+              "id": "poetry_drama_4cdeb655ab06",
+              "label": "ミュージカル台本"
+            },
+            {
+              "id": "poetry_drama_dd52d68a916b",
+              "label": "シナリオ創作論"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "comics_children",
+      "label": "漫画・絵本・児童書",
+      "treeStyleId": "poplar",
+      "groups": [
+        {
+          "label": "漫画",
+          "subgenres": [
+            {
+              "id": "comics_children_6efd4baa7934",
+              "label": "少年漫画"
+            },
+            {
+              "id": "comics_children_0a983bd86a74",
+              "label": "少女漫画"
+            },
+            {
+              "id": "comics_children_113f463180db",
+              "label": "青年漫画"
+            },
+            {
+              "id": "comics_children_237be79e4921",
+              "label": "女性向け漫画"
+            },
+            {
+              "id": "comics_children_9ebc298de900",
+              "label": "4コマ漫画"
+            },
+            {
+              "id": "comics_children_35d18ab4fa6e",
+              "label": "ギャグ漫画"
+            },
+            {
+              "id": "comics_children_a15410c24b57",
+              "label": "日常漫画"
+            },
+            {
+              "id": "comics_children_57bf94d3be14",
+              "label": "スポーツ漫画"
+            },
+            {
+              "id": "comics_children_7d81c690eeb5",
+              "label": "バトル漫画"
+            },
+            {
+              "id": "comics_children_33f7856d6717",
+              "label": "ファンタジー漫画"
+            },
+            {
+              "id": "comics_children_bb1ba35e1c12",
+              "label": "SF漫画"
+            },
+            {
+              "id": "comics_children_07b3eb54b0c9",
+              "label": "ミステリー漫画"
+            },
+            {
+              "id": "comics_children_6c9e1e3d5cf2",
+              "label": "歴史漫画"
+            },
+            {
+              "id": "comics_children_4c5e622e006e",
+              "label": "学習漫画"
+            },
+            {
+              "id": "comics_children_f92bd5bc5c7b",
+              "label": "グラフィックノベル"
+            }
+          ]
+        },
+        {
+          "label": "児童・絵本",
+          "subgenres": [
+            {
+              "id": "comics_children_22419e6dd94b",
+              "label": "絵本"
+            },
+            {
+              "id": "comics_children_1e2e032514f5",
+              "label": "しかけ絵本"
+            },
+            {
+              "id": "comics_children_99b60efaf05a",
+              "label": "児童文学"
+            },
+            {
+              "id": "comics_children_497b9ce9d8d6",
+              "label": "童話"
+            },
+            {
+              "id": "comics_children_d5f393add0e4",
+              "label": "昔話・民話"
+            },
+            {
+              "id": "comics_children_e6fe186c2d68",
+              "label": "YA向け読み物"
+            },
+            {
+              "id": "comics_children_e5a34d9a4ab3",
+              "label": "児童向け科学"
+            },
+            {
+              "id": "comics_children_1a4a22354977",
+              "label": "児童向け歴史"
+            },
+            {
+              "id": "comics_children_cae6a7861ebf",
+              "label": "読み聞かせ"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "other",
+      "label": "その他・未分類",
+      "treeStyleId": "default",
+      "groups": [
+        {
+          "label": "その他",
+          "subgenres": [
+            {
+              "id": "other_a55c68babdc8",
+              "label": "図鑑・事典"
+            },
+            {
+              "id": "other_368bdf575173",
+              "label": "辞書・リファレンス"
+            },
+            {
+              "id": "other_5b08e9f93a9a",
+              "label": "雑学・総合教養"
+            },
+            {
+              "id": "other_28052d043b98",
+              "label": "その他"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

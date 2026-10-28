@@ -1,0 +1,458 @@
+.surface {
+  --forest-green: #285d4a;
+  color: #263b35;
+  letter-spacing: 0;
+}
+.surface button,
+.surface a,
+.surface input,
+.surface select {
+  touch-action: manipulation;
+}
+.surface button:focus-visible,
+.surface a:focus-visible,
+.surface select:focus-visible,
+.surface input:focus-visible,
+.surface summary:focus-visible {
+  outline: 3px solid #3c8268;
+  outline-offset: 3px;
+}
+.surface button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.control {
+  min-height: 44px;
+  border: 1px solid #bbcfc5;
+  border-radius: 6px;
+  background: white;
+  padding: 8px 12px;
+  font-size: 14px;
+  max-width: 100%;
+}
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid #b5c9bf;
+  background: white;
+  border-radius: 6px;
+  font-size: 14px;
+  text-align: center;
+}
+.button:hover:not(:disabled) {
+  background: #eef5f1;
+}
+.primary {
+  color: white;
+  background: #285d4a;
+  border-color: #285d4a;
+}
+.primary:hover:not(:disabled) {
+  background: #214e3e;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 4px;
+  background: #edf3ef;
+  padding: 4px 8px;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.scene {
+  background: #f1f6f2;
+  border-bottom: 1px solid #d9e6df;
+}
+.tree {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.pulse {
+  transform-origin: 50% 95%;
+  animation: forest-grow 0.45s ease-out;
+}
+@keyframes forest-grow {
+  0% {
+    transform: scale(0.98);
+  }
+  40% {
+    transform: scale(1.025) rotate(1deg);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.region {
+  fill: #e4ece7;
+  stroke: #8ca69b;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  cursor: pointer;
+}
+.region:hover,
+.region:focus {
+  fill: #bbd7c7;
+  stroke: #285d4a;
+  outline: none;
+}
+.regionActive {
+  fill: #c3dece;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pulse {
+    animation: none;
+  }
+}
+
+.atlasWorkspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 296px;
+  align-items: start;
+  gap: 24px;
+}
+.atlasPrimary {
+  min-width: 0;
+}
+.atlasAside {
+  min-width: 0;
+  position: sticky;
+  top: 24px;
+}
+.workDetails {
+  padding: 14px;
+  border-left: 2px solid #b9cfc0;
+  background: #f4f7f2;
+  overflow-wrap: anywhere;
+}
+.workDetails .chip {
+  padding: 2px 6px;
+  font-size: 11px;
+  line-height: 16px;
+}
+.detailAction {
+  min-height: 38px;
+  padding: 6px 10px;
+  gap: 6px;
+  font-size: 12px;
+}
+.summaryLinks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  max-width: 440px;
+}
+.summaryLink {
+  min-width: 0;
+  gap: 6px;
+  padding: 8px 2px;
+  font-size: 13px;
+}
+.summaryLink svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+.eraSummary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0 24px;
+}
+.eraFilter {
+  display: flex;
+  min-height: 42px;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 3px solid var(--era-color);
+  padding: 6px 10px;
+  font-size: 12px;
+}
+.eraFilter[aria-pressed="true"] {
+  background: #e5eee7;
+  box-shadow: inset 0 0 0 1px #8baa99;
+}
+.eraFilter strong {
+  font-size: 16px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.mapCanvas {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 960 / 570;
+  min-height: 300px;
+  background: #edf3f0;
+  overflow: hidden;
+}
+.mapSvg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+}
+.mapPlane {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  aspect-ratio: 960 / 570;
+  transform: translateY(-50%);
+}
+.mapMarkers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.forestMarker,
+.bookMarker {
+  position: absolute;
+  transform: translate(-50%, -88%);
+  pointer-events: auto;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.forestMarker {
+  width: 100px;
+  height: 100px;
+}
+.mapLeader {
+  stroke: #8da79a;
+  fill: #557563;
+  stroke-width: 1;
+  pointer-events: none;
+}
+.markerTrees {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.markerTree {
+  position: absolute;
+  width: 70px;
+  height: 84px;
+  top: 0;
+  margin-left: 15px;
+}
+.markerCount {
+  position: absolute;
+  right: 3px;
+  bottom: 22px;
+  display: grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 4px;
+  border-radius: 50%;
+  background: #285d4a;
+  color: white;
+  border: 1px solid white;
+  font-size: 11px;
+  font-weight: 600;
+}
+.markerRegion {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  min-height: 20px;
+  font-size: 11px;
+  text-align: center;
+  color: #244337;
+  text-shadow:
+    0 0 3px white,
+    0 0 3px white;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.forestMarker:hover {
+  background: #ffffff55;
+}
+.bookMarker {
+  aspect-ratio: 200 / 240;
+  border: 1px solid transparent;
+}
+.bookMarkerSelected {
+  border-color: #5d8d72;
+  background: #ffffff70;
+}
+.timeline {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(58px, 1fr));
+  gap: 28px 0;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.timeline > li {
+  min-width: 0;
+}
+.timelineYear {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: Georgia, serif;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.timelinePeriod .timelineYear {
+  font-size: 10px;
+  color: #7a8a80;
+}
+.timelineAxis {
+  position: relative;
+  height: 24px;
+  display: block;
+}
+.timelineAxis::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 10px;
+  border-top: 1px solid var(--era-color);
+}
+.timelineAxis::after {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  height: 18px;
+  border-left: 1px solid var(--era-color);
+}
+.timelineAxis > span {
+  position: absolute;
+  top: 5px;
+  left: calc(50% - 6px);
+  height: 12px;
+  width: 12px;
+  border: 2px solid var(--color-bg-base, #f6f4ed);
+  border-radius: 50%;
+  background: var(--era-color);
+}
+.periodName {
+  display: block;
+  margin: 12px auto;
+  width: 1.7em;
+  padding-right: 3px;
+  border-right: 2px solid var(--era-color);
+  writing-mode: vertical-rl;
+  font-family: serif;
+  font-size: 15px;
+  color: #365646;
+}
+.workStrip {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: calc(100% - 4px);
+  height: 380px;
+  margin: 0 2px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  padding: 4px 0;
+  text-align: center;
+}
+.workStrip:hover {
+  background: #e7eee4;
+}
+.workStripSelected {
+  background: #e6eddf;
+  border-color: #88a48c;
+}
+.stripRegion {
+  display: block;
+  height: 36px;
+  flex-shrink: 0;
+  font-size: 9px;
+  line-height: 11px;
+  overflow: hidden;
+  color: #6b8076;
+}
+.stripColumns {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: center;
+  gap: 3px;
+  height: 248px;
+  flex-shrink: 0;
+  margin: 5px 0 10px;
+}
+.stripTitle {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  height: 248px;
+  width: 16px;
+  font-family: serif;
+  font-size: 13px;
+  line-height: 16px;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.stripAuthor {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  height: 248px;
+  width: 11px;
+  font-size: 9px;
+  line-height: 11px;
+  text-align: left;
+  color: #6b8076;
+  overflow-wrap: anywhere;
+}
+.stripGenre {
+  display: block;
+  height: 44px;
+  flex-shrink: 0;
+  padding-top: 3px;
+  font-size: 9px;
+  line-height: 12px;
+  overflow-wrap: anywhere;
+  overflow: hidden;
+  color: #6b8076;
+}
+.stripStatus {
+  display: block;
+  padding-top: 5px;
+  font-size: 10px;
+  color: #6b8076;
+}
+@media (max-width: 1023px) {
+  .atlasWorkspace {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+  .atlasAside {
+    position: static;
+  }
+  .workDetails {
+    border-left-width: 0;
+    border-top: 2px solid #b9cfc0;
+  }
+}
+@media (max-width: 639px) {
+  .eraSummary {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+  .eraFilter {
+    flex-shrink: 0;
+  }
+  .mapCanvas {
+    min-height: 320px;
+  }
+  .timeline {
+    grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+  }
+}

@@ -1,0 +1,1142 @@
+{
+  "world": [
+    {
+      "code": "IS",
+      "label": "アイスランド"
+    },
+    {
+      "code": "IE",
+      "label": "アイルランド"
+    },
+    {
+      "code": "AZ",
+      "label": "アゼルバイジャン"
+    },
+    {
+      "code": "AF",
+      "label": "アフガニスタン"
+    },
+    {
+      "code": "US",
+      "label": "アメリカ合衆国"
+    },
+    {
+      "code": "AE",
+      "label": "アラブ首長国連邦"
+    },
+    {
+      "code": "DZ",
+      "label": "アルジェリア"
+    },
+    {
+      "code": "AR",
+      "label": "アルゼンチン"
+    },
+    {
+      "code": "AW",
+      "label": "アルバ"
+    },
+    {
+      "code": "AL",
+      "label": "アルバニア"
+    },
+    {
+      "code": "AM",
+      "label": "アルメニア"
+    },
+    {
+      "code": "AI",
+      "label": "アンギラ"
+    },
+    {
+      "code": "AO",
+      "label": "アンゴラ"
+    },
+    {
+      "code": "AG",
+      "label": "アンティグア・バーブーダ"
+    },
+    {
+      "code": "AD",
+      "label": "アンドラ"
+    },
+    {
+      "code": "YE",
+      "label": "イエメン"
+    },
+    {
+      "code": "GB",
+      "label": "イギリス"
+    },
+    {
+      "code": "IL",
+      "label": "イスラエル"
+    },
+    {
+      "code": "IT",
+      "label": "イタリア"
+    },
+    {
+      "code": "IQ",
+      "label": "イラク"
+    },
+    {
+      "code": "IR",
+      "label": "イラン"
+    },
+    {
+      "code": "IN",
+      "label": "インド"
+    },
+    {
+      "code": "ID",
+      "label": "インドネシア"
+    },
+    {
+      "code": "WF",
+      "label": "ウォリス・フツナ"
+    },
+    {
+      "code": "UG",
+      "label": "ウガンダ"
+    },
+    {
+      "code": "UA",
+      "label": "ウクライナ"
+    },
+    {
+      "code": "UZ",
+      "label": "ウズベキスタン"
+    },
+    {
+      "code": "UY",
+      "label": "ウルグアイ"
+    },
+    {
+      "code": "EC",
+      "label": "エクアドル"
+    },
+    {
+      "code": "EG",
+      "label": "エジプト"
+    },
+    {
+      "code": "EE",
+      "label": "エストニア"
+    },
+    {
+      "code": "SZ",
+      "label": "エスワティニ"
+    },
+    {
+      "code": "ET",
+      "label": "エチオピア"
+    },
+    {
+      "code": "ER",
+      "label": "エリトリア"
+    },
+    {
+      "code": "SV",
+      "label": "エルサルバドル"
+    },
+    {
+      "code": "AU",
+      "label": "オーストラリア"
+    },
+    {
+      "code": "AT",
+      "label": "オーストリア"
+    },
+    {
+      "code": "AX",
+      "label": "オーランド諸島"
+    },
+    {
+      "code": "OM",
+      "label": "オマーン"
+    },
+    {
+      "code": "NL",
+      "label": "オランダ"
+    },
+    {
+      "code": "GH",
+      "label": "ガーナ"
+    },
+    {
+      "code": "CV",
+      "label": "カーボベルデ"
+    },
+    {
+      "code": "GG",
+      "label": "ガーンジー"
+    },
+    {
+      "code": "GY",
+      "label": "ガイアナ"
+    },
+    {
+      "code": "KZ",
+      "label": "カザフスタン"
+    },
+    {
+      "code": "QA",
+      "label": "カタール"
+    },
+    {
+      "code": "CA",
+      "label": "カナダ"
+    },
+    {
+      "code": "GA",
+      "label": "ガボン"
+    },
+    {
+      "code": "CM",
+      "label": "カメルーン"
+    },
+    {
+      "code": "GM",
+      "label": "ガンビア"
+    },
+    {
+      "code": "KH",
+      "label": "カンボジア"
+    },
+    {
+      "code": "GN",
+      "label": "ギニア"
+    },
+    {
+      "code": "GW",
+      "label": "ギニアビサウ"
+    },
+    {
+      "code": "CY",
+      "label": "キプロス"
+    },
+    {
+      "code": "CU",
+      "label": "キューバ"
+    },
+    {
+      "code": "CW",
+      "label": "キュラソー"
+    },
+    {
+      "code": "GR",
+      "label": "ギリシャ"
+    },
+    {
+      "code": "KI",
+      "label": "キリバス"
+    },
+    {
+      "code": "KG",
+      "label": "キルギス"
+    },
+    {
+      "code": "GT",
+      "label": "グアテマラ"
+    },
+    {
+      "code": "GU",
+      "label": "グアム"
+    },
+    {
+      "code": "KW",
+      "label": "クウェート"
+    },
+    {
+      "code": "CK",
+      "label": "クック諸島"
+    },
+    {
+      "code": "GL",
+      "label": "グリーンランド"
+    },
+    {
+      "code": "GD",
+      "label": "グレナダ"
+    },
+    {
+      "code": "HR",
+      "label": "クロアチア"
+    },
+    {
+      "code": "KY",
+      "label": "ケイマン諸島"
+    },
+    {
+      "code": "KE",
+      "label": "ケニア"
+    },
+    {
+      "code": "CI",
+      "label": "コートジボワール"
+    },
+    {
+      "code": "CR",
+      "label": "コスタリカ"
+    },
+    {
+      "code": "XK",
+      "label": "コソボ"
+    },
+    {
+      "code": "KM",
+      "label": "コモロ"
+    },
+    {
+      "code": "CO",
+      "label": "コロンビア"
+    },
+    {
+      "code": "CG",
+      "label": "コンゴ共和国(ブラザビル)"
+    },
+    {
+      "code": "CD",
+      "label": "コンゴ民主共和国(キンシャサ)"
+    },
+    {
+      "code": "SA",
+      "label": "サウジアラビア"
+    },
+    {
+      "code": "GS",
+      "label": "サウスジョージア・サウスサンドウィッチ諸島"
+    },
+    {
+      "code": "WS",
+      "label": "サモア"
+    },
+    {
+      "code": "BL",
+      "label": "サン・バルテルミー"
+    },
+    {
+      "code": "MF",
+      "label": "サン・マルタン"
+    },
+    {
+      "code": "ST",
+      "label": "サントメ・プリンシペ"
+    },
+    {
+      "code": "ZM",
+      "label": "ザンビア"
+    },
+    {
+      "code": "PM",
+      "label": "サンピエール島・ミクロン島"
+    },
+    {
+      "code": "SM",
+      "label": "サンマリノ"
+    },
+    {
+      "code": "SL",
+      "label": "シエラレオネ"
+    },
+    {
+      "code": "DJ",
+      "label": "ジブチ"
+    },
+    {
+      "code": "JE",
+      "label": "ジャージー"
+    },
+    {
+      "code": "JM",
+      "label": "ジャマイカ"
+    },
+    {
+      "code": "GE",
+      "label": "ジョージア"
+    },
+    {
+      "code": "SY",
+      "label": "シリア"
+    },
+    {
+      "code": "SG",
+      "label": "シンガポール"
+    },
+    {
+      "code": "SX",
+      "label": "シント・マールテン"
+    },
+    {
+      "code": "ZW",
+      "label": "ジンバブエ"
+    },
+    {
+      "code": "CH",
+      "label": "スイス"
+    },
+    {
+      "code": "SE",
+      "label": "スウェーデン"
+    },
+    {
+      "code": "SD",
+      "label": "スーダン"
+    },
+    {
+      "code": "ES",
+      "label": "スペイン"
+    },
+    {
+      "code": "SR",
+      "label": "スリナム"
+    },
+    {
+      "code": "LK",
+      "label": "スリランカ"
+    },
+    {
+      "code": "SK",
+      "label": "スロバキア"
+    },
+    {
+      "code": "SI",
+      "label": "スロベニア"
+    },
+    {
+      "code": "SC",
+      "label": "セーシェル"
+    },
+    {
+      "code": "SN",
+      "label": "セネガル"
+    },
+    {
+      "code": "RS",
+      "label": "セルビア"
+    },
+    {
+      "code": "KN",
+      "label": "セントクリストファー・ネーヴィス"
+    },
+    {
+      "code": "VC",
+      "label": "セントビンセント及びグレナディーン諸島"
+    },
+    {
+      "code": "SH",
+      "label": "セントヘレナ"
+    },
+    {
+      "code": "LC",
+      "label": "セントルシア"
+    },
+    {
+      "code": "SO",
+      "label": "ソマリア"
+    },
+    {
+      "code": "SB",
+      "label": "ソロモン諸島"
+    },
+    {
+      "code": "TC",
+      "label": "タークス・カイコス諸島"
+    },
+    {
+      "code": "TH",
+      "label": "タイ"
+    },
+    {
+      "code": "TJ",
+      "label": "タジキスタン"
+    },
+    {
+      "code": "TZ",
+      "label": "タンザニア"
+    },
+    {
+      "code": "CZ",
+      "label": "チェコ"
+    },
+    {
+      "code": "TD",
+      "label": "チャド"
+    },
+    {
+      "code": "TN",
+      "label": "チュニジア"
+    },
+    {
+      "code": "CL",
+      "label": "チリ"
+    },
+    {
+      "code": "TV",
+      "label": "ツバル"
+    },
+    {
+      "code": "DK",
+      "label": "デンマーク"
+    },
+    {
+      "code": "DE",
+      "label": "ドイツ"
+    },
+    {
+      "code": "TG",
+      "label": "トーゴ"
+    },
+    {
+      "code": "DO",
+      "label": "ドミニカ共和国"
+    },
+    {
+      "code": "DM",
+      "label": "ドミニカ国"
+    },
+    {
+      "code": "TT",
+      "label": "トリニダード・トバゴ"
+    },
+    {
+      "code": "TM",
+      "label": "トルクメニスタン"
+    },
+    {
+      "code": "TR",
+      "label": "トルコ"
+    },
+    {
+      "code": "TO",
+      "label": "トンガ"
+    },
+    {
+      "code": "NG",
+      "label": "ナイジェリア"
+    },
+    {
+      "code": "NR",
+      "label": "ナウル"
+    },
+    {
+      "code": "NA",
+      "label": "ナミビア"
+    },
+    {
+      "code": "NU",
+      "label": "ニウエ"
+    },
+    {
+      "code": "NI",
+      "label": "ニカラグア"
+    },
+    {
+      "code": "NE",
+      "label": "ニジェール"
+    },
+    {
+      "code": "NC",
+      "label": "ニューカレドニア"
+    },
+    {
+      "code": "NZ",
+      "label": "ニュージーランド"
+    },
+    {
+      "code": "NP",
+      "label": "ネパール"
+    },
+    {
+      "code": "NF",
+      "label": "ノーフォーク島"
+    },
+    {
+      "code": "NO",
+      "label": "ノルウェー"
+    },
+    {
+      "code": "HM",
+      "label": "ハード島・マクドナルド諸島"
+    },
+    {
+      "code": "BH",
+      "label": "バーレーン"
+    },
+    {
+      "code": "HT",
+      "label": "ハイチ"
+    },
+    {
+      "code": "PK",
+      "label": "パキスタン"
+    },
+    {
+      "code": "VA",
+      "label": "バチカン市国"
+    },
+    {
+      "code": "PA",
+      "label": "パナマ"
+    },
+    {
+      "code": "VU",
+      "label": "バヌアツ"
+    },
+    {
+      "code": "BS",
+      "label": "バハマ"
+    },
+    {
+      "code": "PG",
+      "label": "パプアニューギニア"
+    },
+    {
+      "code": "BM",
+      "label": "バミューダ"
+    },
+    {
+      "code": "PW",
+      "label": "パラオ"
+    },
+    {
+      "code": "PY",
+      "label": "パラグアイ"
+    },
+    {
+      "code": "BB",
+      "label": "バルバドス"
+    },
+    {
+      "code": "PS",
+      "label": "パレスチナ自治区"
+    },
+    {
+      "code": "HU",
+      "label": "ハンガリー"
+    },
+    {
+      "code": "BD",
+      "label": "バングラデシュ"
+    },
+    {
+      "code": "PN",
+      "label": "ピトケアン諸島"
+    },
+    {
+      "code": "FJ",
+      "label": "フィジー"
+    },
+    {
+      "code": "PH",
+      "label": "フィリピン"
+    },
+    {
+      "code": "FI",
+      "label": "フィンランド"
+    },
+    {
+      "code": "BT",
+      "label": "ブータン"
+    },
+    {
+      "code": "PR",
+      "label": "プエルトリコ"
+    },
+    {
+      "code": "FO",
+      "label": "フェロー諸島"
+    },
+    {
+      "code": "FK",
+      "label": "フォークランド諸島"
+    },
+    {
+      "code": "BR",
+      "label": "ブラジル"
+    },
+    {
+      "code": "FR",
+      "label": "フランス"
+    },
+    {
+      "code": "BG",
+      "label": "ブルガリア"
+    },
+    {
+      "code": "BF",
+      "label": "ブルキナファソ"
+    },
+    {
+      "code": "BN",
+      "label": "ブルネイ"
+    },
+    {
+      "code": "BI",
+      "label": "ブルンジ"
+    },
+    {
+      "code": "VN",
+      "label": "ベトナム"
+    },
+    {
+      "code": "BJ",
+      "label": "ベナン"
+    },
+    {
+      "code": "VE",
+      "label": "ベネズエラ"
+    },
+    {
+      "code": "BY",
+      "label": "ベラルーシ"
+    },
+    {
+      "code": "BZ",
+      "label": "ベリーズ"
+    },
+    {
+      "code": "PE",
+      "label": "ペルー"
+    },
+    {
+      "code": "BE",
+      "label": "ベルギー"
+    },
+    {
+      "code": "PL",
+      "label": "ポーランド"
+    },
+    {
+      "code": "BA",
+      "label": "ボスニア・ヘルツェゴビナ"
+    },
+    {
+      "code": "BW",
+      "label": "ボツワナ"
+    },
+    {
+      "code": "BO",
+      "label": "ボリビア"
+    },
+    {
+      "code": "PT",
+      "label": "ポルトガル"
+    },
+    {
+      "code": "HN",
+      "label": "ホンジュラス"
+    },
+    {
+      "code": "MH",
+      "label": "マーシャル諸島"
+    },
+    {
+      "code": "MG",
+      "label": "マダガスカル"
+    },
+    {
+      "code": "MW",
+      "label": "マラウイ"
+    },
+    {
+      "code": "ML",
+      "label": "マリ"
+    },
+    {
+      "code": "MT",
+      "label": "マルタ"
+    },
+    {
+      "code": "MY",
+      "label": "マレーシア"
+    },
+    {
+      "code": "IM",
+      "label": "マン島"
+    },
+    {
+      "code": "FM",
+      "label": "ミクロネシア連邦"
+    },
+    {
+      "code": "MM",
+      "label": "ミャンマー (ビルマ)"
+    },
+    {
+      "code": "MX",
+      "label": "メキシコ"
+    },
+    {
+      "code": "MU",
+      "label": "モーリシャス"
+    },
+    {
+      "code": "MR",
+      "label": "モーリタニア"
+    },
+    {
+      "code": "MZ",
+      "label": "モザンビーク"
+    },
+    {
+      "code": "MC",
+      "label": "モナコ"
+    },
+    {
+      "code": "MV",
+      "label": "モルディブ"
+    },
+    {
+      "code": "MD",
+      "label": "モルドバ"
+    },
+    {
+      "code": "MA",
+      "label": "モロッコ"
+    },
+    {
+      "code": "MN",
+      "label": "モンゴル"
+    },
+    {
+      "code": "ME",
+      "label": "モンテネグロ"
+    },
+    {
+      "code": "MS",
+      "label": "モントセラト"
+    },
+    {
+      "code": "JO",
+      "label": "ヨルダン"
+    },
+    {
+      "code": "LA",
+      "label": "ラオス"
+    },
+    {
+      "code": "LV",
+      "label": "ラトビア"
+    },
+    {
+      "code": "LT",
+      "label": "リトアニア"
+    },
+    {
+      "code": "LY",
+      "label": "リビア"
+    },
+    {
+      "code": "LI",
+      "label": "リヒテンシュタイン"
+    },
+    {
+      "code": "LR",
+      "label": "リベリア"
+    },
+    {
+      "code": "RO",
+      "label": "ルーマニア"
+    },
+    {
+      "code": "LU",
+      "label": "ルクセンブルク"
+    },
+    {
+      "code": "RW",
+      "label": "ルワンダ"
+    },
+    {
+      "code": "LS",
+      "label": "レソト"
+    },
+    {
+      "code": "LB",
+      "label": "レバノン"
+    },
+    {
+      "code": "RU",
+      "label": "ロシア"
+    },
+    {
+      "code": "IO",
+      "label": "英領インド洋地域"
+    },
+    {
+      "code": "VG",
+      "label": "英領ヴァージン諸島"
+    },
+    {
+      "code": "KR",
+      "label": "韓国"
+    },
+    {
+      "code": "EH",
+      "label": "西サハラ"
+    },
+    {
+      "code": "GQ",
+      "label": "赤道ギニア"
+    },
+    {
+      "code": "TW",
+      "label": "台湾"
+    },
+    {
+      "code": "CF",
+      "label": "中央アフリカ共和国"
+    },
+    {
+      "code": "MO",
+      "label": "中華人民共和国マカオ特別行政区"
+    },
+    {
+      "code": "HK",
+      "label": "中華人民共和国香港特別行政区"
+    },
+    {
+      "code": "CN",
+      "label": "中国"
+    },
+    {
+      "code": "TL",
+      "label": "東ティモール"
+    },
+    {
+      "code": "ZA",
+      "label": "南アフリカ"
+    },
+    {
+      "code": "SS",
+      "label": "南スーダン"
+    },
+    {
+      "code": "AQ",
+      "label": "南極"
+    },
+    {
+      "code": "JP",
+      "label": "日本"
+    },
+    {
+      "code": "PF",
+      "label": "仏領ポリネシア"
+    },
+    {
+      "code": "TF",
+      "label": "仏領極南諸島"
+    },
+    {
+      "code": "VI",
+      "label": "米領ヴァージン諸島"
+    },
+    {
+      "code": "AS",
+      "label": "米領サモア"
+    },
+    {
+      "code": "MK",
+      "label": "北マケドニア"
+    },
+    {
+      "code": "MP",
+      "label": "北マリアナ諸島"
+    },
+    {
+      "code": "KP",
+      "label": "北朝鮮"
+    }
+  ],
+  "japan": [
+    {
+      "code": "JP-01",
+      "label": "北海道"
+    },
+    {
+      "code": "JP-02",
+      "label": "青森県"
+    },
+    {
+      "code": "JP-03",
+      "label": "岩手県"
+    },
+    {
+      "code": "JP-04",
+      "label": "宮城県"
+    },
+    {
+      "code": "JP-05",
+      "label": "秋田県"
+    },
+    {
+      "code": "JP-06",
+      "label": "山形県"
+    },
+    {
+      "code": "JP-07",
+      "label": "福島県"
+    },
+    {
+      "code": "JP-08",
+      "label": "茨城県"
+    },
+    {
+      "code": "JP-09",
+      "label": "栃木県"
+    },
+    {
+      "code": "JP-10",
+      "label": "群馬県"
+    },
+    {
+      "code": "JP-11",
+      "label": "埼玉県"
+    },
+    {
+      "code": "JP-12",
+      "label": "千葉県"
+    },
+    {
+      "code": "JP-13",
+      "label": "東京都"
+    },
+    {
+      "code": "JP-14",
+      "label": "神奈川県"
+    },
+    {
+      "code": "JP-15",
+      "label": "新潟県"
+    },
+    {
+      "code": "JP-16",
+      "label": "富山県"
+    },
+    {
+      "code": "JP-17",
+      "label": "石川県"
+    },
+    {
+      "code": "JP-18",
+      "label": "福井県"
+    },
+    {
+      "code": "JP-19",
+      "label": "山梨県"
+    },
+    {
+      "code": "JP-20",
+      "label": "長野県"
+    },
+    {
+      "code": "JP-21",
+      "label": "岐阜県"
+    },
+    {
+      "code": "JP-22",
+      "label": "静岡県"
+    },
+    {
+      "code": "JP-23",
+      "label": "愛知県"
+    },
+    {
+      "code": "JP-24",
+      "label": "三重県"
+    },
+    {
+      "code": "JP-25",
+      "label": "滋賀県"
+    },
+    {
+      "code": "JP-26",
+      "label": "京都府"
+    },
+    {
+      "code": "JP-27",
+      "label": "大阪府"
+    },
+    {
+      "code": "JP-28",
+      "label": "兵庫県"
+    },
+    {
+      "code": "JP-29",
+      "label": "奈良県"
+    },
+    {
+      "code": "JP-30",
+      "label": "和歌山県"
+    },
+    {
+      "code": "JP-31",
+      "label": "鳥取県"
+    },
+    {
+      "code": "JP-32",
+      "label": "島根県"
+    },
+    {
+      "code": "JP-33",
+      "label": "岡山県"
+    },
+    {
+      "code": "JP-34",
+      "label": "広島県"
+    },
+    {
+      "code": "JP-35",
+      "label": "山口県"
+    },
+    {
+      "code": "JP-36",
+      "label": "徳島県"
+    },
+    {
+      "code": "JP-37",
+      "label": "香川県"
+    },
+    {
+      "code": "JP-38",
+      "label": "愛媛県"
+    },
+    {
+      "code": "JP-39",
+      "label": "高知県"
+    },
+    {
+      "code": "JP-40",
+      "label": "福岡県"
+    },
+    {
+      "code": "JP-41",
+      "label": "佐賀県"
+    },
+    {
+      "code": "JP-42",
+      "label": "長崎県"
+    },
+    {
+      "code": "JP-43",
+      "label": "熊本県"
+    },
+    {
+      "code": "JP-44",
+      "label": "大分県"
+    },
+    {
+      "code": "JP-45",
+      "label": "宮崎県"
+    },
+    {
+      "code": "JP-46",
+      "label": "鹿児島県"
+    },
+    {
+      "code": "JP-47",
+      "label": "沖縄県"
+    }
+  ]
+}

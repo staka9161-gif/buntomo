@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { FiSettings } from "react-icons/fi";
 import { apiUrl } from "@/lib/api";
 import ProgressBar from "@/components/book/ProgressBar";
 import CurrentlyReadingList from "@/components/book/CurrentlyReadingList";
@@ -395,6 +396,15 @@ export default function BookDetailPage() {
             </div>
           </div>
         </div>
+
+        {(myReading?.status === "READING" || isCompleted) && (
+          <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-[var(--color-border-subtle)] pt-4">
+            <Link href={`/books/${book.id}/read${isCompleted ? "?settings=1" : ""}`} className="btn-primary-sm inline-flex items-center gap-2 whitespace-nowrap">
+              {isCompleted && <FiSettings aria-hidden />}
+              {isCompleted ? "地域・年代・ジャンル設定" : "本を開く"}
+            </Link>
+          </div>
+        )}
 
         {isCompleted && myReading && (
           <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-[var(--color-border-subtle)] pt-4 sm:gap-3">

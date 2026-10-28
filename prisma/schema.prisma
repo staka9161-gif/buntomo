@@ -66,6 +66,8 @@ model User {
   updateNoticesCreated UpdateNotice[] @relation("UpdateNoticeCreatedBy")
   updateNoticesUpdated UpdateNotice[] @relation("UpdateNoticeUpdatedBy")
   readingEventInterests ReadingEventInterest[]
+  literatureTrees     LiteratureTree[]
+  forestPageOperations ForestPageOperation[]
 }
 
 model AdminAuditLog {
@@ -268,6 +270,8 @@ model Book {
   events        ReadingEvent[]   @relation("EventBooks")
   reviews       Review[]
 
+  literatureTrees LiteratureTree[]
+
   @@index([title])
   @@index([titleNormalized])
   @@index([author])
@@ -452,12 +456,51 @@ model ReadingStatus {
   book    Book?    @relation(fields: [bookId], references: [id])
   work    Work?    @relation(fields: [workId], references: [id])
   edition Edition? @relation(fields: [editionId], references: [id])
+  forestPageOperations ForestPageOperation[]
 
   @@unique([userId, bookId])
   @@index([bookId, status])
   @@index([bookId, completedAt])
   @@index([workId, status])
   @@index([editionId])
+}
+
+// Classification only. Progress and completion remain on ReadingStatus.
+model LiteratureTree {
+  id                  String   @id @default(cuid())
+  userId              String
+  bookId              String
+  literatureScope     String
+  countryCode         String?
+  prefectureCode      String?
+  era                 String
+  mainGenreId         String
+  subgenreIds         String[] @default([])
+  customGenreTags     String[] @default([])
+  genreCatalogVersion Int      @default(1)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, bookId])
+}
+
+// A committed operation and its page change are written in one transaction.
+model ForestPageOperation {
+  id              String   @id @default(cuid())
+  userId          String
+  readingStatusId String
+  operationId     String
+  delta           Int
+  createdAt       DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  readingStatus ReadingStatus @relation(fields: [readingStatusId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, operationId])
+  @@index([readingStatusId])
 }
 
 model ReadingEvent {

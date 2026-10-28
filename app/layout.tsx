@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import SessionProvider from "@/components/SessionProvider";
 import Header from "@/components/Header";
+import HistoryNavigation from "@/components/HistoryNavigation";
 import Footer from "@/components/Footer";
 import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
 import ImportantAnnouncementBanner from "@/components/announcements/ImportantAnnouncementBanner";
@@ -88,6 +89,7 @@ export default function RootLayout({
         <SessionProvider>
           <SuspendedAccountGate />
           <Header />
+          <HistoryNavigation />
           <ImportantAnnouncementBanner />
           <main className="flex-1">{children}</main>
           <Footer />

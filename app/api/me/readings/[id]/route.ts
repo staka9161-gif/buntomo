@@ -90,13 +90,26 @@ export async function PATCH(
     }
 
     const updated = await prisma.readingStatus.update({
-      where: { id, userId: myId },
+      where: {
+        id,
+        userId: myId,
+        // Page validation must still hold when this write obtains the row lock.
+        ...(body.currentPage !== undefined || body.totalPages !== undefined
+          ? { currentPage: reading.currentPage, totalPages: reading.totalPages, status: reading.status }
+          : {}),
+      },
       data: updateData,
       include: { book: true },
     });
 
     return NextResponse.json({ reading: updated });
   } catch (e) {
+    if (e && typeof e === "object" && "code" in e && e.code === "P2025") {
+      return NextResponse.json(
+        { error: "別の操作で読書状態が更新されました。最新の状態を読み込んでから、もう一度お試しください" },
+        { status: 409 }
+      );
+    }
     console.error("Reading PATCH error:", e);
     return NextResponse.json({ error: "サーバーエラーが発生しました" }, { status: 500 });
   }
